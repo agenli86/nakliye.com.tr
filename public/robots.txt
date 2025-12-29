@@ -1,0 +1,15 @@
+# Adana Nakliye - Robots.txt
+# www.adananakliye.com.tr
+
+User-agent: *
+Allow: /
+
+# Admin paneli engelle
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://www.adananakliye.com.tr/sitemap.xml
+
+# Crawl-delay (opsiyonel)
+Crawl-delay: 1
