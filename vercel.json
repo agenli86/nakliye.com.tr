@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "adananakliye.com.tr"
+        }
+      ],
+      "destination": "https://www.adananakliye.com.tr/:path*",
+      "permanent": true
+    }
+  ]
+}
