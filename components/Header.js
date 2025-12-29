@@ -24,11 +24,11 @@ export default function Header({ ayarlar, menu }) {
   const logo = ayarlar?.find(a => a.anahtar === 'logo')?.deger || '/resimler/adananakliye.png'
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-lg py-2' : 'bg-white/95 backdrop-blur-sm py-4'}`}>
+    <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-lg' : 'bg-white/95 backdrop-blur-sm'}`}>
       {/* Top Bar - Desktop Only */}
       <div className={`hidden md:block text-white transition-all duration-300 ${isScrolled ? 'h-0 overflow-hidden' : 'h-auto'}`} style={{ backgroundColor: '#046ffb' }}>
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-2 text-sm">
+          <div className="flex justify-between items-center py-1.5 text-sm">
             <div className="flex items-center gap-6">
               <a href={`tel:${telefon}`} className="flex items-center gap-2 hover:text-blue-200 transition-colors">
                 <FaPhone className="text-xs" />
@@ -48,15 +48,15 @@ export default function Header({ ayarlar, menu }) {
 
       {/* Main Header */}
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
+        <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-1' : 'py-2'}`}>
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image
               src={logo}
               alt="Adana Nakliye"
-              width={180}
-              height={80}
-              className={`transition-all duration-300 ${isScrolled ? 'h-12 md:h-14' : 'h-14 md:h-16 lg:h-20'} w-auto`}
+              width={200}
+              height={70}
+              className={`transition-all duration-300 ${isScrolled ? 'h-10 md:h-12' : 'h-12 md:h-14'} w-auto`}
               priority
             />
           </Link>
@@ -102,7 +102,7 @@ export default function Header({ ayarlar, menu }) {
           <div className="hidden lg:flex items-center gap-3">
             <Link
               href="/teklif-al"
-              className="flex items-center gap-2 px-5 py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg"
               style={{ backgroundColor: '#d4ed31', color: '#1e3a5f' }}
             >
               <FaFileAlt />
@@ -110,10 +110,10 @@ export default function Header({ ayarlar, menu }) {
             </Link>
           </div>
 
-          {/* Mobile Menu Button - Only hamburger */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-3 rounded-lg transition-colors"
+            className="lg:hidden p-2 rounded-lg transition-colors"
             style={{ backgroundColor: isMobileMenuOpen ? '#f3f4f6' : 'transparent', color: '#1e3a5f' }}
           >
             {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
@@ -172,15 +172,15 @@ export default function Header({ ayarlar, menu }) {
             <Link
               href="/teklif-al"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="text-center py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 shadow-lg"
+              className="text-center py-3 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 shadow-lg"
               style={{ backgroundColor: '#d4ed31', color: '#1e3a5f' }}
             >
               <FaFileAlt />
               TEKLİF AL
             </Link>
-            <a
+            
               href={`tel:${telefon}`}
-              className="text-center py-4 rounded-xl font-semibold text-lg text-white flex items-center justify-center gap-2"
+              className="text-center py-3 rounded-xl font-semibold text-lg text-white flex items-center justify-center gap-2"
               style={{ backgroundColor: '#046ffb' }}
             >
               <FaPhone />
