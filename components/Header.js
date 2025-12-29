@@ -16,13 +16,11 @@ export default function Header({ ayarlar, menu }) {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Ayarlardan verileri al
   const telefon = ayarlar?.find(a => a.anahtar === 'telefon')?.deger || '05057805551'
   const logo = ayarlar?.find(a => a.anahtar === 'logo')?.deger || '/resimler/adananakliye.png'
   
-  // Menü işlemleri
-  const menuItems = menu?.filter(item => !item.ust_menu_id) || []
-  const getSubMenu = (parentId) => menu?.filter(item => item.ust_menu_id === parentId) || []
+  const menuItems = menu?.filter(item => !item.parent_id) || []
+  const getSubMenu = (parentId) => menu?.filter(item => item.parent_id === parentId) || []
 
   return (
     <>
@@ -50,15 +48,15 @@ export default function Header({ ayarlar, menu }) {
       {/* Main Header */}
       <header className={`sticky top-0 z-50 bg-white transition-shadow duration-300 ${isScrolled ? 'shadow-lg' : 'shadow-md'}`}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20 md:h-24">
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <Image
                 src={logo}
                 alt="Adana Nakliye"
-                width={180}
-                height={60}
-                className="h-12 w-auto"
+                width={220}
+                height={80}
+                className="h-14 md:h-16 w-auto"
                 priority
               />
             </Link>
