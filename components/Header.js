@@ -178,7 +178,7 @@ export default function Header({ ayarlar, menu }) {
               <FaFileAlt />
               TEKLİF AL
             </Link>
-            
+            <a
               href={`tel:${telefon}`}
               className="text-center py-3 rounded-xl font-semibold text-lg text-white flex items-center justify-center gap-2"
               style={{ backgroundColor: '#046ffb' }}
