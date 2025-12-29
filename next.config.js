@@ -7,47 +7,18 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-    // Optimize images
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
-    minimumCacheTTL: 31536000, // 1 yıl cache
+    minimumCacheTTL: 31536000,
   },
   
-  // Compression
   compress: true,
-  
-  // PoweredBy Header kaldır
   poweredByHeader: false,
-  
-  // Strict Mode
   reactStrictMode: true,
   
-  // SWC Minify (daha hızlı build)
-  swcMinify: true,
-  
-  // Modular Imports - React Icons için bundle size küçültme
-  modularizeImports: {
-    'react-icons/fa': {
-      transform: 'react-icons/fa/{{member}}',
-    },
-    'react-icons/hi': {
-      transform: 'react-icons/hi/{{member}}',
-    },
-    'react-icons/md': {
-      transform: 'react-icons/md/{{member}}',
-    },
-  },
-  
-  // Experimental optimizasyonlar
-  experimental: {
-    optimizeCss: true, // CSS optimize
-  },
-  
-  // ESKİ HTML URL'LERİ YENİ NEXT.JS URL'LERİNE YÖNLENDİRME (301 - SEO DOSTU)
   async redirects() {
     return [
-      // ANA SAYFALAR
       { source: '/index.html', destination: '/', permanent: true },
       { source: '/index.php', destination: '/', permanent: true },
       { source: '/anasayfa.html', destination: '/', permanent: true },
@@ -69,8 +40,6 @@ const nextConfig = {
       { source: '/faq.html', destination: '/sss', permanent: true },
       { source: '/teklif-al.html', destination: '/teklif-al', permanent: true },
       { source: '/teklif.html', destination: '/teklif-al', permanent: true },
-      
-      // HİZMET SAYFALARI
       { source: '/adana-evden-eve-nakliyat.html', destination: '/hizmet/adana-evden-eve-nakliyat', permanent: true },
       { source: '/adana-asansorlu-nakliyat.html', destination: '/hizmet/adana-asansorlu-nakliyat', permanent: true },
       { source: '/adana-sehir-ici-nakliye.html', destination: '/hizmet/adana-sehir-ici-nakliye', permanent: true },
@@ -88,16 +57,12 @@ const nextConfig = {
       { source: '/ofis-tasima.html', destination: '/hizmet/adana-ofis-tasima', permanent: true },
       { source: '/asansor-kiralama.html', destination: '/hizmet/adana-asansor-kiralama', permanent: true },
       { source: '/kamyonet-nakliyat.html', destination: '/hizmet/adana-kamyonet-nakliyat', permanent: true },
-      
-      // MAKALE / BLOG SAYFALARI
       { source: '/saricam-nakliyeci.html', destination: '/makale/saricam-nakliyeci', permanent: true },
       { source: '/cukurova-nakliyeci.html', destination: '/makale/cukurova-nakliyeci', permanent: true },
       { source: '/seyhan-nakliyeci.html', destination: '/makale/seyhan-nakliyeci', permanent: true },
       { source: '/yuregir-nakliyeci.html', destination: '/makale/yuregir-nakliyeci', permanent: true },
       { source: '/adana-nakliye-fiyatlari.html', destination: '/makale/adana-nakliye-fiyatlari', permanent: true },
       { source: '/evden-eve-nakliyat-fiyatlari.html', destination: '/makale/adana-nakliye-fiyatlari', permanent: true },
-      
-      // ESKİ KLASÖR YAPISI
       { source: '/hizmetler/:slug.html', destination: '/hizmet/:slug', permanent: true },
       { source: '/blog/:slug.html', destination: '/makale/:slug', permanent: true },
       { source: '/makale/:slug.html', destination: '/makale/:slug', permanent: true },
@@ -105,7 +70,6 @@ const nextConfig = {
     ];
   },
   
-  // Headers - Cache ve Security
   async headers() {
     return [
       {
