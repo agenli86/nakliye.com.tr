@@ -94,7 +94,7 @@ export default async function Home() {
       {websiteData && <JsonLd data={websiteData} />}
 
       <Header ayarlar={ayarlar} menu={menu} />
-      <main className="pt-[140px] md:pt-[160px]">
+      <main>
         <HeroSlider sliders={sliders} />
         
         {/* Kayan Duyuru */}
