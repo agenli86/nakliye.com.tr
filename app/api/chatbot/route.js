@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase client (server-side)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+// Supabase client (opsiyonel - hata verirse de çalışsın)
+let supabase = null
+try {
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+  }
+} catch (e) {
+  console.error('Supabase init error:', e)
+}
 
 // Sistem prompt'u - Firma bilgileri
 const SYSTEM_PROMPT = `Sen Adana Nakliye firmasının yapay zeka asistanısın. Sadece nakliyat ve taşımacılık konularında yardımcı olursun.
@@ -73,70 +80,64 @@ Fiyatlar ORTALAMA değerlerdir, kesin fiyat için keşif gerekir:
 
 // Günlük limiti kontrol et ve güncelle
 async function checkAndUpdateLimit(kimlik, ipAdresi) {
-  const today = new Date().toISOString().split('T')[0]
+  if (!supabase) return { allowed: true, remaining: 5 }
   
-  // Mevcut limiti getir
-  let { data: limit } = await supabase
-    .from('chatbot_limitler')
-    .select('*')
-    .eq('kimlik', kimlik)
-    .single()
-
-  // Yoksa oluştur
-  if (!limit) {
-    const { data: newLimit } = await supabase
+  try {
+    const today = new Date().toISOString().split('T')[0]
+    
+    let { data: limit } = await supabase
       .from('chatbot_limitler')
-      .insert({
-        kimlik,
-        kimlik_tipi: 'fingerprint',
-        soru_sayisi: 0,
-        max_limit: 5,
-        limit_reset_tarihi: today
-      })
-      .select()
+      .select('*')
+      .eq('kimlik', kimlik)
       .single()
-    limit = newLimit
-  }
 
-  // Gün değiştiyse sıfırla
-  if (limit && limit.limit_reset_tarihi !== today) {
+    if (!limit) {
+      const { data: newLimit } = await supabase
+        .from('chatbot_limitler')
+        .insert({
+          kimlik,
+          kimlik_tipi: 'fingerprint',
+          soru_sayisi: 0,
+          max_limit: 5,
+          limit_reset_tarihi: today
+        })
+        .select()
+        .single()
+      limit = newLimit
+    }
+
+    if (limit && limit.limit_reset_tarihi !== today) {
+      await supabase
+        .from('chatbot_limitler')
+        .update({ soru_sayisi: 0, limit_reset_tarihi: today })
+        .eq('kimlik', kimlik)
+      limit.soru_sayisi = 0
+    }
+
+    if (limit && limit.soru_sayisi >= (limit.max_limit || 5)) {
+      return { allowed: false, remaining: 0 }
+    }
+
+    const newCount = (limit?.soru_sayisi || 0) + 1
     await supabase
       .from('chatbot_limitler')
-      .update({
-        soru_sayisi: 0,
-        limit_reset_tarihi: today
-      })
+      .update({ soru_sayisi: newCount, son_soru_tarihi: new Date().toISOString() })
       .eq('kimlik', kimlik)
-    limit.soru_sayisi = 0
-  }
 
-  // Limit kontrolü
-  if (limit && limit.soru_sayisi >= (limit.max_limit || 5)) {
-    return { allowed: false, remaining: 0 }
-  }
-
-  // Sayacı artır
-  const newCount = (limit?.soru_sayisi || 0) + 1
-  await supabase
-    .from('chatbot_limitler')
-    .update({
-      soru_sayisi: newCount,
-      son_soru_tarihi: new Date().toISOString()
-    })
-    .eq('kimlik', kimlik)
-
-  return { 
-    allowed: true, 
-    remaining: (limit?.max_limit || 5) - newCount 
+    return { allowed: true, remaining: (limit?.max_limit || 5) - newCount }
+  } catch (error) {
+    console.error('Limit check error:', error)
+    return { allowed: true, remaining: 5 }
   }
 }
 
 // Sohbeti kaydet
 async function saveChatLog(data) {
+  if (!supabase) return
   try {
     await supabase.from('chatbot_sohbetler').insert(data)
   } catch (error) {
-    console.error('Chat log kayıt hatası:', error)
+    console.error('Chat log error:', error)
   }
 }
 
@@ -150,20 +151,15 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Mesaj boş olamaz' }, { status: 400 })
     }
 
-    // IP adresini al
     const ipAdresi = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown'
-
-    // Kimlik belirle (fingerprint veya IP)
+                     request.headers.get('x-real-ip') || 'unknown'
     const kimlik = fingerprint || ipAdresi
 
-    // Limit kontrolü
+    // Limit kontrolü (hata olursa devam et)
     const limitCheck = await checkAndUpdateLimit(kimlik, ipAdresi)
     
     if (!limitCheck.allowed) {
-      // Limit aşıldı - kaydet
-      await saveChatLog({
+      saveChatLog({
         fingerprint: fingerprint || null,
         ip_adresi: ipAdresi,
         kullanici_mesaji: message,
@@ -171,7 +167,6 @@ export async function POST(request) {
         basarili: false,
         hata_mesaji: 'Günlük limit aşıldı'
       })
-
       return NextResponse.json({
         error: 'Günlük soru limitiniz doldu (5 soru). Daha fazla bilgi için bizi arayın: 0505 780 55 51',
         limitReached: true,
@@ -182,15 +177,10 @@ export async function POST(request) {
     // API key kontrolü
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
-      await saveChatLog({
-        fingerprint: fingerprint || null,
-        ip_adresi: ipAdresi,
-        kullanici_mesaji: message,
-        bot_cevabi: null,
-        basarili: false,
-        hata_mesaji: 'API key eksik'
+      return NextResponse.json({ 
+        reply: 'Sistem bakımda. Lütfen bizi arayın: [0505 780 55 51](tel:05057805551)',
+        remainingQuestions: limitCheck.remaining 
       })
-      return NextResponse.json({ error: 'Sistem yapılandırması eksik' }, { status: 500 })
     }
 
     // Claude API çağrısı
@@ -202,31 +192,30 @@ export async function POST(request) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-haiku-20240307', // En ucuz model
+        model: 'claude-3-haiku-20240307',
         max_tokens: 500,
         system: SYSTEM_PROMPT,
-        messages: [
-          { role: 'user', content: message }
-        ]
+        messages: [{ role: 'user', content: message }]
       })
     })
 
     if (!response.ok) {
-      const error = await response.text()
-      console.error('Claude API Error:', error)
+      const errorText = await response.text()
+      console.error('Claude API Error:', errorText)
       
-      await saveChatLog({
+      saveChatLog({
         fingerprint: fingerprint || null,
         ip_adresi: ipAdresi,
         kullanici_mesaji: message,
         bot_cevabi: null,
         basarili: false,
-        hata_mesaji: 'Claude API hatası'
+        hata_mesaji: 'Claude API hatası: ' + errorText
       })
 
       return NextResponse.json({ 
-        error: 'Yapay zeka şu an meşgul, lütfen daha sonra tekrar deneyin.' 
-      }, { status: 500 })
+        reply: 'Şu an yoğunluk var. Lütfen bizi arayın: [0505 780 55 51](tel:05057805551)',
+        remainingQuestions: limitCheck.remaining 
+      })
     }
 
     const data = await response.json()
@@ -234,7 +223,7 @@ export async function POST(request) {
     const cevapSuresi = Date.now() - startTime
 
     // Başarılı sohbeti kaydet
-    await saveChatLog({
+    saveChatLog({
       fingerprint: fingerprint || null,
       ip_adresi: ipAdresi,
       kullanici_mesaji: message,
@@ -252,6 +241,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Chatbot Error:', error)
-    return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 })
+    return NextResponse.json({ 
+      reply: 'Bağlantı hatası. Lütfen bizi arayın: [0505 780 55 51](tel:05057805551)',
+      remainingQuestions: 5 
+    })
   }
 }
