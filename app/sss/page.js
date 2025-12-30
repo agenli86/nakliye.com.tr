@@ -40,7 +40,7 @@ export default async function SSSPage() {
   return (
     <>
       <Header ayarlar={ayarlar} menu={menu} />
-      <main className="pt-[140px] md:pt-[160px]">
+      <main>
         <section className="py-20" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #0559c9 100%)' }}>
           <div className="container mx-auto px-4">
             <nav className="flex items-center gap-2 text-white/80 text-sm mb-4">

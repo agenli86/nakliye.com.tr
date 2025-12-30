@@ -52,7 +52,7 @@ export default async function HizmetDetayPage({ params }) {
   return (
     <>
       <Header ayarlar={ayarlar} menu={menu} />
-      <main className="pt-[140px] md:pt-[160px]">
+      <main>
         <section className="py-20 bg-cover bg-center relative" style={{ backgroundImage: `url(${hizmet.resim})` }}>
           <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(4,111,251,0.9), rgba(30,58,95,0.9))' }} />
           <div className="container mx-auto px-4 relative z-10">

@@ -9,7 +9,6 @@ import PriceTable from '@/components/PriceTable'
 import ArticleCard from '@/components/ArticleCard'
 import StickyButtons from '@/components/StickyButtons'
 import HomeTabs from '@/components/HomeTabs'
-import TruckAnimation from '@/components/TruckAnimation'
 import HomeGallery from '@/components/HomeGallery'
 import FeatureBoxes from '@/components/FeatureBoxes'
 import JsonLd from '@/components/JsonLd'
@@ -94,7 +93,7 @@ export default async function Home() {
       {websiteData && <JsonLd data={websiteData} />}
 
       <Header ayarlar={ayarlar} menu={menu} />
-      <main>
+      <main className="home-page">
         <HeroSlider sliders={sliders} />
         
         {/* Kayan Duyuru */}
@@ -188,9 +187,6 @@ export default async function Home() {
 
         {/* Galeri */}
         <HomeGallery galeri={galeri} />
-
-        {/* Kamyon Animasyonu */}
-        <TruckAnimation />
       </main>
       <Footer ayarlar={ayarlar} hizmetler={hizmetler} />
       <StickyButtons whatsapp={whatsapp} telefon={telefon} />
