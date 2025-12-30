@@ -9,13 +9,14 @@ import toast from 'react-hot-toast'
 import {
   FaHome, FaCog, FaImages, FaConciergeBell, FaNewspaper, FaMoneyBillWave,
   FaQuestionCircle, FaBars, FaEnvelope, FaSignOutAlt, FaTimes, FaTachometerAlt,
-  FaListUl, FaSearch, FaPhotoVideo, FaBullhorn, FaCode, FaAward, FaUsers, FaRobot, FaShieldAlt
+  FaListUl, FaSearch, FaPhotoVideo, FaBullhorn, FaCode, FaAward, FaUsers, FaRobot, FaShieldAlt, FaBan
 } from 'react-icons/fa'
 
 const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: FaTachometerAlt },
   { href: '/admin/ziyaretciler', label: 'Ziyaretçi Analizi', icon: FaUsers },
   { href: '/admin/sahte-tiklamalar', label: 'Sahte Tıklamalar', icon: FaShieldAlt },
+  { href: '/admin/engelli-ipler', label: 'Engelli IP\'ler', icon: FaBan },
   { href: '/admin/chatbot', label: 'Chatbot Sohbetleri', icon: FaRobot },
   { href: '/admin/ayarlar', label: 'Site Ayarları', icon: FaCog },
   { href: '/admin/anasayfa', label: 'Anasayfa', icon: FaHome },

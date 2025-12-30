@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
-import { 
-  FaShieldAlt, FaSync, FaBan, FaCheck, FaGlobe, FaServer, 
-  FaMobile, FaDesktop, FaClock, FaExclamationTriangle, FaSearch
+import {
+  FaShieldAlt, FaSync, FaBan, FaCheck, FaGlobe, FaServer,
+  FaMobile, FaDesktop, FaClock, FaExclamationTriangle, FaSearch,
+  FaTrash, FaCheckSquare, FaSquare
 } from 'react-icons/fa'
+import toast from 'react-hot-toast'
 
 export default function AdminSahteTiklamalarPage() {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [selectedIds, setSelectedIds] = useState([])
+  const [confirmModal, setConfirmModal] = useState({ show: false, action: null, message: '' })
   const supabase = createClient()
 
   useEffect(() => { fetchData() }, [])
@@ -63,6 +67,111 @@ export default function AdminSahteTiklamalarPage() {
     vpn: data.filter(d => d.notlar?.includes('VPN') || d.notlar?.includes('Datacenter')).length
   }
 
+  // IP Engelle
+  const blockIP = async (ipList, sebep = 'Sahte tıklama tespiti') => {
+    try {
+      const ips = Array.isArray(ipList) ? ipList : [ipList]
+      const insertData = ips.map(ip => ({ ip_adresi: ip, sebep }))
+      const { error } = await supabase.from('engelli_ipler').insert(insertData)
+      if (error) {
+        if (error.code === '23505') {
+          toast.error('Bu IP(ler) zaten engellenmiş')
+        } else {
+          throw error
+        }
+      } else {
+        toast.success(`${ips.length} IP engellendi`)
+      }
+    } catch (error) {
+      console.error('IP engelleme hatası:', error)
+      toast.error('IP engellenemedi')
+    }
+  }
+
+  // Kayıt Sil
+  const deleteClick = async (id) => {
+    setConfirmModal({
+      show: true,
+      message: 'Bu kaydı silmek istediğinizden emin misiniz?',
+      action: async () => {
+        try {
+          const { error } = await supabase.from('sahte_tiklamalar').delete().eq('id', id)
+          if (error) throw error
+          toast.success('Kayıt silindi')
+          fetchData()
+        } catch (error) {
+          console.error('Silme hatası:', error)
+          toast.error('Kayıt silinemedi')
+        }
+        setConfirmModal({ show: false, action: null, message: '' })
+      }
+    })
+  }
+
+  // Seçilenleri Sil
+  const deleteSelected = async () => {
+    if (selectedIds.length === 0) {
+      toast.error('Lütfen silinecek kayıtları seçin')
+      return
+    }
+    setConfirmModal({
+      show: true,
+      message: `${selectedIds.length} kaydı silmek istediğinizden emin misiniz?`,
+      action: async () => {
+        try {
+          const { error } = await supabase.from('sahte_tiklamalar').delete().in('id', selectedIds)
+          if (error) throw error
+          toast.success(`${selectedIds.length} kayıt silindi`)
+          setSelectedIds([])
+          fetchData()
+        } catch (error) {
+          console.error('Silme hatası:', error)
+          toast.error('Kayıtlar silinemedi')
+        }
+        setConfirmModal({ show: false, action: null, message: '' })
+      }
+    })
+  }
+
+  // Tümünü Sil
+  const deleteAll = async () => {
+    setConfirmModal({
+      show: true,
+      message: 'TÜM sahte tıklama kayıtlarını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!',
+      action: async () => {
+        try {
+          const { error } = await supabase.from('sahte_tiklamalar').delete().neq('id', 0)
+          if (error) throw error
+          toast.success('Tüm kayıtlar silindi')
+          setSelectedIds([])
+          fetchData()
+        } catch (error) {
+          console.error('Silme hatası:', error)
+          toast.error('Kayıtlar silinemedi')
+        }
+        setConfirmModal({ show: false, action: null, message: '' })
+      }
+    })
+  }
+
+  // Tümünü Seç/Kaldır
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredData.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(filteredData.map(d => d.id))
+    }
+  }
+
+  // Tekli Seç/Kaldır
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(sid => sid !== id))
+    } else {
+      setSelectedIds([...selectedIds, id])
+    }
+  }
+
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -110,8 +219,8 @@ export default function AdminSahteTiklamalarPage() {
               className="admin-input pl-10 w-full"
             />
           </div>
-          <select 
-            value={filter} 
+          <select
+            value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="admin-input"
           >
@@ -123,13 +232,44 @@ export default function AdminSahteTiklamalarPage() {
         </div>
       </div>
 
+      {/* Yönetim Butonları */}
+      <div className="mb-4 flex items-center gap-3 flex-wrap">
+        <button
+          onClick={toggleSelectAll}
+          className="admin-btn-secondary flex items-center gap-2"
+        >
+          {selectedIds.length === filteredData.length && filteredData.length > 0 ? <FaCheckSquare /> : <FaSquare />}
+          {selectedIds.length === filteredData.length && filteredData.length > 0 ? 'Tümünü Kaldır' : 'Tümünü Seç'}
+        </button>
+        <button
+          onClick={deleteSelected}
+          disabled={selectedIds.length === 0}
+          className="admin-btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <FaTrash /> Seçilenleri Sil ({selectedIds.length})
+        </button>
+        <button
+          onClick={deleteAll}
+          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm font-medium"
+        >
+          <FaTrash /> Tümünü Sil
+        </button>
+      </div>
+
       {/* Liste */}
       <div className="space-y-4">
         {filteredData.map((item) => (
           <div key={item.id} className={`admin-card ${item.engellendi ? 'border-l-4 border-l-red-500' : ''}`}>
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              {/* Sol: Bilgiler */}
-              <div className="flex-1">
+            <div className="flex items-start gap-4">
+              {/* Checkbox */}
+              <button onClick={() => toggleSelect(item.id)} className="text-blue-600 hover:text-blue-700 mt-1">
+                {selectedIds.includes(item.id) ? <FaCheckSquare size={20} /> : <FaSquare size={20} />}
+              </button>
+
+              {/* Ana İçerik */}
+              <div className="flex-1 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                {/* Sol: Bilgiler */}
+                <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   {item.engellendi ? (
                     <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium flex items-center gap-1">
@@ -202,12 +342,31 @@ export default function AdminSahteTiklamalarPage() {
                 )}
               </div>
               
-              {/* Sağ: Tarih */}
-              <div className="text-right text-sm text-gray-500 shrink-0">
-                <p className="flex items-center gap-1 justify-end">
-                  <FaClock /> {formatDate(item.created_at)}
-                </p>
-                <p className="text-xs mt-1">#{item.id}</p>
+                {/* Sağ: Tarih ve Aksiyonlar */}
+                <div className="flex flex-col items-end gap-3 shrink-0">
+                  <div className="text-right text-sm text-gray-500">
+                    <p className="flex items-center gap-1 justify-end">
+                      <FaClock /> {formatDate(item.created_at)}
+                    </p>
+                    <p className="text-xs mt-1">#{item.id}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => blockIP(item.ip_listesi || [], `Sahte tıklama ID: ${item.id}`)}
+                      className="p-2 bg-red-600 text-white hover:bg-red-700 rounded transition text-sm flex items-center gap-1"
+                      title="Tüm IP'leri Engelle"
+                    >
+                      <FaBan /> IP Engelle
+                    </button>
+                    <button
+                      onClick={() => deleteClick(item.id)}
+                      className="p-2 border border-red-600 text-red-600 hover:bg-red-50 rounded transition"
+                      title="Sil"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -219,6 +378,30 @@ export default function AdminSahteTiklamalarPage() {
           </div>
         )}
       </div>
+
+      {/* Onay Modal */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setConfirmModal({ show: false, action: null, message: '' })}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-bold mb-4">Onay</h3>
+            <p className="text-gray-700 mb-6">{confirmModal.message}</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmModal({ show: false, action: null, message: '' })}
+                className="admin-btn-secondary"
+              >
+                İptal
+              </button>
+              <button
+                onClick={confirmModal.action}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium"
+              >
+                Evet, Sil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
