@@ -61,25 +61,29 @@ export default function VisitorTracker() {
       boylam: null,
     }
 
-    // Konum izni iste
-    try {
-      const locationData = await requestLocation()
-      if (locationData) {
-        data.konum_izni = true
-        data.enlem = locationData.latitude
-        data.boylam = locationData.longitude
-        
-        // Reverse geocoding ile il/ilçe al
-        const addressData = await reverseGeocode(locationData.latitude, locationData.longitude)
-        if (addressData) {
-          data.il = addressData.il
-          data.ilce = addressData.ilce
-          data.ulke = addressData.ulke
+    // Konum izni iste (5 saniye gecikmeyle)
+    setTimeout(async () => {
+      try {
+        const locationData = await requestLocation()
+        if (locationData) {
+          const addressData = await reverseGeocode(locationData.latitude, locationData.longitude)
+          // Veritabanını güncelle
+          await supabase
+            .from('ziyaretciler')
+            .update({
+              konum_izni: true,
+              enlem: locationData.latitude,
+              boylam: locationData.longitude,
+              il: addressData?.il || null,
+              ilce: addressData?.ilce || null,
+              ulke: addressData?.ulke || null
+            })
+            .eq('fingerprint', data.fingerprint)
         }
+      } catch (e) {
+        // Konum izni verilmedi
       }
-    } catch (e) {
-      // Konum izni verilmedi
-    }
+    }, 5000)
 
     // IP'den konum (fallback)
     if (!data.il) {
@@ -126,25 +130,6 @@ export default function VisitorTracker() {
       }
     } catch (e) {}
 
-    // Audio fingerprint
-    try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      const oscillator = audioContext.createOscillator()
-      const analyser = audioContext.createAnalyser()
-      const gain = audioContext.createGain()
-      const scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1)
-      
-      gain.gain.value = 0
-      oscillator.type = 'triangle'
-      oscillator.connect(analyser)
-      analyser.connect(scriptProcessor)
-      scriptProcessor.connect(gain)
-      gain.connect(audioContext.destination)
-      oscillator.start(0)
-      
-      components.push(audioContext.sampleRate.toString())
-      audioContext.close()
-    } catch (e) {}
 
     // Diğer bilgiler
     components.push(navigator.userAgent)

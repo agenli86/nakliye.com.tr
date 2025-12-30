@@ -126,4 +126,10 @@ main:not(.home-page) {
 @media (max-width: 768px) {
   .sticky-icons { left: 10px; bottom: 10px; }
   .sticky-icon { width: 48px; height: 48px; font-size: 20px; }
+
+  /* Mobil dokunma hedefleri */
+  .btn-primary, .btn-secondary, .btn-outline {
+    min-height: 48px;
+    min-width: 48px;
+  }
 }

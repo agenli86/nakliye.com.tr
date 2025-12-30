@@ -60,7 +60,7 @@ export default function CounterSection({ ayarlar }) {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Rakamlarla Biz</h2>
-          <p className="text-white/80 text-lg">Yılların tecrübesi ve binlerce mutlu müşteri</p>
+          <p className="text-white/90 text-lg">Yılların tecrübesi ve binlerce mutlu müşteri</p>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
@@ -68,13 +68,18 @@ export default function CounterSection({ ayarlar }) {
             const count = useCountUp(stat.value, 2000, isVisible)
             return (
               <div key={index} className="text-center group">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style={{ backgroundColor: '#d4ed31' }}>
-                  <stat.icon className="text-3xl" style={{ color: '#1e3a5f' }} />
+                <div
+                  className="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                  style={{ backgroundColor: '#d4ed31' }}
+                  role="img"
+                  aria-label={stat.label}
+                >
+                  <stat.icon className="text-3xl" style={{ color: '#1e3a5f' }} aria-hidden="true" />
                 </div>
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2">
                   {count.toLocaleString('tr-TR')}{stat.suffix}
                 </div>
-                <div className="text-white/80 font-medium">{stat.label}</div>
+                <div className="text-white/90 font-medium">{stat.label}</div>
               </div>
             )
           })}
