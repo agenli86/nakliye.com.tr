@@ -13,14 +13,10 @@ html { scroll-behavior: smooth; }
 body { font-family: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif; color: #334155; line-height: 1.7; }
 h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), 'Inter', system-ui, sans-serif; font-weight: 700; line-height: 1.3; color: #1e3a5f; }
 
-/* İç Sayfalar Boşluk Düzeltmesi - Header Yüksekliği Kadar */
+/* İç Sayfalar - Boşluk Sıfırlandı */
 main:not(.home-page) {
-  padding-top: 80px !important;
-}
-@media (min-width: 768px) {
-  main:not(.home-page) {
-    padding-top: 124px !important;
-  }
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
 /* Scrollbar */
