@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FaChevronRight } from 'react-icons/fa'
+import { FaChevronRight, FaTruck } from 'react-icons/fa'
 
 export default function HomeTabs({ tablar }) {
   const [activeTab, setActiveTab] = useState(0)
@@ -27,17 +27,10 @@ export default function HomeTabs({ tablar }) {
                   activeTab === index ? 'bg-gradient-to-r from-yellow-400 to-yellow-300' : 'bg-gray-50 hover:bg-gray-100'
                 }`}
               >
-                <span className={`relative z-10 flex items-center justify-center gap-2 ${
+                <span className={`relative z-10 ${
                   activeTab === index ? 'text-gray-900' : 'text-gray-600'
                 }`}>
-                  <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                    activeTab === index 
-                      ? 'bg-gray-900 text-yellow-400' 
-                      : 'bg-gray-200 text-gray-500 group-hover:bg-gray-300'
-                  }`}>
-                    {index + 1}
-                  </span>
-                  <span className="hidden md:inline">{tab.baslik}</span>
+                  {tab.baslik}
                 </span>
                 
                 {/* Active indicator */}
@@ -84,7 +77,7 @@ export default function HomeTabs({ tablar }) {
                   ) : (
                     <div className="hidden md:flex items-center justify-center">
                       <div className="w-48 h-48 rounded-full flex items-center justify-center" style={{ backgroundColor: '#d4ed31' }}>
-                        <span className="text-6xl font-bold" style={{ color: '#1e3a5f' }}>{index + 1}</span>
+                        <FaTruck className="text-6xl" style={{ color: '#1e3a5f' }} />
                       </div>
                     </div>
                   )}

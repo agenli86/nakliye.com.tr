@@ -53,7 +53,7 @@ export default async function TeklifAlPage() {
   return (
     <>
       <Header ayarlar={ayarlar} menu={menu} />
-      <main className="pt-[140px] md:pt-[160px]">
+      <main>
         {/* Hero */}
         <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #1e3a5f 100%)' }}>
           <div className="absolute inset-0 opacity-10">

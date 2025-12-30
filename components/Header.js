@@ -112,6 +112,7 @@ export default function Header({ ayarlar, menu }) {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden text-gray-700 text-2xl p-2"
+              aria-label={isMobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
             >
               {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
             </button>
@@ -142,6 +143,7 @@ export default function Header({ ayarlar, menu }) {
                           <button
                             onClick={() => setOpenDropdown(isOpen ? null : item.id)}
                             className="p-3 text-gray-500"
+                            aria-label={isOpen ? 'Alt menüyü kapat' : 'Alt menüyü aç'}
                           >
                             <FaChevronDown className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                           </button>

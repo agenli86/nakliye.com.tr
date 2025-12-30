@@ -27,7 +27,7 @@ export default async function KVKKPage() {
   return (
     <>
       <Header ayarlar={ayarlar} menu={menu} />
-      <main className="pt-[140px] md:pt-[160px]">
+      <main>
         {/* Hero */}
         <section className="py-12 bg-gradient-to-r from-[#1e3a5f] to-[#2d4a6f]">
           <div className="container mx-auto px-4 text-center">
