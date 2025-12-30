@@ -13,7 +13,7 @@ export default function HomeTabs({ tablar }) {
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Neden Bizi Tercih Etmelisiniz?</h2>
-          <p className="text-white/70">Detaylı bilgi için sekmelere tıklayın</p>
+          <p className="text-white/90">Detaylı bilgi için sekmelere tıklayın</p>
         </div>
         
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -23,6 +23,9 @@ export default function HomeTabs({ tablar }) {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(index)}
+                aria-label={`${tab.baslik} sekmesini aç`}
+                aria-selected={activeTab === index}
+                role="tab"
                 className={`flex-1 min-w-[200px] py-5 px-6 text-center font-semibold transition-all duration-300 relative group ${
                   activeTab === index ? 'bg-gradient-to-r from-yellow-400 to-yellow-300' : 'bg-gray-50 hover:bg-gray-100'
                 }`}
@@ -92,9 +95,10 @@ export default function HomeTabs({ tablar }) {
               <button
                 key={index}
                 onClick={() => setActiveTab(index)}
+                aria-label={`Sekme ${index + 1}`}
                 className={`w-3 h-3 rounded-full transition-all ${
-                  activeTab === index 
-                    ? 'w-8' 
+                  activeTab === index
+                    ? 'w-8'
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}
                 style={activeTab === index ? { backgroundColor: '#d4ed31' } : {}}

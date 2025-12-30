@@ -32,7 +32,7 @@ export default function Footer({ ayarlar, hizmetler }) {
               height={80}
               className="h-16 w-auto mb-6 brightness-0 invert"
             />
-            <p className="text-white/80 mb-6 leading-relaxed">
+            <p className="text-white/90 mb-6 leading-relaxed">
               Adana evden eve taşımacılık için indirimli fiyat avantajlarından haberdar olmak için bizi takip ediniz.
             </p>
             <div className="flex gap-3">
@@ -41,7 +41,8 @@ export default function Footer({ ayarlar, hizmetler }) {
                   href={facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:text-white transition-all"
+                  aria-label="Facebook sayfamızı ziyaret edin"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
                   style={{ backgroundColor: '#0f2744' }}
                 >
                   <FaFacebook />
@@ -52,7 +53,8 @@ export default function Footer({ ayarlar, hizmetler }) {
                   href={instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:text-white transition-all"
+                  aria-label="Instagram sayfamızı ziyaret edin"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
                   style={{ backgroundColor: '#0f2744' }}
                 >
                   <FaInstagram />
@@ -63,7 +65,8 @@ export default function Footer({ ayarlar, hizmetler }) {
                   href={youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:text-white transition-all"
+                  aria-label="YouTube kanalımızı ziyaret edin"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
                   style={{ backgroundColor: '#0f2744' }}
                 >
                   <FaYoutube />
@@ -74,7 +77,8 @@ export default function Footer({ ayarlar, hizmetler }) {
                   href={twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:text-white transition-all"
+                  aria-label="Twitter sayfamızı ziyaret edin"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
                   style={{ backgroundColor: '#0f2744' }}
                 >
                   <FaTwitter />
@@ -153,7 +157,7 @@ export default function Footer({ ayarlar, hizmetler }) {
                   href={`https://maps.google.com/?q=${encodeURIComponent(adres)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-start gap-3"
+                  className="text-white/90 hover:text-[#d4ed31] transition-colors flex items-start gap-3"
                 >
                   <FaMapMarkerAlt className="mt-1 flex-shrink-0" style={{ color: '#d4ed31' }} />
                   <span>{adres}</span>
@@ -162,7 +166,8 @@ export default function Footer({ ayarlar, hizmetler }) {
               <li>
                 <a
                   href={`tel:${telefon}`}
-                  className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-3"
+                  aria-label="Telefon ile arayın"
+                  className="text-white/90 hover:text-[#d4ed31] transition-colors flex items-center gap-3"
                 >
                   <FaPhone style={{ color: '#d4ed31' }} />
                   <span>{telefon}</span>
@@ -171,7 +176,7 @@ export default function Footer({ ayarlar, hizmetler }) {
               <li>
                 <a
                   href={`mailto:${email}`}
-                  className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-3"
+                  className="text-white/90 hover:text-[#d4ed31] transition-colors flex items-center gap-3"
                 >
                   <FaEnvelope style={{ color: '#d4ed31' }} />
                   <span>{email}</span>
@@ -182,7 +187,8 @@ export default function Footer({ ayarlar, hizmetler }) {
                   href={`https://wa.me/${whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white/80 hover:text-green-400 transition-colors flex items-center gap-3"
+                  aria-label="WhatsApp ile mesaj gönderin"
+                  className="text-white/90 hover:text-green-400 transition-colors flex items-center gap-3"
                 >
                   <FaWhatsapp className="text-green-500" />
                   <span>WhatsApp ile Ulaşın</span>

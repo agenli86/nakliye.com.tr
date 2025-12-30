@@ -45,6 +45,7 @@ export default function HeroSlider({ sliders }) {
           clickable: true,
           bulletClass: 'swiper-pagination-bullet !w-3 !h-3 !bg-white/50 !opacity-100',
           bulletActiveClass: '!bg-white !w-8 !rounded-full',
+          renderBullet: (index, className) => `<button class="${className}" aria-label="Slayt ${index + 1}"></button>`,
         }}
         loop={true}
         className="h-full"
@@ -55,7 +56,7 @@ export default function HeroSlider({ sliders }) {
               {/* Background Image */}
               <Image
                 src={slide.resim}
-                alt={slide.baslik}
+                alt={`${slide.baslik} - Adana Nakliye Hizmeti`}
                 fill
                 className="object-cover object-center"
                 priority={index === 0}
