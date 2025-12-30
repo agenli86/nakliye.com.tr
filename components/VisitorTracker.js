@@ -16,6 +16,25 @@ export default function VisitorTracker() {
 
   const trackVisitor = async () => {
     try {
+      // Önce IP adresini al
+      const ipAddress = await getIPAddress()
+
+      // Engelli IP kontrolü yap
+      if (ipAddress) {
+        const { data: blockedIP } = await supabase
+          .from('engelli_ipler')
+          .select('id')
+          .eq('ip_adresi', ipAddress)
+          .single()
+
+        // Eğer IP engelliyse, tracking yapma
+        if (blockedIP) {
+          console.log('IP engelli, ziyaretçi kaydedilmiyor:', ipAddress)
+          return
+        }
+      }
+
+      // IP engelli değilse, normal devam et
       const data = await collectVisitorData()
       await saveVisitorData(data)
     } catch (error) {
