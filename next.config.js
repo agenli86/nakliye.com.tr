@@ -1,21 +1,31 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    // Burayı 'hostname' bazlı yaparak güvenliği ve hızı artırıyoruz
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'www.adananakliye.com.tr',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hvkwboukgzblmqvjcyjt.supabase.co', // Supabase kullanıyorsan burası kalsın
       },
     ],
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    // Avif çok iyidir ama işlemciyi yorar, WebP öncelikli kalsın
+    formats: ['image/webp', 'image/avif'], 
+    // Gereksiz büyük boyutları eledik, hızı artırdık
+    deviceSizes: [640, 750, 828, 1080, 1200], 
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 31536000,
   },
   
-  compress: true,
-  poweredByHeader: false,
-  reactStrictMode: true,
+  compress: true, // Gzip sıkıştırmasını açtık
+  poweredByHeader: false, // Güvenlik için kapattık
+  reactStrictMode: false, // Üretim modunda hız için false yapılabilir (opsiyonel)
+  
+  // Sayfa geçişlerini hızlandırmak için deneysel olmayan ama etkili özellikler
+  swcMinify: true, 
   
   async redirects() {
     return [
@@ -69,19 +79,13 @@ const nextConfig = {
       { source: '/sayfa/:slug.html', destination: '/:slug', permanent: true },
     ];
   },
-  
+
   async headers() {
     return [
       {
         source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
-      },
-      {
-        source: '/:all*(js|css)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Cache-Control', value: 'public, max-age=31536000, stale-while-revalidate=59' },
         ],
       },
       {
@@ -91,6 +95,7 @@ const nextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' }, // SEO ve Güvenlik için eklendi
         ],
       },
     ];
