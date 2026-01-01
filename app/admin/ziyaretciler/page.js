@@ -456,19 +456,36 @@ export default function AdminZiyaretcilerPage() {
                     </div>
                   </td>
                   <td className="py-3 px-2">
-                    {v.utm_source ? (
-                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
-                        {v.utm_source}
-                      </span>
-                    ) : v.referrer ? (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
-                        Referrer
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                        Direkt
-                      </span>
-                    )}
+                    <div className="flex flex-wrap items-center gap-1">
+                      {v.utm_source ? (
+                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                          {v.utm_source}
+                        </span>
+                      ) : v.referrer ? (
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                          Referrer
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                          Direkt
+                        </span>
+                      )}
+                      {v.reklam_trafigi && (
+                        <span className="bg-red-600 text-white px-2 py-0.5 rounded text-xs font-bold">
+                          ADS
+                        </span>
+                      )}
+                      {v.telefon_tiklama && (
+                        <span className="bg-green-600 text-white px-2 py-0.5 rounded text-xs">
+                          📞
+                        </span>
+                      )}
+                      {v.whatsapp_tiklama && (
+                        <span className="bg-green-600 text-white px-2 py-0.5 rounded text-xs">
+                          💬
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="py-3 px-2 max-w-[150px] truncate">
                     {v.giris_sayfasi || '/'}
@@ -538,6 +555,7 @@ export default function AdminZiyaretcilerPage() {
                 <h3 className="font-bold mb-3 text-green-600">📍 Konum</h3>
                 <div className="space-y-2 text-sm">
                   <p><span className="text-gray-500">İzin:</span> {selectedVisitor.konum_izni ? '✅ Verildi' : '❌ Verilmedi'}</p>
+                  <p><span className="text-gray-500">Konum Tipi:</span> {selectedVisitor.konum_tipi || 'IP'}</p>
                   <p><span className="text-gray-500">Ülke:</span> {selectedVisitor.ulke || '-'}</p>
                   <p><span className="text-gray-500">İl:</span> {selectedVisitor.il || '-'}</p>
                   <p><span className="text-gray-500">İlçe:</span> {selectedVisitor.ilce || '-'}</p>
@@ -547,11 +565,12 @@ export default function AdminZiyaretcilerPage() {
                 </div>
                 {/* Mini Harita */}
                 {selectedVisitor.enlem && selectedVisitor.boylam && (
-                  <VisitorMap 
-                    lat={selectedVisitor.enlem} 
+                  <VisitorMap
+                    lat={selectedVisitor.enlem}
                     lng={selectedVisitor.boylam}
                     il={selectedVisitor.il}
                     ilce={selectedVisitor.ilce}
+                    pinColor={selectedVisitor.reklam_trafigi ? '#e74c3c' : '#27ae60'}
                     className="mt-3 h-40 rounded-lg overflow-hidden"
                   />
                 )}
@@ -587,12 +606,28 @@ export default function AdminZiyaretcilerPage() {
                 <div className="space-y-2 text-sm">
                   <p><span className="text-gray-500">Referrer:</span> {selectedVisitor.referrer || 'Direkt'}</p>
                   <p><span className="text-gray-500">Giriş Sayfası:</span> {selectedVisitor.giris_sayfasi}</p>
+                  <p><span className="text-gray-500">Reklam Trafiği:</span> {selectedVisitor.reklam_trafigi ? '✅ Evet' : '❌ Hayır'}</p>
+                  {selectedVisitor.gclid && (
+                    <p><span className="text-gray-500">GCLID:</span> <code className="bg-gray-100 px-1 rounded text-xs">{selectedVisitor.gclid}</code></p>
+                  )}
                   {selectedVisitor.utm_source && (
                     <>
                       <p><span className="text-gray-500">UTM Source:</span> {selectedVisitor.utm_source}</p>
                       <p><span className="text-gray-500">UTM Medium:</span> {selectedVisitor.utm_medium || '-'}</p>
                       <p><span className="text-gray-500">UTM Campaign:</span> {selectedVisitor.utm_campaign || '-'}</p>
                     </>
+                  )}
+                </div>
+              </div>
+
+              {/* Dönüşüm */}
+              <div>
+                <h3 className="font-bold mb-3 text-pink-600">🎯 Dönüşüm</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="text-gray-500">Telefon Tıklama:</span> {selectedVisitor.telefon_tiklama ? '✅ Evet' : '❌ Hayır'}</p>
+                  <p><span className="text-gray-500">WhatsApp Tıklama:</span> {selectedVisitor.whatsapp_tiklama ? '✅ Evet' : '❌ Hayır'}</p>
+                  {selectedVisitor.donusum_zamani && (
+                    <p><span className="text-gray-500">Dönüşüm Zamanı:</span> {formatDate(selectedVisitor.donusum_zamani)}</p>
                   )}
                 </div>
               </div>

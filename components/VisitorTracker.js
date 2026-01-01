@@ -10,9 +10,81 @@ export default function VisitorTracker() {
   useEffect(() => {
     if (tracked.current) return
     tracked.current = true
-    
+
     trackVisitor()
   }, [])
+
+  // Telefon ve WhatsApp tıklama takibi
+  useEffect(() => {
+    const trackClicks = () => {
+      // Telefon tıklaması
+      document.querySelectorAll('a[href^="tel:"]').forEach(el => {
+        if (!el.dataset.tracked) {
+          el.dataset.tracked = 'true'
+          el.addEventListener('click', async () => {
+            const fp = localStorage.getItem('visitor_fingerprint')
+            if (fp) {
+              await supabase.from('ziyaretciler')
+                .update({
+                  telefon_tiklama: true,
+                  donusum_zamani: new Date().toISOString()
+                })
+                .eq('fingerprint', fp)
+            }
+          })
+        }
+      })
+
+      // WhatsApp tıklaması
+      document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"]').forEach(el => {
+        if (!el.dataset.tracked) {
+          el.dataset.tracked = 'true'
+          el.addEventListener('click', async () => {
+            const fp = localStorage.getItem('visitor_fingerprint')
+            if (fp) {
+              await supabase.from('ziyaretciler')
+                .update({
+                  whatsapp_tiklama: true,
+                  donusum_zamani: new Date().toISOString()
+                })
+                .eq('fingerprint', fp)
+            }
+          })
+        }
+      })
+    }
+
+    // DOM yüklendikten sonra çalıştır
+    setTimeout(trackClicks, 3000)
+  }, [])
+
+  // Google Ads parametre kontrolü
+  const detectGoogleAds = () => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const adsParams = ['gclid', 'gad_source', 'gbraid', 'wbraid', 'gad_campaignid']
+
+    for (const param of adsParams) {
+      const value = urlParams.get(param)
+      if (value) {
+        return { isAds: true, gclid: value.substring(0, 200) }
+      }
+    }
+    return { isAds: false, gclid: null }
+  }
+
+  // Bot/Datacenter kontrolü
+  const datacenterCheck = (isp, city) => {
+    const dcISPs = ['Google LLC', 'Amazon', 'Microsoft', 'DigitalOcean', 'Cloudflare']
+    const botCities = ['Mountain View', 'Ashburn', 'Council Bluffs']
+
+    for (const dc of dcISPs) {
+      if (isp?.includes(dc)) return { isBot: true, label: '🤖 DATACENTER' }
+    }
+    for (const loc of botCities) {
+      if (city?.includes(loc)) return { isBot: true, label: '🤖 BOT' }
+    }
+    return { isBot: false, label: null }
+  }
 
   const trackVisitor = async () => {
     try {
@@ -44,40 +116,60 @@ export default function VisitorTracker() {
 
   const collectVisitorData = async () => {
     const ua = navigator.userAgent
+
+    // Google Ads tespiti
+    const adsResult = detectGoogleAds()
+
     const data = {
       fingerprint: await generateFingerprint(),
       ip_adresi: await getIPAddress(),
-      
+
       // Cihaz bilgileri
       ...parseUserAgent(ua),
-      
+
       // Ekran
       ekran_genislik: window.screen.width,
       ekran_yukseklik: window.screen.height,
       ekran_pixel_ratio: window.devicePixelRatio,
-      
+
       // Donanım
       cpu_core: navigator.hardwareConcurrency || null,
       ram_gb: navigator.deviceMemory || null,
       ...await getGPUInfo(),
-      
+
       // Kaynak
       referrer: document.referrer || null,
       giris_sayfasi: window.location.pathname,
       ...getUTMParams(),
-      
+
+      // Reklam trafiği
+      reklam_trafigi: adsResult.isAds,
+      gclid: adsResult.gclid,
+
       // Ek bilgiler
       dil: navigator.language,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       baglanti_turu: getConnectionType(),
       ...await getBatteryInfo(),
-      
+
       // Konum (izin istenecek)
       konum_izni: false,
+      konum_tipi: 'IP', // Varsayılan IP, GPS alınırsa güncellenir
       il: null,
       ilce: null,
       enlem: null,
       boylam: null,
+
+      // Dönüşüm takibi
+      telefon_tiklama: false,
+      whatsapp_tiklama: false,
+      donusum_zamani: null,
+    }
+
+    // Eğer Google Ads trafiğiyse kaynak ve medium güncelle
+    if (adsResult.isAds && !data.utm_source) {
+      data.utm_source = 'Google Ads'
+      data.utm_medium = 'cpc'
     }
 
     // Konum izni iste (5 saniye gecikmeyle)
@@ -86,18 +178,22 @@ export default function VisitorTracker() {
         const locationData = await requestLocation()
         if (locationData) {
           const addressData = await reverseGeocode(locationData.latitude, locationData.longitude)
-          // Veritabanını güncelle
-          await supabase
-            .from('ziyaretciler')
-            .update({
-              konum_izni: true,
-              enlem: locationData.latitude,
-              boylam: locationData.longitude,
-              il: addressData?.il || null,
-              ilce: addressData?.ilce || null,
-              ulke: addressData?.ulke || null
-            })
-            .eq('fingerprint', data.fingerprint)
+          // GPS varsa gerçek adresi al ve IP konumunu override et
+          if (addressData) {
+            // Veritabanını güncelle
+            await supabase
+              .from('ziyaretciler')
+              .update({
+                konum_izni: true,
+                konum_tipi: 'GPS',
+                enlem: locationData.latitude,
+                boylam: locationData.longitude,
+                il: addressData.il || null,
+                ilce: addressData.ilce || null,
+                ulke: addressData.ulke || null
+              })
+              .eq('fingerprint', data.fingerprint)
+          }
         }
       } catch (e) {
         // Konum izni verilmedi
@@ -348,12 +444,15 @@ export default function VisitorTracker() {
   // Reverse geocoding
   const reverseGeocode = async (lat, lon) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=tr`)
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=tr`,
+        { headers: { 'User-Agent': 'AdanaNakliye/1.0' } }
+      )
       const data = await res.json()
       return {
-        il: data.address?.province || data.address?.state || data.address?.city,
-        ilce: data.address?.town || data.address?.county || data.address?.district,
-        ulke: data.address?.country
+        il: data.address?.province || data.address?.state || data.address?.city || '',
+        ilce: data.address?.town || data.address?.county || data.address?.district || '',
+        ulke: data.address?.country || ''
       }
     } catch {
       return null
@@ -362,6 +461,9 @@ export default function VisitorTracker() {
 
   // Veritabanına kaydet
   const saveVisitorData = async (data) => {
+    // Fingerprint'i localStorage'a kaydet (telefon/WA tıklama takibi için)
+    localStorage.setItem('visitor_fingerprint', data.fingerprint)
+
     // Önce fingerprint ile mevcut kayıt var mı kontrol et
     const { data: existing } = await supabase
       .from('ziyaretciler')
