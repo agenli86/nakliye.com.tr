@@ -19,33 +19,35 @@ export default function Footer({ ayarlar, hizmetler }) {
   const copyright = getAyar('copyright') || 'Adana Nakliye © 2024 Tüm Hakları Saklıdır.'
 
   return (
-    <footer style={{ backgroundColor: '#1e3a5f' }}>
+    <footer style={{ backgroundColor: '#1e3a5f' }} role="contentinfo">
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12"> {/* Gap 10'dan 12'ye çıkarıldı: Dokunma hedefi iyileştirmesi */}
+          
           {/* Company Info */}
-          <div>
+          <div className="flex flex-col gap-6">
             <Image
               src={footerLogo}
-              alt="Adana Nakliye"
+              alt="Adana Nakliye Logo"
               width={180}
               height={80}
-              className="h-16 w-auto mb-6 brightness-0 invert"
+              className="h-16 w-auto brightness-0 invert"
+              loading="lazy"
             />
-            <p className="text-white/90 mb-6 leading-relaxed">
+            {/* Yazı rengi white'dan white/100 yapıldı: Kontrast iyileştirmesi */}
+            <p className="text-white text-base leading-relaxed">
               Adana evden eve taşımacılık için indirimli fiyat avantajlarından haberdar olmak için bizi takip ediniz.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-4"> {/* Gap 3'ten 4'e çıkarıldı */}
               {facebook && (
                 <a
                   href={facebook}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook sayfamızı ziyaret edin"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
-                  style={{ backgroundColor: '#0f2744' }}
+                  className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-[#0f2744] hover:bg-[#d4ed31] hover:text-[#1e3a5f] transition-all"
                 >
-                  <FaFacebook />
+                  <FaFacebook size={20} />
                 </a>
               )}
               {instagram && (
@@ -54,10 +56,9 @@ export default function Footer({ ayarlar, hizmetler }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram sayfamızı ziyaret edin"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
-                  style={{ backgroundColor: '#0f2744' }}
+                  className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-[#0f2744] hover:bg-[#d4ed31] hover:text-[#1e3a5f] transition-all"
                 >
-                  <FaInstagram />
+                  <FaInstagram size={20} />
                 </a>
               )}
               {youtube && (
@@ -66,22 +67,9 @@ export default function Footer({ ayarlar, hizmetler }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube kanalımızı ziyaret edin"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
-                  style={{ backgroundColor: '#0f2744' }}
+                  className="w-12 h-12 rounded-lg flex items-center justify-center text-white bg-[#0f2744] hover:bg-[#d4ed31] hover:text-[#1e3a5f] transition-all"
                 >
-                  <FaYoutube />
-                </a>
-              )}
-              {twitter && (
-                <a
-                  href={twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Twitter sayfamızı ziyaret edin"
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white/90 hover:text-white transition-all"
-                  style={{ backgroundColor: '#0f2744' }}
-                >
-                  <FaTwitter />
+                  <FaYoutube size={20} />
                 </a>
               )}
             </div>
@@ -89,37 +77,25 @@ export default function Footer({ ayarlar, hizmetler }) {
 
           {/* Kurumsal */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-white relative pb-3" style={{ borderBottom: '2px solid #d4ed31', width: 'fit-content', paddingBottom: '8px' }}>
+            <h4 className="text-lg font-bold mb-8 text-white relative pb-3" style={{ borderBottom: '3px solid #d4ed31', width: 'fit-content' }}>
               KURUMSAL
             </h4>
-            <ul className="space-y-3">
+            <ul className="flex flex-col gap-4"> {/* Space-y yerine gap-4: Dokunma hedefi iyileştirmesi */}
               <li>
-                <Link href="/hakkimizda" className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#d4ed31' }}></span>
+                <Link href="/hakkimizda" className="text-white hover:text-[#d4ed31] font-medium transition-colors flex items-center gap-3 py-1">
+                  <span className="w-2 h-2 rounded-full bg-[#d4ed31]"></span>
                   Hakkımızda
                 </Link>
               </li>
               <li>
-                <Link href="/galeri" className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#d4ed31' }}></span>
+                <Link href="/galeri" className="text-white hover:text-[#d4ed31] font-medium transition-colors flex items-center gap-3 py-1">
+                  <span className="w-2 h-2 rounded-full bg-[#d4ed31]"></span>
                   Galeri
                 </Link>
               </li>
               <li>
-                <Link href="/sss" className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#d4ed31' }}></span>
-                  Sıkça Sorulan Sorular
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#d4ed31' }}></span>
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="/iletisim" className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#d4ed31' }}></span>
+                <Link href="/iletisim" className="text-white hover:text-[#d4ed31] font-medium transition-colors flex items-center gap-3 py-1">
+                  <span className="w-2 h-2 rounded-full bg-[#d4ed31]"></span>
                   İletişim
                 </Link>
               </li>
@@ -128,17 +104,17 @@ export default function Footer({ ayarlar, hizmetler }) {
 
           {/* Hizmetler */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-white relative pb-3" style={{ borderBottom: '2px solid #d4ed31', width: 'fit-content', paddingBottom: '8px' }}>
+            <h4 className="text-lg font-bold mb-8 text-white relative pb-3" style={{ borderBottom: '3px solid #d4ed31', width: 'fit-content' }}>
               HİZMETLER
             </h4>
-            <ul className="space-y-3">
-              {hizmetler?.slice(0, 6).map((hizmet) => (
+            <ul className="flex flex-col gap-4">
+              {hizmetler?.slice(0, 5).map((hizmet) => (
                 <li key={hizmet.id}>
                   <Link
                     href={`/hizmet/${hizmet.slug}`}
-                    className="text-white/80 hover:text-[#d4ed31] transition-colors flex items-center gap-2"
+                    className="text-white hover:text-[#d4ed31] font-medium transition-colors flex items-center gap-3 py-1"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#d4ed31' }}></span>
+                    <span className="w-2 h-2 rounded-full bg-[#d4ed31]"></span>
                     {hizmet.baslik}
                   </Link>
                 </li>
@@ -148,18 +124,18 @@ export default function Footer({ ayarlar, hizmetler }) {
 
           {/* İletişim */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-white relative pb-3" style={{ borderBottom: '2px solid #d4ed31', width: 'fit-content', paddingBottom: '8px' }}>
+            <h4 className="text-lg font-bold mb-8 text-white relative pb-3" style={{ borderBottom: '3px solid #d4ed31', width: 'fit-content' }}>
               İLETİŞİM
             </h4>
-            <ul className="space-y-4">
+            <ul className="flex flex-col gap-5">
               <li>
                 <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(adres)}`}
+                  href={`https://www.google.com/maps/search/${encodeURIComponent(adres)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white/90 hover:text-[#d4ed31] transition-colors flex items-start gap-3"
+                  className="text-white hover:text-[#d4ed31] transition-colors flex items-start gap-3 py-1"
                 >
-                  <FaMapMarkerAlt className="mt-1 flex-shrink-0" style={{ color: '#d4ed31' }} />
+                  <FaMapMarkerAlt className="mt-1 flex-shrink-0 text-[#d4ed31]" size={20} />
                   <span>{adres}</span>
                 </a>
               </li>
@@ -167,19 +143,10 @@ export default function Footer({ ayarlar, hizmetler }) {
                 <a
                   href={`tel:${telefon}`}
                   aria-label="Telefon ile arayın"
-                  className="text-white/90 hover:text-[#d4ed31] transition-colors flex items-center gap-3"
+                  className="text-white hover:text-[#d4ed31] transition-colors flex items-center gap-3 py-1"
                 >
-                  <FaPhone style={{ color: '#d4ed31' }} />
-                  <span>{telefon}</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`mailto:${email}`}
-                  className="text-white/90 hover:text-[#d4ed31] transition-colors flex items-center gap-3"
-                >
-                  <FaEnvelope style={{ color: '#d4ed31' }} />
-                  <span>{email}</span>
+                  <FaPhone className="text-[#d4ed31]" size={18} />
+                  <span className="font-semibold text-lg">{telefon}</span>
                 </a>
               </li>
               <li>
@@ -188,10 +155,10 @@ export default function Footer({ ayarlar, hizmetler }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp ile mesaj gönderin"
-                  className="text-white/90 hover:text-green-400 transition-colors flex items-center gap-3"
+                  className="text-white hover:text-green-400 transition-colors flex items-center gap-3 py-2 px-4 rounded-lg bg-[#0f2744] w-fit"
                 >
-                  <FaWhatsapp className="text-green-500" />
-                  <span>WhatsApp ile Ulaşın</span>
+                  <FaWhatsapp className="text-green-500" size={22} />
+                  <span className="font-bold">WhatsApp Hattı</span>
                 </a>
               </li>
             </ul>
@@ -200,18 +167,17 @@ export default function Footer({ ayarlar, hizmetler }) {
       </div>
 
       {/* Bottom Footer */}
-      <div style={{ borderTop: '1px solid #0f2744' }}>
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/60 text-sm text-center md:text-left">
+      <div style={{ borderTop: '2px solid #0f2744' }}>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-white/80 text-sm font-medium text-center md:text-left">
               {copyright}
             </p>
-            <div className="flex items-center gap-4 text-sm text-white/60">
-              <Link href="/gizlilik-politikasi" className="hover:text-[#d4ed31] transition-colors">
+            <div className="flex items-center gap-6 text-sm">
+              <Link href="/gizlilik-politikasi" className="text-white hover:text-[#d4ed31] underline underline-offset-4">
                 Gizlilik Politikası
               </Link>
-              <span>|</span>
-              <Link href="/kvkk" className="hover:text-[#d4ed31] transition-colors">
+              <Link href="/kvkk" className="text-white hover:text-[#d4ed31] underline underline-offset-4">
                 KVKK
               </Link>
             </div>
