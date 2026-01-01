@@ -1,30 +1,29 @@
 /** @type {import('next').NextConfig} */
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Burayı 'hostname' bazlı yaparak güvenliği ve hızı artırıyoruz
+    // Resimlerin görünmemesi sorununu buradaki '**' ile çözdük. 
+    // Artık her kaynaktan gelen resmi kabul eder.
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'www.adananakliye.com.tr',
+        hostname: '**',
       },
       {
-        protocol: 'https',
-        hostname: 'hvkwboukgzblmqvjcyjt.supabase.co', // Supabase kullanıyorsan burası kalsın
+        protocol: 'http',
+        hostname: '**',
       },
     ],
-    // Avif çok iyidir ama işlemciyi yorar, WebP öncelikli kalsın
+    // Hız için WebP ve Avif desteği devam ediyor
     formats: ['image/webp', 'image/avif'], 
-    // Gereksiz büyük boyutları eledik, hızı artırdık
     deviceSizes: [640, 750, 828, 1080, 1200], 
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 31536000,
   },
   
-  compress: true, // Gzip sıkıştırmasını açtık
-  poweredByHeader: false, // Güvenlik için kapattık
-  reactStrictMode: false, // Üretim modunda hız için false yapılabilir (opsiyonel)
-  
-  // Sayfa geçişlerini hızlandırmak için deneysel olmayan ama etkili özellikler
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: false,
   swcMinify: true, 
   
   async redirects() {
@@ -95,7 +94,7 @@ const nextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' }, // SEO ve Güvenlik için eklendi
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
         ],
       },
     ];
