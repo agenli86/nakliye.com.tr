@@ -3,13 +3,12 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import dynamic from 'next/dynamic'
-import {
-  FaUsers, FaMobile, FaDesktop, FaTablet, FaMapMarkerAlt, FaGlobe,
+import { 
+  FaUsers, FaMobile, FaDesktop, FaTablet, FaMapMarkerAlt, FaGlobe, 
   FaClock, FaChrome, FaSafari, FaFirefox, FaEdge, FaEye, FaSync,
   FaAndroid, FaApple, FaWindows, FaLinux, FaSearch, FaFilter,
-  FaBullhorn, FaLink, FaUserSecret, FaBan, FaTrash, FaCheckSquare, FaSquare
+  FaBullhorn, FaLink, FaUserSecret
 } from 'react-icons/fa'
-import toast from 'react-hot-toast'
 
 // VisitorMap'i client-side only yükle
 const VisitorMap = dynamic(() => import('@/components/VisitorMap'), { ssr: false })
@@ -21,8 +20,6 @@ export default function AdminZiyaretcilerPage() {
   const [filter, setFilter] = useState('today')
   const [search, setSearch] = useState('')
   const [selectedVisitor, setSelectedVisitor] = useState(null)
-  const [selectedIds, setSelectedIds] = useState([])
-  const [confirmModal, setConfirmModal] = useState({ show: false, action: null, message: '' })
   const supabase = createClient()
 
   useEffect(() => { fetchData() }, [filter])
@@ -134,109 +131,6 @@ export default function AdminZiyaretcilerPage() {
     return Object.entries(obj || {})
       .sort((a, b) => b[1] - a[1])
       .slice(0, limit)
-  }
-
-  // IP Engelle
-  const blockIP = async (ip, sebep = 'Admin tarafından engellendi') => {
-    try {
-      const { error } = await supabase.from('engelli_ipler').insert([{ ip_adresi: ip, sebep }])
-      if (error) {
-        if (error.code === '23505') {
-          toast.error('Bu IP zaten engellenmiş')
-        } else {
-          throw error
-        }
-      } else {
-        toast.success(`${ip} engellendi`)
-      }
-    } catch (error) {
-      console.error('IP engelleme hatası:', error)
-      toast.error('IP engellenemedi')
-    }
-  }
-
-  // Ziyaretçi Sil
-  const deleteVisitor = async (id) => {
-    setConfirmModal({
-      show: true,
-      message: 'Bu ziyaretçiyi silmek istediğinizden emin misiniz?',
-      action: async () => {
-        try {
-          const { error } = await supabase.from('ziyaretciler').delete().eq('id', id)
-          if (error) throw error
-          toast.success('Ziyaretçi silindi')
-          fetchData()
-        } catch (error) {
-          console.error('Silme hatası:', error)
-          toast.error('Ziyaretçi silinemedi')
-        }
-        setConfirmModal({ show: false, action: null, message: '' })
-      }
-    })
-  }
-
-  // Seçilenleri Sil
-  const deleteSelected = async () => {
-    if (selectedIds.length === 0) {
-      toast.error('Lütfen silinecek kayıtları seçin')
-      return
-    }
-    setConfirmModal({
-      show: true,
-      message: `${selectedIds.length} ziyaretçiyi silmek istediğinizden emin misiniz?`,
-      action: async () => {
-        try {
-          const { error } = await supabase.from('ziyaretciler').delete().in('id', selectedIds)
-          if (error) throw error
-          toast.success(`${selectedIds.length} ziyaretçi silindi`)
-          setSelectedIds([])
-          fetchData()
-        } catch (error) {
-          console.error('Silme hatası:', error)
-          toast.error('Ziyaretçiler silinemedi')
-        }
-        setConfirmModal({ show: false, action: null, message: '' })
-      }
-    })
-  }
-
-  // Tümünü Sil
-  const deleteAll = async () => {
-    setConfirmModal({
-      show: true,
-      message: 'TÜM ziyaretçileri silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!',
-      action: async () => {
-        try {
-          const { error } = await supabase.from('ziyaretciler').delete().neq('id', 0)
-          if (error) throw error
-          toast.success('Tüm ziyaretçiler silindi')
-          setSelectedIds([])
-          fetchData()
-        } catch (error) {
-          console.error('Silme hatası:', error)
-          toast.error('Ziyaretçiler silinemedi')
-        }
-        setConfirmModal({ show: false, action: null, message: '' })
-      }
-    })
-  }
-
-  // Tümünü Seç/Kaldır
-  const toggleSelectAll = () => {
-    if (selectedIds.length === filteredVisitors.length) {
-      setSelectedIds([])
-    } else {
-      setSelectedIds(filteredVisitors.map(v => v.id))
-    }
-  }
-
-  // Tekli Seç/Kaldır
-  const toggleSelect = (id) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter(sid => sid !== id))
-    } else {
-      setSelectedIds([...selectedIds, id])
-    }
   }
 
   return (
@@ -370,33 +264,11 @@ export default function AdminZiyaretcilerPage() {
         </div>
       </div>
 
-      {/* Yönetim Butonları */}
-      <div className="mb-4 flex items-center gap-3 flex-wrap">
-        <button
-          onClick={deleteSelected}
-          disabled={selectedIds.length === 0}
-          className="admin-btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <FaTrash /> Seçilenleri Sil ({selectedIds.length})
-        </button>
-        <button
-          onClick={deleteAll}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm font-medium"
-        >
-          <FaTrash /> Tümünü Sil
-        </button>
-      </div>
-
       {/* Ziyaretçi Listesi */}
       <div className="admin-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b">
-              <th className="text-center py-3 px-2 w-10">
-                <button onClick={toggleSelectAll} className="text-blue-600 hover:text-blue-700">
-                  {selectedIds.length === filteredVisitors.length && filteredVisitors.length > 0 ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
-                </button>
-              </th>
               <th className="text-left py-3 px-2">Zaman</th>
               <th className="text-left py-3 px-2">IP</th>
               <th className="text-left py-3 px-2">Konum</th>
@@ -404,7 +276,7 @@ export default function AdminZiyaretcilerPage() {
               <th className="text-left py-3 px-2">Tarayıcı</th>
               <th className="text-left py-3 px-2">Kaynak</th>
               <th className="text-left py-3 px-2">Sayfa</th>
-              <th className="text-center py-3 px-2">İşlemler</th>
+              <th className="text-center py-3 px-2">Detay</th>
             </tr>
           </thead>
           <tbody>
@@ -415,11 +287,6 @@ export default function AdminZiyaretcilerPage() {
               
               return (
                 <tr key={v.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-2 text-center">
-                    <button onClick={() => toggleSelect(v.id)} className="text-blue-600 hover:text-blue-700">
-                      {selectedIds.includes(v.id) ? <FaCheckSquare size={18} /> : <FaSquare size={18} />}
-                    </button>
-                  </td>
                   <td className="py-3 px-2 whitespace-nowrap">
                     <div className="flex items-center gap-1">
                       <FaClock className="text-gray-400 text-xs" />
@@ -456,64 +323,30 @@ export default function AdminZiyaretcilerPage() {
                     </div>
                   </td>
                   <td className="py-3 px-2">
-                    <div className="flex flex-wrap items-center gap-1">
-                      {v.utm_source ? (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
-                          {v.utm_source}
-                        </span>
-                      ) : v.referrer ? (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
-                          Referrer
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                          Direkt
-                        </span>
-                      )}
-                      {v.reklam_trafigi && (
-                        <span className="bg-red-600 text-white px-2 py-0.5 rounded text-xs font-bold">
-                          ADS
-                        </span>
-                      )}
-                      {v.telefon_tiklama && (
-                        <span className="bg-green-600 text-white px-2 py-0.5 rounded text-xs">
-                          📞
-                        </span>
-                      )}
-                      {v.whatsapp_tiklama && (
-                        <span className="bg-green-600 text-white px-2 py-0.5 rounded text-xs">
-                          💬
-                        </span>
-                      )}
-                    </div>
+                    {v.utm_source ? (
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                        {v.utm_source}
+                      </span>
+                    ) : v.referrer ? (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                        Referrer
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                        Direkt
+                      </span>
+                    )}
                   </td>
                   <td className="py-3 px-2 max-w-[150px] truncate">
                     {v.giris_sayfasi || '/'}
                   </td>
-                  <td className="py-3 px-2">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => blockIP(v.ip_adresi, `Ziyaretçi ID: ${v.id}`)}
-                        className="p-2 bg-red-600 text-white hover:bg-red-700 rounded transition"
-                        title="IP Engelle"
-                      >
-                        <FaBan size={14} />
-                      </button>
-                      <button
-                        onClick={() => deleteVisitor(v.id)}
-                        className="p-2 border border-red-600 text-red-600 hover:bg-red-50 rounded transition"
-                        title="Sil"
-                      >
-                        <FaTrash size={14} />
-                      </button>
-                      <button
-                        onClick={() => setSelectedVisitor(v)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
-                        title="Detay"
-                      >
-                        <FaEye size={14} />
-                      </button>
-                    </div>
+                  <td className="py-3 px-2 text-center">
+                    <button
+                      onClick={() => setSelectedVisitor(v)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                    >
+                      <FaEye />
+                    </button>
                   </td>
                 </tr>
               )
@@ -555,7 +388,6 @@ export default function AdminZiyaretcilerPage() {
                 <h3 className="font-bold mb-3 text-green-600">📍 Konum</h3>
                 <div className="space-y-2 text-sm">
                   <p><span className="text-gray-500">İzin:</span> {selectedVisitor.konum_izni ? '✅ Verildi' : '❌ Verilmedi'}</p>
-                  <p><span className="text-gray-500">Konum Tipi:</span> {selectedVisitor.konum_tipi || 'IP'}</p>
                   <p><span className="text-gray-500">Ülke:</span> {selectedVisitor.ulke || '-'}</p>
                   <p><span className="text-gray-500">İl:</span> {selectedVisitor.il || '-'}</p>
                   <p><span className="text-gray-500">İlçe:</span> {selectedVisitor.ilce || '-'}</p>
@@ -565,12 +397,11 @@ export default function AdminZiyaretcilerPage() {
                 </div>
                 {/* Mini Harita */}
                 {selectedVisitor.enlem && selectedVisitor.boylam && (
-                  <VisitorMap
-                    lat={selectedVisitor.enlem}
+                  <VisitorMap 
+                    lat={selectedVisitor.enlem} 
                     lng={selectedVisitor.boylam}
                     il={selectedVisitor.il}
                     ilce={selectedVisitor.ilce}
-                    pinColor={selectedVisitor.reklam_trafigi ? '#e74c3c' : '#27ae60'}
                     className="mt-3 h-40 rounded-lg overflow-hidden"
                   />
                 )}
@@ -606,28 +437,12 @@ export default function AdminZiyaretcilerPage() {
                 <div className="space-y-2 text-sm">
                   <p><span className="text-gray-500">Referrer:</span> {selectedVisitor.referrer || 'Direkt'}</p>
                   <p><span className="text-gray-500">Giriş Sayfası:</span> {selectedVisitor.giris_sayfasi}</p>
-                  <p><span className="text-gray-500">Reklam Trafiği:</span> {selectedVisitor.reklam_trafigi ? '✅ Evet' : '❌ Hayır'}</p>
-                  {selectedVisitor.gclid && (
-                    <p><span className="text-gray-500">GCLID:</span> <code className="bg-gray-100 px-1 rounded text-xs">{selectedVisitor.gclid}</code></p>
-                  )}
                   {selectedVisitor.utm_source && (
                     <>
                       <p><span className="text-gray-500">UTM Source:</span> {selectedVisitor.utm_source}</p>
                       <p><span className="text-gray-500">UTM Medium:</span> {selectedVisitor.utm_medium || '-'}</p>
                       <p><span className="text-gray-500">UTM Campaign:</span> {selectedVisitor.utm_campaign || '-'}</p>
                     </>
-                  )}
-                </div>
-              </div>
-
-              {/* Dönüşüm */}
-              <div>
-                <h3 className="font-bold mb-3 text-pink-600">🎯 Dönüşüm</h3>
-                <div className="space-y-2 text-sm">
-                  <p><span className="text-gray-500">Telefon Tıklama:</span> {selectedVisitor.telefon_tiklama ? '✅ Evet' : '❌ Hayır'}</p>
-                  <p><span className="text-gray-500">WhatsApp Tıklama:</span> {selectedVisitor.whatsapp_tiklama ? '✅ Evet' : '❌ Hayır'}</p>
-                  {selectedVisitor.donusum_zamani && (
-                    <p><span className="text-gray-500">Dönüşüm Zamanı:</span> {formatDate(selectedVisitor.donusum_zamani)}</p>
                   )}
                 </div>
               </div>
@@ -645,30 +460,6 @@ export default function AdminZiyaretcilerPage() {
                   <p><span className="text-gray-500">Sayfa Görüntüleme:</span> {selectedVisitor.sayfa_goruntulenme}</p>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Onay Modal */}
-      {confirmModal.show && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setConfirmModal({ show: false, action: null, message: '' })}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <h3 className="text-xl font-bold mb-4">Onay</h3>
-            <p className="text-gray-700 mb-6">{confirmModal.message}</p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setConfirmModal({ show: false, action: null, message: '' })}
-                className="admin-btn-secondary"
-              >
-                İptal
-              </button>
-              <button
-                onClick={confirmModal.action}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium"
-              >
-                Evet, Sil
-              </button>
             </div>
           </div>
         </div>
