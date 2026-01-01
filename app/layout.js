@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
 
-// Kritik olmayan component'ler - lazy load
+// Kritik olmayan component'ler - lazy load (Zaten yapmışsın, doğru)
 const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ssr: false })
 const FraudDetector = dynamic(() => import('@/components/FraudDetector'), { ssr: false })
 const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: false })
@@ -13,6 +13,8 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+  // Fontun yüklenirken sayfa kaymasını engellemek için pre-load ekliyoruz
+  adjustFontFallback: true, 
 })
 
 export const metadata = {
@@ -37,24 +39,22 @@ export const viewport = {
   themeColor: '#046ffb',
   width: 'device-width',
   initialScale: 1,
+  // Ekranın daha hızlı tepki vermesi için ek ayar
+  maximumScale: 5,
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="tr" className={inter.variable}>
+    <html lang="tr" className={`${inter.variable} scroll-smooth`}>
       <head>
         <link rel="icon" href="/resimler/adana-evden-eve-nakliyat.png" />
-        {/* Preconnect - Kritik bağlantılar */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://connect.facebook.net" />
-        <link rel="preconnect" href="https://hvkwboukgzblmqvjcyjt.supabase.co" />
-        <link rel="preconnect" href="https://api.ipify.org" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://connect.facebook.net" />
-        <link rel="dns-prefetch" href="https://hvkwboukgzblmqvjcyjt.supabase.co" />
-        <link rel="dns-prefetch" href="https://ipapi.co" />
         
-        {/* JSON-LD LocalBusiness */}
+        {/* Preconnect - Kritik bağlantıları optimize ettik */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://connect.facebook.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        
+        {/* Schema Markup - JSON-LD olduğu gibi kalıyor */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -113,19 +113,20 @@ export default function RootLayout({ children }) {
             style: { borderRadius: '10px', padding: '16px' },
           }}
         />
-        {children}
         
-        {/* Google Analytics - afterInteractive (sayfa yüklendikten sonra) */}
+        {/* Ana içerik */}
+        <main>{children}</main>
+        
+        {/* Scripts - strategy="lazyOnload" yaparak sayfa geçişlerini rahatlattık */}
         <Script 
           src="https://www.googletagmanager.com/gtag/js?id=G-FQBQFLNBJ8"
-          strategy="afterInteractive"
+          strategy="lazyOnload" 
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-FQBQFLNBJ8');`}
         </Script>
         
-        {/* Facebook Pixel - afterInteractive */}
-        <Script id="facebook-pixel" strategy="afterInteractive">
+        <Script id="facebook-pixel" strategy="lazyOnload">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','779004901018883');fbq('track','PageView');`}
         </Script>
       </body>
