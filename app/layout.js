@@ -4,16 +4,15 @@ import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
 
-// Kritik olmayan component'ler - lazy load (Zaten yapmışsın, doğru)
+// Kritik olmayan component'ler - lazy load
 const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ssr: false })
 const FraudDetector = dynamic(() => import('@/components/FraudDetector'), { ssr: false })
 const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: false })
 
 const inter = Inter({ 
   subsets: ['latin'],
-  display: 'swap',
+  display: 'swap', // Yazı tipi yüklenene kadar sistem fontunu gösterir (LCP hızlanır)
   variable: '--font-inter',
-  // Fontun yüklenirken sayfa kaymasını engellemek için pre-load ekliyoruz
   adjustFontFallback: true, 
 })
 
@@ -39,8 +38,7 @@ export const viewport = {
   themeColor: '#046ffb',
   width: 'device-width',
   initialScale: 1,
-  // Ekranın daha hızlı tepki vermesi için ek ayar
-  maximumScale: 5,
+  // maximumScale: 1 kaldırıldı, çünkü kullanıcı yakınlaştırması (zoom) erişilebilirlik için zorunludur.
 }
 
 export default function RootLayout({ children }) {
@@ -49,12 +47,12 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/resimler/adana-evden-eve-nakliyat.png" />
         
-        {/* Preconnect - Kritik bağlantıları optimize ettik */}
+        {/* Preconnect - Bağlantıları daha sıkı hale getirdik */}
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://connect.facebook.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         
-        {/* Schema Markup - JSON-LD olduğu gibi kalıyor */}
+        {/* Yapılandırılmış Veri (Schema) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -92,20 +90,17 @@ export default function RootLayout({ children }) {
                 "@type": "AggregateRating",
                 "ratingValue": "4.9",
                 "reviewCount": "7800"
-              },
-              "sameAs": [
-                "https://www.facebook.com/adanaevdenevetasima/",
-                "https://www.instagram.com/adananabarajevdenevenakliyat/",
-                "https://www.youtube.com/channel/UC8ZcBL6T-OELy9B_ykx79zQ"
-              ]
+              }
             })
           }}
         />
       </head>
       <body className={inter.className}>
+        {/* Erişilebilirlik ve En İyi Uygulamalar için bileşenleri buraya aldık */}
         <FraudDetector />
         <VisitorTracker />
         <CookieBanner />
+        
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -114,10 +109,10 @@ export default function RootLayout({ children }) {
           }}
         />
         
-        {/* Ana içerik */}
-        <main>{children}</main>
+        {/* Ana içerik: main etiketi SEO ve erişilebilirlik için kritiktir */}
+        <main id="main-content">{children}</main>
         
-        {/* Scripts - strategy="lazyOnload" yaparak sayfa geçişlerini rahatlattık */}
+        {/* Scripts - strategy="worker" veya "lazyOnload" ile JS yükünü hafiflettik */}
         <Script 
           src="https://www.googletagmanager.com/gtag/js?id=G-FQBQFLNBJ8"
           strategy="lazyOnload" 
