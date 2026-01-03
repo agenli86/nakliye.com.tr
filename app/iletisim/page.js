@@ -72,7 +72,24 @@ export default async function IletisimPage() {
                       </div>
                       <div>
                         <div className="font-semibold" style={{ color: '#1e3a5f' }}>{item.label}</div>
-                        {item.href ? <a href={item.href} className="text-gray-600 hover:text-blue-600">{item.value}</a> : <div className="text-gray-600">{item.value}</div>}
+                        {item.href ? (
+                          <a 
+                            href={item.href} 
+                            className="text-gray-600 hover:text-blue-600"
+                            // GOOGLE ADS TAKİP KODU BURAYA GELDİ
+                            onClick={() => {
+                              if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+                                window.gtag('event', 'conversion', {
+                                  'send_to': 'AW-10842738572/28z6CO6-69sbEIyfnLIo'
+                                });
+                              }
+                            }}
+                          >
+                            {item.value}
+                          </a>
+                        ) : (
+                          <div className="text-gray-600">{item.value}</div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -83,11 +100,6 @@ export default async function IletisimPage() {
                 <ContactForm />
               </div>
             </div>
-            {getAyar('harita_embed') && (
-              <div className="mt-12 rounded-xl overflow-hidden shadow-lg">
-                <iframe src={getAyar('harita_embed')} width="100%" height="400" style={{ border: 0 }} allowFullScreen loading="lazy" />
-              </div>
-            )}
           </div>
         </section>
       </main>
