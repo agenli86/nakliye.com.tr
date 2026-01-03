@@ -4,14 +4,14 @@ import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
 
-// Kritik olmayan component'ler - lazy load
+// Kritik olmayan component'ler - Performans için lazy load
 const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ssr: false })
 const FraudDetector = dynamic(() => import('@/components/FraudDetector'), { ssr: false })
 const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: false })
 
 const inter = Inter({ 
   subsets: ['latin'],
-  display: 'swap',
+  display: 'swap', // LCP hızlandırmak için yazı tipi yüklenene kadar sistem fontu görünür
   variable: '--font-inter',
   adjustFontFallback: true, 
 })
@@ -45,10 +45,16 @@ export default function RootLayout({ children }) {
     <html lang="tr" className={`${inter.variable} scroll-smooth`}>
       <head>
         <link rel="icon" href="/resimler/adana-evden-eve-nakliyat.png" />
+        
+        {/* LCP Hızlandırma: Ana görseli önceden yükle */}
+        <link rel="preload" href="/resimler/adanaevdenevenakliyat.jpg" as="image" fetchPriority="high" />
+        
+        {/* Preconnect - Bağlantıları hızlandırır */}
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://connect.facebook.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         
+        {/* Yapılandırılmış Veri (Schema) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -127,7 +133,7 @@ export default function RootLayout({ children }) {
             gtag('js', new Date());
             gtag('config', 'AW-10842738572');
             
-            // Telefon Snippet'ı
+            // Telefon Snippet'ı (Dönüşüm Takibi)
             gtag('config', 'AW-10842738572/28z6CO6-69sbEIyfnLIo', {
               'phone_conversion_number': '05057805551'
             });
