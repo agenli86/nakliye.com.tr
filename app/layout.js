@@ -38,7 +38,6 @@ export const viewport = {
   themeColor: '#046ffb',
   width: 'device-width',
   initialScale: 1,
-  // maximumScale: 1 kaldırıldı, çünkü kullanıcı yakınlaştırması (zoom) erişilebilirlik için zorunludur.
 }
 
 export default function RootLayout({ children }) {
@@ -96,7 +95,6 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={inter.className}>
-        {/* Erişilebilirlik ve En İyi Uygulamalar için bileşenleri buraya aldık */}
         <FraudDetector />
         <VisitorTracker />
         <CookieBanner />
@@ -109,10 +107,9 @@ export default function RootLayout({ children }) {
           }}
         />
         
-        {/* Ana içerik: main etiketi SEO ve erişilebilirlik için kritiktir */}
         <main id="main-content">{children}</main>
         
-        {/* Scripts - strategy="worker" veya "lazyOnload" ile JS yükünü hafiflettik */}
+        {/* --- GOOGLE ANALYTICS --- */}
         <Script 
           src="https://www.googletagmanager.com/gtag/js?id=G-FQBQFLNBJ8"
           strategy="lazyOnload" 
@@ -120,7 +117,17 @@ export default function RootLayout({ children }) {
         <Script id="google-analytics" strategy="lazyOnload">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-FQBQFLNBJ8');`}
         </Script>
+
+        {/* --- GOOGLE ADS TAG (YENİ EKLENEN) --- */}
+        <Script 
+          src="https://www.googletagmanager.com/gtag/js?id=AW-10842738572"
+          strategy="lazyOnload" 
+        />
+        <Script id="google-ads" strategy="lazyOnload">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config', 'AW-10842738572');`}
+        </Script>
         
+        {/* --- FACEBOOK PIXEL --- */}
         <Script id="facebook-pixel" strategy="lazyOnload">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','779004901018883');fbq('track','PageView');`}
         </Script>
