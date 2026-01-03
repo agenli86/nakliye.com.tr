@@ -11,7 +11,7 @@ const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: f
 
 const inter = Inter({ 
   subsets: ['latin'],
-  display: 'swap', // Yazı tipi yüklenene kadar sistem fontunu gösterir (LCP hızlanır)
+  display: 'swap',
   variable: '--font-inter',
   adjustFontFallback: true, 
 })
@@ -45,13 +45,10 @@ export default function RootLayout({ children }) {
     <html lang="tr" className={`${inter.variable} scroll-smooth`}>
       <head>
         <link rel="icon" href="/resimler/adana-evden-eve-nakliyat.png" />
-        
-        {/* Preconnect - Bağlantıları daha sıkı hale getirdik */}
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://connect.facebook.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         
-        {/* Yapılandırılmış Veri (Schema) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -118,13 +115,23 @@ export default function RootLayout({ children }) {
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-FQBQFLNBJ8');`}
         </Script>
 
-        {/* --- GOOGLE ADS TAG (YENİ EKLENEN) --- */}
+        {/* --- GOOGLE ADS & PHONE CONVERSION --- */}
         <Script 
           src="https://www.googletagmanager.com/gtag/js?id=AW-10842738572"
           strategy="lazyOnload" 
         />
-        <Script id="google-ads" strategy="lazyOnload">
-          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config', 'AW-10842738572');`}
+        <Script id="google-ads-init" strategy="lazyOnload">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-10842738572');
+            
+            // Telefon Snippet'ı
+            gtag('config', 'AW-10842738572/28z6CO6-69sbEIyfnLIo', {
+              'phone_conversion_number': '05057805551'
+            });
+          `}
         </Script>
         
         {/* --- FACEBOOK PIXEL --- */}
