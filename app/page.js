@@ -14,6 +14,7 @@ import FeatureBoxes from '@/components/FeatureBoxes'
 import JsonLd from '@/components/JsonLd'
 import ChatBotEmbed from '@/components/ChatBotEmbed'
 import Link from 'next/link'
+import Image from 'next/image' // Image bileşeni eklendi
 import { FaPhone, FaCheckCircle } from 'react-icons/fa'
 
 export async function generateMetadata() {
@@ -75,7 +76,6 @@ export default async function Home() {
   const ctaBolum = getBolum('cta')
   const blogBaslik = getBolum('blog_baslik')
 
-  // JSON-LD Yapısal Veri
   const jsonLdOrganization = getAyar('json_ld_organization')
   const jsonLdLocalBusiness = getAyar('json_ld_local_business')
   const jsonLdWebsite = getAyar('json_ld_website')
@@ -87,25 +87,19 @@ export default async function Home() {
 
   return (
     <>
-      {/* JSON-LD Yapısal Veriler */}
       {orgData && <JsonLd data={orgData} />}
       {businessData && <JsonLd data={businessData} />}
       {websiteData && <JsonLd data={websiteData} />}
 
       <Header ayarlar={ayarlar} menu={menu} />
       <main className="home-page">
-        <HeroSlider sliders={sliders} />
+        {/* LCP Optimizasyonu için Slider'a priority veriyoruz */}
+        <HeroSlider sliders={sliders} priority={true} />
         
-        {/* Kayan Duyuru */}
         <AnnouncementBar duyurular={duyurular} />
-
-        {/* AI Chatbot - Slider Altı */}
         <ChatBotEmbed />
-
-        {/* Özellik Kutucukları - AdWords Uyumlu */}
         <FeatureBoxes kutucuklar={kutucuklar} />
 
-        {/* Slider Altı */}
         <section className="section bg-white">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -128,17 +122,24 @@ export default async function Home() {
                 <Link href={sliderAlti.buton_link || '/hakkimizda'} className="btn-primary">{sliderAlti.buton_metin || 'Hakkımızda'}</Link>
               </div>
               <div className="relative">
-                <img src={sliderAlti.resim || '/resimler/294-adana-nakliyat.webp'} alt="Adana Nakliyat" className="w-full rounded-2xl shadow-2xl" />
+                {/* img yerine Next.js Image kullanarak hızlandırıyoruz */}
+                <Image 
+                  src={sliderAlti.resim || '/resimler/294-adana-nakliyat.webp'} 
+                  alt="Adana Nakliyat" 
+                  width={600}
+                  height={450}
+                  className="w-full rounded-2xl shadow-2xl h-auto"
+                  priority={true} // Sayfa açılır açılmaz yüklensin
+                  fetchPriority="high"
+                />
                 <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-2xl -z-10" style={{ backgroundColor: '#d4ed31' }} />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Tab Bölümü */}
         {tablar && tablar.length > 0 && <HomeTabs tablar={tablar} />}
 
-        {/* Hizmetler */}
         <section className="section bg-gray-50">
           <div className="container mx-auto px-4">
             <h2 className="section-title">{hizmetlerBaslik.baslik || 'Öne Çıkan Hizmetlerimiz'}</h2>
@@ -155,7 +156,6 @@ export default async function Home() {
         <PriceTable fiyatlar={fiyatlar} bolum={getBolum('fiyatlar_baslik')} />
         <CounterSection ayarlar={ayarlar} />
 
-        {/* CTA */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="rounded-3xl p-8 md:p-12 text-center" style={{ backgroundColor: '#1e3a5f' }}>
@@ -169,7 +169,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Blog */}
         {makaleler?.length > 0 && (
           <section className="section bg-gray-50">
             <div className="container mx-auto px-4">
@@ -185,7 +184,6 @@ export default async function Home() {
           </section>
         )}
 
-        {/* Galeri */}
         <HomeGallery galeri={galeri} />
       </main>
       <Footer ayarlar={ayarlar} hizmetler={hizmetler} />
