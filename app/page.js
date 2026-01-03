@@ -4,12 +4,8 @@ import Footer from '@/components/Footer'
 import HeroSlider from '@/components/HeroSlider'
 import AnnouncementBar from '@/components/AnnouncementBar'
 import ServiceCard from '@/components/ServiceCard'
-import CounterSection from '@/components/CounterSection'
-import PriceTable from '@/components/PriceTable'
 import ArticleCard from '@/components/ArticleCard'
 import StickyButtons from '@/components/StickyButtons'
-import HomeTabs from '@/components/HomeTabs'
-import HomeGallery from '@/components/HomeGallery'
 import FeatureBoxes from '@/components/FeatureBoxes'
 import JsonLd from '@/components/JsonLd'
 import Link from 'next/link'
@@ -17,8 +13,24 @@ import Image from 'next/image'
 import { FaPhone, FaCheckCircle } from 'react-icons/fa'
 import dynamic from 'next/dynamic'
 
-// Dynamic import for ChatBotEmbed - reduce initial bundle size
+// Dynamic imports for below-the-fold components - reduce initial bundle size
 const ChatBotEmbed = dynamic(() => import('@/components/ChatBotEmbed'), {
+  ssr: false,
+  loading: () => null
+})
+const CounterSection = dynamic(() => import('@/components/CounterSection'), {
+  ssr: false,
+  loading: () => null
+})
+const PriceTable = dynamic(() => import('@/components/PriceTable'), {
+  ssr: false,
+  loading: () => null
+})
+const HomeTabs = dynamic(() => import('@/components/HomeTabs'), {
+  ssr: false,
+  loading: () => null
+})
+const HomeGallery = dynamic(() => import('@/components/HomeGallery'), {
   ssr: false,
   loading: () => null
 })

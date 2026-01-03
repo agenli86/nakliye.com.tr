@@ -87,12 +87,12 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/resimler/adana-evden-eve-nakliyat.png" />
         
         {/* 🚀 LCP Hızlandırma: Ana görseli yüksek öncelikle önceden yükle */}
-        <link 
-          rel="preload" 
-          href="/resimler/adanaevdenevenakliyat.jpg" 
-          as="image" 
+        <link
+          rel="preload"
+          href="/resimler/adanaevdenevenakliyat.webp"
+          as="image"
           fetchPriority="high"
-          type="image/jpeg"
+          type="image/webp"
         />
         
         {/* 🚀 DNS Prefetch & Preconnect - Dış kaynaklara bağlantıyı hızlandırır */}
