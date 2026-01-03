@@ -1,31 +1,20 @@
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
-import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import dynamic from 'next/dynamic'
 
 // Kritik olmayan component'ler - SSR kapalı, prefetch kapalı
-const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { 
+const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), {
   ssr: false,
-  loading: () => null 
+  loading: () => null
 })
-const FraudDetector = dynamic(() => import('@/components/FraudDetector'), { 
+const FraudDetector = dynamic(() => import('@/components/FraudDetector'), {
   ssr: false,
-  loading: () => null 
+  loading: () => null
 })
-const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { 
+const CookieBanner = dynamic(() => import('@/components/CookieBanner'), {
   ssr: false,
-  loading: () => null 
-})
-
-// Font optimizasyonu - preload ile
-const inter = Inter({ 
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  preload: true, // Font'u önceden yükle
-  adjustFontFallback: true,
-  fallback: ['system-ui', 'arial'], // Fallback font'lar
+  loading: () => null
 })
 
 export const metadata = {
@@ -80,7 +69,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="tr" className={`${inter.variable} scroll-smooth`}>
+    <html lang="tr" className="scroll-smooth">
       <head>
         {/* Favicon */}
         <link rel="icon" href="/resimler/adana-evden-eve-nakliyat.png" />
@@ -167,7 +156,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       
-      <body className={inter.className}>
+      <body className="font-sans">
         {/* Kritik olmayan tracker'lar - Lazy load */}
         <FraudDetector />
         <VisitorTracker />
