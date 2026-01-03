@@ -14,7 +14,7 @@ import FeatureBoxes from '@/components/FeatureBoxes'
 import JsonLd from '@/components/JsonLd'
 import ChatBotEmbed from '@/components/ChatBotEmbed'
 import Link from 'next/link'
-import Image from 'next/image' // Image bileşeni eklendi
+import Image from 'next/image'
 import { FaPhone, FaCheckCircle } from 'react-icons/fa'
 
 export async function generateMetadata() {
@@ -35,8 +35,31 @@ export async function generateMetadata() {
       title: seo?.meta_title || getAyar('meta_title'),
       description: seo?.meta_description || getAyar('meta_description'),
       url: siteUrl,
-      images: [{ url: seo?.og_image || getAyar('og_image') || '/resimler/adanaevdenevenakliyat.jpg', width: 1200, height: 630 }],
+      images: [{ 
+        url: seo?.og_image || getAyar('og_image') || '/resimler/adanaevdenevenakliyat.jpg', 
+        width: 1200, 
+        height: 630,
+        alt: 'Adana Evden Eve Nakliyat'
+      }],
       type: 'website',
+      siteName: 'Adana Nakliye',
+      locale: 'tr_TR',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo?.meta_title || getAyar('meta_title'),
+      description: seo?.meta_description || getAyar('meta_description'),
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      }
     },
     alternates: { canonical: seo?.canonical_url || siteUrl },
   }
@@ -92,24 +115,35 @@ export default async function Home() {
       {websiteData && <JsonLd data={websiteData} />}
 
       <Header ayarlar={ayarlar} menu={menu} />
+      
       <main className="home-page">
-        {/* LCP Optimizasyonu için Slider'a priority veriyoruz */}
+        {/* 🚀 LCP Element - SADECE slider'a priority */}
         <HeroSlider sliders={sliders} priority={true} />
         
         <AnnouncementBar duyurular={duyurular} />
         <ChatBotEmbed />
         <FeatureBoxes kutucuklar={kutucuklar} />
 
+        {/* Slider Altı Bölüm */}
         <section className="section bg-white">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                <span className="text-blue-600 font-semibold text-lg mb-2 block">{sliderAlti.alt_baslik || 'Sitemize Hoşgeldiniz'}</span>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#1e3a5f' }}>{sliderAlti.baslik || 'Adana Evden Eve Nakliyat'}</h2>
+                <span className="text-blue-600 font-semibold text-lg mb-2 block">
+                  {sliderAlti.alt_baslik || 'Sitemize Hoşgeldiniz'}
+                </span>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#1e3a5f' }}>
+                  {sliderAlti.baslik || 'Adana Evden Eve Nakliyat'}
+                </h2>
                 {sliderAlti.icerik ? (
-                  <div className="text-gray-600 mb-6 leading-relaxed prose" dangerouslySetInnerHTML={{ __html: sliderAlti.icerik }} />
+                  <div 
+                    className="text-gray-600 mb-6 leading-relaxed prose" 
+                    dangerouslySetInnerHTML={{ __html: sliderAlti.icerik }} 
+                  />
                 ) : (
-                  <p className="text-gray-600 mb-6">Adana Nakliye, müşteri memnuniyetini ön planda tutan evden eve nakliyat hizmetlerinde lider firmalardan biridir.</p>
+                  <p className="text-gray-600 mb-6">
+                    Adana Nakliye, müşteri memnuniyetini ön planda tutan evden eve nakliyat hizmetlerinde lider firmalardan biridir.
+                  </p>
                 )}
                 <ul className="space-y-3 mb-8">
                   {['Profesyonel ekip', 'Sigortalı taşımacılık', 'Uygun fiyat', '7/24 destek'].map((item, i) => (
@@ -119,73 +153,132 @@ export default async function Home() {
                     </li>
                   ))}
                 </ul>
-                <Link href={sliderAlti.buton_link || '/hakkimizda'} className="btn-primary">{sliderAlti.buton_metin || 'Hakkımızda'}</Link>
+                <Link 
+                  href={sliderAlti.buton_link || '/hakkimizda'} 
+                  className="btn-primary"
+                >
+                  {sliderAlti.buton_metin || 'Hakkımızda'}
+                </Link>
               </div>
+              
               <div className="relative">
-                {/* img yerine Next.js Image kullanarak hızlandırıyoruz */}
+                {/* ✅ Priority KALDIRILDI - Slider LCP'dir, bu değil */}
                 <Image 
                   src={sliderAlti.resim || '/resimler/294-adana-nakliyat.webp'} 
-                  alt="Adana Nakliyat" 
+                  alt="Adana Nakliyat Hizmetleri" 
                   width={600}
                   height={450}
-                  className="w-full rounded-2xl shadow-2xl h-auto"
-                  priority={true} // Sayfa açılır açılmaz yüklensin
-                  fetchPriority="high"
+                  className="w-full rounded-2xl shadow-2xl"
+                  loading="lazy" // ✅ Lazy loading eklendi
+                  quality={85}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                 />
-                <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-2xl -z-10" style={{ backgroundColor: '#d4ed31' }} />
+                <div 
+                  className="absolute -bottom-6 -left-6 w-32 h-32 rounded-2xl -z-10" 
+                  style={{ backgroundColor: '#d4ed31' }} 
+                  aria-hidden="true"
+                />
               </div>
             </div>
           </div>
         </section>
 
+        {/* Tablar */}
         {tablar && tablar.length > 0 && <HomeTabs tablar={tablar} />}
 
+        {/* Hizmetler */}
         <section className="section bg-gray-50">
           <div className="container mx-auto px-4">
-            <h2 className="section-title">{hizmetlerBaslik.baslik || 'Öne Çıkan Hizmetlerimiz'}</h2>
-            <p className="section-subtitle">{hizmetlerBaslik.alt_baslik || 'Profesyonel nakliyat hizmetleri'}</p>
+            <h2 className="section-title">
+              {hizmetlerBaslik.baslik || 'Öne Çıkan Hizmetlerimiz'}
+            </h2>
+            <p className="section-subtitle">
+              {hizmetlerBaslik.alt_baslik || 'Profesyonel nakliyat hizmetleri'}
+            </p>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {hizmetler?.map((h) => <ServiceCard key={h.id} hizmet={h} />)}
+              {hizmetler?.map((h) => (
+                <ServiceCard key={h.id} hizmet={h} />
+              ))}
             </div>
             <div className="text-center mt-12">
-              <Link href="/hizmetler" className="btn-outline">Tüm Hizmetlerimiz</Link>
+              <Link href="/hizmetler" className="btn-outline">
+                Tüm Hizmetlerimiz
+              </Link>
             </div>
           </div>
         </section>
 
+        {/* Fiyat Tablosu */}
         <PriceTable fiyatlar={fiyatlar} bolum={getBolum('fiyatlar_baslik')} />
+        
+        {/* Sayaçlar */}
         <CounterSection ayarlar={ayarlar} />
 
+        {/* CTA Bölümü */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="rounded-3xl p-8 md:p-12 text-center" style={{ backgroundColor: '#1e3a5f' }}>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: '#d4ed31' }}>{ctaBolum.baslik || 'Yardıma mı İhtiyacınız Var?'}</h2>
-              <p className="text-xl text-white mb-8 max-w-2xl mx-auto">{ctaBolum.alt_baslik || 'Uzman ekibimiz yanınızda.'}</p>
+            <div 
+              className="rounded-3xl p-8 md:p-12 text-center" 
+              style={{ backgroundColor: '#1e3a5f' }}
+            >
+              <h2 
+                className="text-3xl md:text-4xl font-bold mb-4" 
+                style={{ color: '#d4ed31' }}
+              >
+                {ctaBolum.baslik || 'Yardıma mı İhtiyacınız Var?'}
+              </h2>
+              <p className="text-xl text-white mb-8 max-w-2xl mx-auto">
+                {ctaBolum.alt_baslik || 'Uzman ekibimiz yanınızda.'}
+              </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href={`tel:${telefon}`} className="btn-primary flex items-center justify-center gap-2"><FaPhone />Hemen Arayın</a>
-                <Link href="/teklif-al" className="bg-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-all" style={{ color: '#1e3a5f' }}>Ücretsiz Teklif Al</Link>
+                <a 
+                  href={`tel:${telefon}`} 
+                  className="btn-primary flex items-center justify-center gap-2"
+                  aria-label="Telefon ile hemen arayın"
+                >
+                  <FaPhone />
+                  Hemen Arayın
+                </a>
+                <Link 
+                  href="/teklif-al" 
+                  className="bg-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-all" 
+                  style={{ color: '#1e3a5f' }}
+                >
+                  Ücretsiz Teklif Al
+                </Link>
               </div>
             </div>
           </div>
         </section>
 
+        {/* Blog Makaleleri */}
         {makaleler?.length > 0 && (
           <section className="section bg-gray-50">
             <div className="container mx-auto px-4">
-              <h2 className="section-title">{blogBaslik.baslik || 'Son Makaleler'}</h2>
-              <p className="section-subtitle">{blogBaslik.alt_baslik || 'Faydalı bilgiler'}</p>
+              <h2 className="section-title">
+                {blogBaslik.baslik || 'Son Makaleler'}
+              </h2>
+              <p className="section-subtitle">
+                {blogBaslik.alt_baslik || 'Faydalı bilgiler'}
+              </p>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {makaleler.map((m) => <ArticleCard key={m.id} makale={m} />)}
+                {makaleler.map((m) => (
+                  <ArticleCard key={m.id} makale={m} />
+                ))}
               </div>
               <div className="text-center mt-12">
-                <Link href="/blog" className="btn-outline">Tüm Makaleler</Link>
+                <Link href="/blog" className="btn-outline">
+                  Tüm Makaleler
+                </Link>
               </div>
             </div>
           </section>
         )}
 
+        {/* Galeri */}
         <HomeGallery galeri={galeri} />
       </main>
+      
       <Footer ayarlar={ayarlar} hizmetler={hizmetler} />
       <StickyButtons whatsapp={whatsapp} telefon={telefon} />
     </>
