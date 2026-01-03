@@ -12,10 +12,16 @@ import HomeTabs from '@/components/HomeTabs'
 import HomeGallery from '@/components/HomeGallery'
 import FeatureBoxes from '@/components/FeatureBoxes'
 import JsonLd from '@/components/JsonLd'
-import ChatBotEmbed from '@/components/ChatBotEmbed'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaPhone, FaCheckCircle } from 'react-icons/fa'
+import dynamic from 'next/dynamic'
+
+// Dynamic import for ChatBotEmbed - reduce initial bundle size
+const ChatBotEmbed = dynamic(() => import('@/components/ChatBotEmbed'), {
+  ssr: false,
+  loading: () => null
+})
 
 export async function generateMetadata() {
   const supabase = await createClient()
