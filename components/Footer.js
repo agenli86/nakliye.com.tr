@@ -12,8 +12,8 @@ export default function Footer({ ayarlar, hizmetler }) {
 
   // Google Ads Dönüşüm Takip Fonksiyonu
   const handleConversion = () => {
-    if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
-      (window as any).gtag('event', 'conversion', {
+    if (typeof window !== 'undefined' && window.gtag && typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
         'send_to': 'AW-10842738572/28z6CO6-69sbEIyfnLIo'
       });
     }
