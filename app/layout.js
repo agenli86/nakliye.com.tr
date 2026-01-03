@@ -96,11 +96,11 @@ export default function RootLayout({ children }) {
         />
         
         {/* 🚀 DNS Prefetch & Preconnect - Dış kaynaklara bağlantıyı hızlandırır */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="preconnect" href="https://connect.facebook.net" />
+        {/* Kritik kaynaklar için preconnect, diğerleri için dns-prefetch */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
+        <link rel="dns-prefetch" href="https://www.gstatic.com" />
         
         {/* 🚀 Yapılandırılmış Veri (Schema) - SEO için */}
         <script
@@ -195,11 +195,11 @@ export default function RootLayout({ children }) {
         {/* Ana İçerik */}
         <main id="main-content">{children}</main>
         
-        {/* 📊 GOOGLE TAG MANAGER - TEK BİR SCRIPT İLE TÜM TRACKING */}
-        {/* Bu yöntem daha hızlı ve yönetimi kolay */}
-        <Script 
+        {/* 📊 GOOGLE TAG MANAGER - Lazy load için optimize edilmiş */}
+        {/* lazyOnload stratejisi ile sayfa yüklendikten sonra yüklenir */}
+        <Script
           id="gtm"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -247,8 +247,8 @@ export default function RootLayout({ children }) {
           `}
         </Script>
         
-        {/* 📱 FACEBOOK PIXEL - Optimize edilmiş */}
-        <Script id="facebook-pixel" strategy="afterInteractive">
+        {/* 📱 FACEBOOK PIXEL - Lazy load için optimize edilmiş */}
+        <Script id="facebook-pixel" strategy="lazyOnload">
           {`
             !function(f,b,e,v,n,t,s){
               if(f.fbq)return;
@@ -263,7 +263,7 @@ export default function RootLayout({ children }) {
               s=b.getElementsByTagName(e)[0];
               s.parentNode.insertBefore(t,s)
             }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
-            
+
             fbq('init', '779004901018883');
             fbq('track', 'PageView');
           `}
