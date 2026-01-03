@@ -10,6 +10,15 @@ export default function Footer({ ayarlar, hizmetler }) {
   const whatsapp = getAyar('whatsapp') || '905057805551'
   const footerLogo = getAyar('footer_logo') || getAyar('logo') || '/resimler/adananakliye.png'
 
+  // Google Ads Dönüşüm Takip Fonksiyonu
+  const handleConversion = () => {
+    if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
+      (window as any).gtag('event', 'conversion', {
+        'send_to': 'AW-10842738572/28z6CO6-69sbEIyfnLIo'
+      });
+    }
+  }
+
   return (
     <footer className="bg-[#1e3a5f] text-white" role="contentinfo">
       <div className="container mx-auto px-4 py-16">
@@ -40,8 +49,23 @@ export default function Footer({ ayarlar, hizmetler }) {
           <div>
             <h4 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">İLETİŞİM</h4>
             <div className="flex flex-col gap-6">
-              <a href={`tel:${telefon}`} className="flex items-center gap-3 text-lg font-bold hover:text-[#d4ed31] py-2"><FaPhone className="text-[#d4ed31]"/> {telefon}</a>
-              <a href={`https://wa.me/${whatsapp}`} className="bg-[#0f2744] p-4 rounded-xl flex items-center gap-3 hover:bg-green-600 transition-all py-3"><FaWhatsapp className="text-green-500" size={24}/> <span>WhatsApp Destek</span></a>
+              {/* Telefon Tıklama Takibi */}
+              <a 
+                href={`tel:${telefon}`} 
+                onClick={handleConversion}
+                className="flex items-center gap-3 text-lg font-bold hover:text-[#d4ed31] py-2"
+              >
+                <FaPhone className="text-[#d4ed31]"/> {telefon}
+              </a>
+              
+              {/* WhatsApp Tıklama Takibi */}
+              <a 
+                href={`https://wa.me/${whatsapp}`} 
+                onClick={handleConversion}
+                className="bg-[#0f2744] p-4 rounded-xl flex items-center gap-3 hover:bg-green-600 transition-all py-3"
+              >
+                <FaWhatsapp className="text-green-500" size={24}/> <span>WhatsApp Destek</span>
+              </a>
             </div>
           </div>
         </div>
