@@ -62,18 +62,27 @@ export default function AdminZiyaretcilerPage() {
     setLoading(true)
     
     try {
-      // Tüm kayıtları sil
-      const { error } = await supabase
+      // Önce tüm kayıtları çek
+      const { data: allVisitors } = await supabase
         .from('ziyaretciler')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000')
+        .select('id')
       
-      if (error) {
-        alert('Hata: ' + error.message)
+      if (allVisitors && allVisitors.length > 0) {
+        // Tüm ID'leri sil
+        const { error } = await supabase
+          .from('ziyaretciler')
+          .delete()
+          .in('id', allVisitors.map(v => v.id))
+        
+        if (error) {
+          alert('Hata: ' + error.message)
+        } else {
+          alert(`${allVisitors.length} adet ziyaret silindi!`)
+          setVisitors([])
+          setStats({})
+        }
       } else {
-        alert('Tüm ziyaretler silindi!')
-        setVisitors([])
-        setStats({})
+        alert('Silinecek kayıt bulunamadı.')
       }
     } catch (error) {
       alert('Hata: ' + error.message)
