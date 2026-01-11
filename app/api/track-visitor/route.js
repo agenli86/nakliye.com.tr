@@ -1,148 +1,257 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// Supabase client (server-side)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-// MOBİL OPERATÖR TESPİTİ
-function detectMobileOperator(ip) {
-  if (!ip || ip === 'unknown') return null
+// Sistem prompt'u - Firma bilgileri
+const SYSTEM_PROMPT = `Sen Adana Nakliye firmasının yapay zeka asistanısın. Sadece nakliyat ve taşımacılık konularında yardımcı olursun.
+
+## FİRMA BİLGİLERİ:
+- Firma Adı: Adana Nakliye
+- Telefon: 0505 780 55 51
+- Hizmet Bölgesi: Adana ve tüm Türkiye (şehirler arası)
+
+## HİZMETLERİMİZ:
+- Evden eve nakliyat
+- Şehir içi nakliyat
+- Şehirler arası nakliyat
+- Asansörlü taşımacılık
+- Ofis taşıma
+- Eşya paketleme
+
+## AMBALAJLAMA VE PAKETLEME:
+- Biz tüm eşyaları profesyonelce ambalajlıyoruz
+- Kırılacak eşyalar özel olarak paketlenir
+- Mutfak malzemeleri (bardak, tabak vs) biz topluyoruz
+- ELBİSE VE TEKSTİL malzemelerini MÜŞTERİ KENDİSİ toplar, biz toplamıyoruz
+
+## BEYAZ EŞYA VE MOBİLYA:
+- Beyaz eşyaları (buzdolabı, çamaşır makinesi vs) biz söküp takıyoruz
+- Mobilyaları (gardırop, yatak, koltuk vs) biz söküp takıyoruz
+- Bu hizmetler ÜCRETSİZ olarak dahildir
+
+## KLİMA:
+- Klima sökme/takma işlemini BİZ YAPMIYORUZ
+- Müşteri klimayı kendisi söktürüp taktıracak
+- Bu konuda bir klimacı ile anlaşmaları gerekiyor
+
+## ASANSÖR KURULUMU:
+- 1. kat ve üzeri taşımalarda MUTLAKA asansörlü taşıma yapılır
+- Merdivenden taşıma yapmıyoruz (1. kat üstü için)
+- Balkon veya pencerede demir şebeke/parmaklık varsa KESİM MÜŞTERİYE AİTTİR
+- Biz demir kesimi yapmıyoruz, müşteri kestirmeli
+
+## FİYATLAR:
+Fiyatlar ORTALAMA değerlerdir, kesin fiyat için keşif gerekir:
+
+1. Her iki taraf da zemin veya 1. kat ise: Ortalama 14.000 TL
+2. Bir taraf zemin/1. kat, diğer taraf 1. kattan yukarı ise: Ortalama 16.000 TL (tek asansör)
+3. Her iki taraf da 1. kattan yukarı ise: Ortalama 18.000 TL (çift asansör gerekir)
+
+İndirim isteyen müşterilere: "İndirim için firma yetkilimizle görüşebilirsiniz" de ve bu numarayı ver: [0505 780 55 51](tel:05057805551)
+
+## ŞEHİRLER ARASI NAKLİYAT:
+- Şehirler arası nakliyat fiyatları buradan verilmiyor
+- Mesafe, eşya miktarı gibi faktörlere göre değişir
+- Müşteri mutlaka firmayı aramalı: 0505 780 55 51
+
+## RANDEVU VE TEKLİF:
+- Randevu almak için sitemizdeki "Teklif Al" formunu kullanabilirler
+- Veya direkt arayabilirler: 0505 780 55 51
+
+## ÖNEMLİ KURALLAR:
+1. SADECE nakliyat, taşımacılık, paketleme konularında cevap ver
+2. Bilmediğin veya emin olmadığın konularda "Bu konuda bilgim yok, lütfen firmamızı arayın: 0505 780 55 51" de
+3. Siyaset, din, spor gibi alakasız konularda CEVAP VERME
+4. Her zaman nazik ve profesyonel ol
+5. Telefon numarasını tıklanabilir olarak ver: [0505 780 55 51](tel:05057805551)
+6. Fiyat sorarlarsa ORTALAMA olduğunu ve kesin fiyat için aranması gerektiğini belirt`
+
+// Günlük limiti kontrol et ve güncelle
+async function checkAndUpdateLimit(kimlik, ipAdresi) {
+  const today = new Date().toISOString().split('T')[0]
   
-  const operators = {
-    'Türkcell': [
-      '212.58.', '212.59.', '212.252.', '212.253.', 
-      '31.223.', '88.240.', '88.241.', '88.242.',
-      '78.176.', '78.177.', '78.178.', '78.179.'
-    ],
-    'Vodafone': [
-      '212.175.', '212.174.', '195.174.', '195.175.', 
-      '85.96.', '85.97.', '85.98.', '85.99.',
-      '213.74.', '213.75.'
-    ],
-    'Turk Telekom': [
-      '88.247.', '88.248.', '88.249.', 
-      '78.188.', '78.189.', '78.190.',
-      '176.88.', '176.89.', '176.90.'
-    ]
+  // Mevcut limiti getir
+  let { data: limit } = await supabase
+    .from('chatbot_limitler')
+    .select('*')
+    .eq('kimlik', kimlik)
+    .single()
+
+  // Yoksa oluştur
+  if (!limit) {
+    const { data: newLimit } = await supabase
+      .from('chatbot_limitler')
+      .insert({
+        kimlik,
+        kimlik_tipi: 'fingerprint',
+        soru_sayisi: 0,
+        max_limit: 5,
+        limit_reset_tarihi: today
+      })
+      .select()
+      .single()
+    limit = newLimit
   }
-  
-  for (const [operator, ipRanges] of Object.entries(operators)) {
-    for (const range of ipRanges) {
-      if (ip.startsWith(range)) {
-        return operator
-      }
-    }
+
+  // Gün değiştiyse sıfırla
+  if (limit && limit.limit_reset_tarihi !== today) {
+    await supabase
+      .from('chatbot_limitler')
+      .update({
+        soru_sayisi: 0,
+        limit_reset_tarihi: today
+      })
+      .eq('kimlik', kimlik)
+    limit.soru_sayisi = 0
   }
-  
-  return null
+
+  // Limit kontrolü
+  if (limit && limit.soru_sayisi >= (limit.max_limit || 5)) {
+    return { allowed: false, remaining: 0 }
+  }
+
+  // Sayacı artır
+  const newCount = (limit?.soru_sayisi || 0) + 1
+  await supabase
+    .from('chatbot_limitler')
+    .update({
+      soru_sayisi: newCount,
+      son_soru_tarihi: new Date().toISOString()
+    })
+    .eq('kimlik', kimlik)
+
+  return { 
+    allowed: true, 
+    remaining: (limit?.max_limit || 5) - newCount 
+  }
 }
 
-function detectDeviceType(userAgent) {
-  if (/tablet|ipad/i.test(userAgent)) return 'tablet'
-  if (/mobile|android|iphone/i.test(userAgent)) return 'mobile'
-  return 'desktop'
-}
-
-function detectBrowser(userAgent) {
-  if (userAgent.includes('Chrome')) return 'Chrome'
-  if (userAgent.includes('Safari')) return 'Safari'
-  if (userAgent.includes('Firefox')) return 'Firefox'
-  if (userAgent.includes('Edge')) return 'Edge'
-  if (userAgent.includes('Opera')) return 'Opera'
-  return 'Diğer'
-}
-
-function detectOS(userAgent) {
-  if (userAgent.includes('Android')) return 'Android'
-  if (userAgent.includes('iPhone') || userAgent.includes('iPad')) return 'iOS'
-  if (userAgent.includes('Windows')) return 'Windows'
-  if (userAgent.includes('Mac')) return 'macOS'
-  if (userAgent.includes('Linux')) return 'Linux'
-  return 'Diğer'
+// Sohbeti kaydet
+async function saveChatLog(data) {
+  try {
+    await supabase.from('chatbot_sohbetler').insert(data)
+  } catch (error) {
+    console.error('Chat log kayıt hatası:', error)
+  }
 }
 
 export async function POST(request) {
-  console.log('🔵 API Route Çalıştı - track-visitor')
+  const startTime = Date.now()
   
   try {
-    const body = await request.json()
-    console.log('🟡 Gelen body:', body)
-    
-    // IP adresi
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-               request.headers.get('x-real-ip') || 
-               'unknown'
-    
-    console.log('🟡 IP:', ip)
-    
-    // User Agent
-    const userAgent = body.userAgent || request.headers.get('user-agent') || 'unknown'
-    
-    // Tespit sistemleri
-    const mobileOperator = detectMobileOperator(ip)
-    const deviceType = detectDeviceType(userAgent)
-    const browser = detectBrowser(userAgent)
-    const os = detectOS(userAgent)
+    const { message, fingerprint } = await request.json()
 
-    console.log('🟡 Tespit edilen:', { mobileOperator, deviceType, browser, os })
-
-    // Konum bilgisi
-    let locationData = {}
-    if (body.location) {
-      locationData = {
-        enlem: body.location.lat,
-        boylam: body.location.lng,
-        konum_izni: true
-      }
-      console.log('🟢 Konum bilgisi var:', locationData)
+    if (!message || message.trim().length === 0) {
+      return NextResponse.json({ error: 'Mesaj boş olamaz' }, { status: 400 })
     }
 
-    // Supabase'e kaydet
-    const insertData = {
-      ip_adresi: ip,
-      mobil_operator: mobileOperator,
-      cihaz_turu: deviceType,
-      tarayici: browser,
-      isletim_sistemi: os,
-      utm_source: body.source,
-      utm_medium: body.medium,
-      utm_campaign: body.campaign,
-      referrer: body.referrer,
-      giris_sayfasi: body.page,
-      ...locationData
+    // IP adresini al
+    const ipAdresi = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                     request.headers.get('x-real-ip') || 
+                     'unknown'
+
+    // Kimlik belirle (fingerprint veya IP)
+    const kimlik = fingerprint || ipAdresi
+
+    // Limit kontrolü
+    const limitCheck = await checkAndUpdateLimit(kimlik, ipAdresi)
+    
+    if (!limitCheck.allowed) {
+      // Limit aşıldı - kaydet
+      await saveChatLog({
+        fingerprint: fingerprint || null,
+        ip_adresi: ipAdresi,
+        kullanici_mesaji: message,
+        bot_cevabi: null,
+        basarili: false,
+        hata_mesaji: 'Günlük limit aşıldı'
+      })
+
+      return NextResponse.json({
+        error: 'Günlük soru limitiniz doldu (5 soru). Daha fazla bilgi için bizi arayın: 0505 780 55 51',
+        limitReached: true,
+        remainingQuestions: 0
+      }, { status: 429 })
     }
 
-    console.log('🔵 Supabase\'e kaydediliyor:', insertData)
-
-    const { data, error } = await supabase
-      .from('ziyaretciler')
-      .insert(insertData)
-      .select()
-
-    if (error) {
-      console.error('❌ Supabase error:', error)
-      return NextResponse.json(
-        { error: 'Database error', details: error.message },
-        { status: 500 }
-      )
+    // API key kontrolü
+    const apiKey = process.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      await saveChatLog({
+        fingerprint: fingerprint || null,
+        ip_adresi: ipAdresi,
+        kullanici_mesaji: message,
+        bot_cevabi: null,
+        basarili: false,
+        hata_mesaji: 'API key eksik'
+      })
+      return NextResponse.json({ error: 'Sistem yapılandırması eksik' }, { status: 500 })
     }
 
-    console.log('✅ Supabase\'e kaydedildi:', data)
+    // Claude API çağrısı
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-haiku-20240307', // En ucuz model
+        max_tokens: 500,
+        system: SYSTEM_PROMPT,
+        messages: [
+          { role: 'user', content: message }
+        ]
+      })
+    })
 
-    return NextResponse.json({ 
-      success: true, 
-      operator: mobileOperator,
-      deviceType,
-      locationTracked: !!body.location
+    if (!response.ok) {
+      const error = await response.text()
+      console.error('Claude API Error:', error)
+      
+      await saveChatLog({
+        fingerprint: fingerprint || null,
+        ip_adresi: ipAdresi,
+        kullanici_mesaji: message,
+        bot_cevabi: null,
+        basarili: false,
+        hata_mesaji: 'Claude API hatası'
+      })
+
+      return NextResponse.json({ 
+        error: 'Yapay zeka şu an meşgul, lütfen daha sonra tekrar deneyin.' 
+      }, { status: 500 })
+    }
+
+    const data = await response.json()
+    const reply = data.content[0]?.text || 'Üzgünüm, bir hata oluştu.'
+    const cevapSuresi = Date.now() - startTime
+
+    // Başarılı sohbeti kaydet
+    await saveChatLog({
+      fingerprint: fingerprint || null,
+      ip_adresi: ipAdresi,
+      kullanici_mesaji: message,
+      bot_cevabi: reply,
+      basarili: true,
+      hata_mesaji: null,
+      cevap_suresi_ms: cevapSuresi,
+      token_kullanimi: data.usage?.input_tokens + data.usage?.output_tokens || null
+    })
+
+    return NextResponse.json({
+      reply,
+      remainingQuestions: limitCheck.remaining
     })
 
   } catch (error) {
-    console.error('❌ Track visitor error:', error)
-    return NextResponse.json(
-      { error: 'Tracking failed', details: error.message },
-      { status: 500 }
-    )
+    console.error('Chatbot Error:', error)
+    return NextResponse.json({ error: 'Bir hata oluştu' }, { status: 500 })
   }
 }
