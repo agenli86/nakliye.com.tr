@@ -7,7 +7,7 @@ import {
   FaUsers, FaMobile, FaDesktop, FaTablet, FaMapMarkerAlt, FaGlobe, 
   FaClock, FaChrome, FaSafari, FaFirefox, FaEdge, FaEye, FaSync,
   FaAndroid, FaApple, FaWindows, FaLinux, FaSearch, FaFilter,
-  FaBullhorn, FaLink, FaUserSecret
+  FaBullhorn, FaLink, FaUserSecret, FaTrash
 } from 'react-icons/fa'
 
 // VisitorMap'i client-side only yükle
@@ -48,6 +48,40 @@ export default function AdminZiyaretcilerPage() {
     setLoading(false)
   }
 
+  // TÜM ZİYARETLERİ SİL - YENİ FONKSİYON!
+  const deleteAllVisitors = async () => {
+    const confirmText = 'TÜM ZİYARETLERİ SİLMEK İSTEDİĞİNİZE EMİN MİSİNİZ?\n\nBu işlem geri alınamaz!\n\nDevam etmek için "SIFIRLA" yazın:'
+    
+    const userInput = prompt(confirmText)
+    
+    if (userInput !== 'SIFIRLA') {
+      alert('İşlem iptal edildi.')
+      return
+    }
+    
+    setLoading(true)
+    
+    try {
+      // Tüm kayıtları sil
+      const { error } = await supabase
+        .from('ziyaretciler')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000')
+      
+      if (error) {
+        alert('Hata: ' + error.message)
+      } else {
+        alert('Tüm ziyaretler silindi!')
+        setVisitors([])
+        setStats({})
+      }
+    } catch (error) {
+      alert('Hata: ' + error.message)
+    }
+    
+    setLoading(false)
+  }
+
   const calculateStats = (data) => {
     const stats = {
       total: data.length,
@@ -58,6 +92,7 @@ export default function AdminZiyaretcilerPage() {
       withLocation: data.filter(v => v.konum_izni).length,
       fromAds: data.filter(v => v.utm_source).length,
       direct: data.filter(v => !v.referrer && !v.utm_source).length,
+      mobileOperator: data.filter(v => v.mobil_operator).length, // YENİ!
       
       // İl bazlı
       cities: {},
@@ -69,6 +104,8 @@ export default function AdminZiyaretcilerPage() {
       os: {},
       // Kaynak bazlı
       sources: {},
+      // Operatör bazlı - YENİ!
+      operators: {},
     }
 
     data.forEach(v => {
@@ -76,6 +113,7 @@ export default function AdminZiyaretcilerPage() {
       if (v.cihaz_markasi) stats.brands[v.cihaz_markasi] = (stats.brands[v.cihaz_markasi] || 0) + 1
       if (v.tarayici) stats.browsers[v.tarayici] = (stats.browsers[v.tarayici] || 0) + 1
       if (v.isletim_sistemi) stats.os[v.isletim_sistemi] = (stats.os[v.isletim_sistemi] || 0) + 1
+      if (v.mobil_operator) stats.operators[v.mobil_operator] = (stats.operators[v.mobil_operator] || 0) + 1 // YENİ!
       
       const source = v.utm_source || (v.referrer ? 'Referrer' : 'Direkt')
       stats.sources[source] = (stats.sources[source] || 0) + 1
@@ -123,7 +161,8 @@ export default function AdminZiyaretcilerPage() {
       v.ip_adresi?.toLowerCase().includes(searchLower) ||
       v.il?.toLowerCase().includes(searchLower) ||
       v.cihaz_markasi?.toLowerCase().includes(searchLower) ||
-      v.fingerprint?.toLowerCase().includes(searchLower)
+      v.fingerprint?.toLowerCase().includes(searchLower) ||
+      v.mobil_operator?.toLowerCase().includes(searchLower) // YENİ!
     )
   })
 
@@ -141,6 +180,15 @@ export default function AdminZiyaretcilerPage() {
           <p className="text-gray-500 text-sm mt-1">Detaylı ziyaretçi takibi ve analiz</p>
         </div>
         <div className="flex items-center gap-3">
+          {/* TÜM ZİYARETLERİ SİL BUTONU - YENİ! */}
+          <button 
+            onClick={deleteAllVisitors} 
+            disabled={loading}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 font-bold flex items-center gap-2"
+          >
+            <FaTrash /> Tüm Ziyaretleri Sil
+          </button>
+          
           <select 
             value={filter} 
             onChange={(e) => setFilter(e.target.value)}
@@ -158,7 +206,7 @@ export default function AdminZiyaretcilerPage() {
       </div>
 
       {/* İstatistik Kartları */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div className="admin-card text-center">
           <FaUsers className="text-3xl text-blue-600 mx-auto mb-2" />
           <p className="text-2xl font-bold">{stats.total || 0}</p>
@@ -178,6 +226,12 @@ export default function AdminZiyaretcilerPage() {
           <FaDesktop className="text-3xl text-gray-600 mx-auto mb-2" />
           <p className="text-2xl font-bold">{stats.desktop || 0}</p>
           <p className="text-sm text-gray-500">Masaüstü</p>
+        </div>
+        {/* MOBİL OPERATÖR KARTI - YENİ! */}
+        <div className="admin-card text-center">
+          <FaMobile className="text-3xl text-yellow-500 mx-auto mb-2" />
+          <p className="text-2xl font-bold">{stats.mobileOperator || 0}</p>
+          <p className="text-sm text-gray-500">Operatör Tespit</p>
         </div>
       </div>
 
@@ -234,18 +288,28 @@ export default function AdminZiyaretcilerPage() {
           </div>
         </div>
 
-        {/* Kaynaklar */}
+        {/* MOBİL OPERATÖRLER - YENİ KART! */}
         <div className="admin-card">
           <h3 className="font-bold mb-3 flex items-center gap-2">
-            <FaBullhorn className="text-orange-500" /> Trafik Kaynağı
+            <FaMobile className="text-yellow-500" /> Mobil Operatörler
           </h3>
           <div className="space-y-2">
-            {topItems(stats.sources).map(([source, count]) => (
-              <div key={source} className="flex justify-between items-center">
-                <span className="text-sm truncate">{source}</span>
+            {topItems(stats.operators).map(([operator, count]) => (
+              <div key={operator} className="flex justify-between items-center">
+                <span className={`text-sm px-2 py-1 rounded-full ${
+                  operator === 'Türkcell' ? 'bg-yellow-100 text-yellow-800' :
+                  operator === 'Vodafone' ? 'bg-red-100 text-red-800' :
+                  operator === 'Turk Telekom' ? 'bg-blue-100 text-blue-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {operator}
+                </span>
                 <span className="text-sm font-bold">{count}</span>
               </div>
             ))}
+            {Object.keys(stats.operators || {}).length === 0 && (
+              <p className="text-sm text-gray-400">Veri yok</p>
+            )}
           </div>
         </div>
       </div>
@@ -256,7 +320,7 @@ export default function AdminZiyaretcilerPage() {
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="IP, İl, Marka veya Fingerprint ara..."
+            placeholder="IP, İl, Marka, Operatör veya Fingerprint ara..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="admin-input pl-10"
@@ -271,6 +335,7 @@ export default function AdminZiyaretcilerPage() {
             <tr className="border-b">
               <th className="text-left py-3 px-2">Zaman</th>
               <th className="text-left py-3 px-2">IP</th>
+              <th className="text-left py-3 px-2">Operatör</th> {/* YENİ KOLON! */}
               <th className="text-left py-3 px-2">Konum</th>
               <th className="text-left py-3 px-2">Cihaz</th>
               <th className="text-left py-3 px-2">Tarayıcı</th>
@@ -295,6 +360,21 @@ export default function AdminZiyaretcilerPage() {
                   </td>
                   <td className="py-3 px-2">
                     <code className="text-xs bg-gray-100 px-1 rounded">{v.ip_adresi || '-'}</code>
+                  </td>
+                  {/* MOBİL OPERATÖR KOLONU - YENİ! */}
+                  <td className="py-3 px-2">
+                    {v.mobil_operator ? (
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                        v.mobil_operator === 'Türkcell' ? 'bg-yellow-100 text-yellow-800' :
+                        v.mobil_operator === 'Vodafone' ? 'bg-red-100 text-red-800' :
+                        v.mobil_operator === 'Turk Telekom' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {v.mobil_operator}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">-</span>
+                    )}
                   </td>
                   <td className="py-3 px-2">
                     <div className="flex items-center gap-1">
@@ -380,6 +460,19 @@ export default function AdminZiyaretcilerPage() {
                 <div className="space-y-2 text-sm">
                   <p><span className="text-gray-500">Fingerprint:</span> <code className="bg-gray-100 px-1 rounded">{selectedVisitor.fingerprint}</code></p>
                   <p><span className="text-gray-500">IP:</span> {selectedVisitor.ip_adresi}</p>
+                  {/* MOBİL OPERATÖR - YENİ! */}
+                  {selectedVisitor.mobil_operator && (
+                    <p>
+                      <span className="text-gray-500">Operatör:</span>{' '}
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                        selectedVisitor.mobil_operator === 'Türkcell' ? 'bg-yellow-100 text-yellow-800' :
+                        selectedVisitor.mobil_operator === 'Vodafone' ? 'bg-red-100 text-red-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {selectedVisitor.mobil_operator}
+                      </span>
+                    </p>
+                  )}
                 </div>
               </div>
 
