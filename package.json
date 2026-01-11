@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "ANALYZE=true next build",
+    "lighthouse": "lighthouse https://adananakliye.com.tr --view --preset=desktop",
+    "lighthouse:mobile": "lighthouse https://adananakliye.com.tr --view --preset=mobile"
   },
   "dependencies": {
     "@supabase/ssr": "^0.4.0",
