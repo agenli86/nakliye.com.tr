@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -10,7 +9,6 @@ export default function VisitorTracker() {
   useEffect(() => {
     if (tracked.current) return
     tracked.current = true
-
     trackVisitor()
   }, [searchParams])
 
@@ -22,13 +20,13 @@ export default function VisitorTracker() {
       const utmCampaign = searchParams?.get('utm_campaign')
       const gclid = searchParams?.get('gclid') // Google Ads tracking
       const fbclid = searchParams?.get('fbclid') // Facebook tracking
-
+      
       // Referrer kontrol
       const referrer = typeof document !== 'undefined' ? document.referrer : ''
-
-      // KAYNAK BELİRLE - ÖNEMLİ!
+      
+      // KAYNAK BELİRLE
       let source = 'direk'
-
+      
       // Google Ads kontrolü
       if (gclid ||
           utmSource?.toLowerCase().includes('google') ||
@@ -72,6 +70,28 @@ export default function VisitorTracker() {
         source = 'referans'
       }
 
+      // KONUM İZNİ AL - YENİ!
+      let location = null
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 5000,
+              maximumAge: 300000, // 5 dakika cache
+              enableHighAccuracy: true
+            })
+          })
+          
+          location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          }
+        } catch (geoError) {
+          console.log('Konum izni verilmedi:', geoError.message)
+        }
+      }
+
       // API'ye gönder
       const response = await fetch('/api/track-visitor', {
         method: 'POST',
@@ -85,7 +105,8 @@ export default function VisitorTracker() {
           fbclid: fbclid || null,
           page: window.location.pathname,
           fullUrl: window.location.href,
-          userAgent: navigator.userAgent
+          userAgent: navigator.userAgent,
+          location: location // Konum bilgisi eklendi
         })
       })
 
