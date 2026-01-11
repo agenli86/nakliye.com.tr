@@ -35,6 +35,10 @@ CREATE TABLE visitors (
 
   -- Cihaz bilgileri
   user_agent TEXT,
+  mobile_operator TEXT,  -- 'Türkcell', 'Vodafone', 'Turk Telekom', 'Mobil (Bilinmiyor)'
+  device_type TEXT,      -- 'mobile', 'tablet', 'desktop'
+  browser TEXT,          -- 'Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Diğer'
+  os TEXT,               -- 'Android', 'iOS', 'Windows', 'macOS', 'Linux', 'Diğer'
 
   -- Tarih bilgileri
   visited_at TIMESTAMPTZ DEFAULT NOW(),
@@ -65,6 +69,18 @@ CREATE INDEX idx_visitors_fbclid ON visitors(fbclid) WHERE fbclid IS NOT NULL;
 
 -- IP bazlı sorgular için
 CREATE INDEX idx_visitors_ip ON visitors(ip_address);
+
+-- Mobil operatör analizi için
+CREATE INDEX idx_visitors_operator ON visitors(mobile_operator) WHERE mobile_operator IS NOT NULL;
+
+-- Cihaz tipi analizi için
+CREATE INDEX idx_visitors_device ON visitors(device_type);
+
+-- Tarayıcı analizi için
+CREATE INDEX idx_visitors_browser ON visitors(browser);
+
+-- OS analizi için
+CREATE INDEX idx_visitors_os ON visitors(os);
 
 -- ============================================
 -- COMMENTS - Tablo dokümantasyonu
@@ -137,6 +153,32 @@ WHERE campaign IS NOT NULL
 GROUP BY source, medium, campaign
 ORDER BY total_visits DESC;
 
+-- Mobil operatör istatistikleri
+CREATE OR REPLACE VIEW operator_stats AS
+SELECT
+  mobile_operator,
+  COUNT(*) as total_visits,
+  COUNT(DISTINCT session_id) as unique_visitors,
+  COUNT(*) FILTER (WHERE source = 'ads') as from_ads,
+  COUNT(*) FILTER (WHERE source = 'face') as from_facebook,
+  COUNT(*) FILTER (WHERE source = 'direk') as direct
+FROM visitors
+WHERE mobile_operator IS NOT NULL
+GROUP BY mobile_operator
+ORDER BY total_visits DESC;
+
+-- Cihaz ve tarayıcı istatistikleri
+CREATE OR REPLACE VIEW device_browser_stats AS
+SELECT
+  device_type,
+  browser,
+  os,
+  COUNT(*) as total_visits,
+  COUNT(DISTINCT session_id) as unique_visitors
+FROM visitors
+GROUP BY device_type, browser, os
+ORDER BY total_visits DESC;
+
 -- ============================================
 -- ÖRNEK SORGULAR
 -- ============================================
@@ -168,6 +210,28 @@ ORDER BY total_visits DESC;
 -- FROM visitors
 -- WHERE DATE(created_at) = CURRENT_DATE
 -- GROUP BY source
+-- ORDER BY adet DESC;
+
+-- 8. Mobil operatör istatistikleri
+-- SELECT * FROM operator_stats;
+
+-- 9. Türkcell'den gelen ziyaretçiler
+-- SELECT * FROM visitors WHERE mobile_operator = 'Türkcell' ORDER BY created_at DESC LIMIT 100;
+
+-- 10. Vodafone'dan gelen ziyaretçiler
+-- SELECT * FROM visitors WHERE mobile_operator = 'Vodafone' ORDER BY created_at DESC LIMIT 100;
+
+-- 11. Turk Telekom'dan gelen ziyaretçiler
+-- SELECT * FROM visitors WHERE mobile_operator = 'Turk Telekom' ORDER BY created_at DESC LIMIT 100;
+
+-- 12. Cihaz ve tarayıcı dağılımı
+-- SELECT * FROM device_browser_stats;
+
+-- 13. Mobil cihazlardan gelen ziyaretler
+-- SELECT mobile_operator, browser, COUNT(*) as adet
+-- FROM visitors
+-- WHERE device_type = 'mobile'
+-- GROUP BY mobile_operator, browser
 -- ORDER BY adet DESC;
 
 -- ============================================
