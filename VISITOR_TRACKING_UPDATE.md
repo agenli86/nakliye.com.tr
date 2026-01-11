@@ -6,14 +6,19 @@
 
 #### Değişen Dosyalar:
 - ✅ `components/VisitorTracker.js` - Yeni source tracking sistemi
-- ✅ `app/api/track-visitor/route.js` - Yeni API route (OLUŞTURULDU)
-- ✅ `database/migrations/visitors_table.sql` - Yeni Supabase tablo yapısı
+- ✅ `app/api/track-visitor/route.js` - Mobil operatör, cihaz, tarayıcı tespiti
+- ✅ `app/admin/visitors/page.js` - Yeni admin panel sayfası (OLUŞTURULDU)
+- ✅ `database/migrations/visitors_table.sql` - Güncellenmiş tablo yapısı
 
 #### Özellikler:
 - ✅ Google Ads'den gelenleri **"ads"** olarak kaydeder
 - ✅ Facebook'tan gelenleri **"face"** olarak kaydeder
 - ✅ Direkt gelenleri **"direk"** olarak kaydeder
 - ✅ Instagram, Twitter, Google organik, diğer arama motorları da desteklenir
+- ✅ **MOBİL OPERATÖR TESPİTİ**: Türkcell, Vodafone, Turk Telekom
+- ✅ **CİHAZ TESPİTİ**: Mobile, tablet, desktop
+- ✅ **TARAYICI TESPİTİ**: Chrome, Safari, Firefox, Edge, Opera
+- ✅ **İŞLETİM SİSTEMİ TESPİTİ**: Android, iOS, Windows, macOS, Linux
 
 #### Nasıl Çalışır:
 ```javascript
@@ -50,9 +55,30 @@ https://adananakliye.com.tr/ → source: "direk"
 
 ---
 
+## 🎛️ ADMİN PANELİ YENİ ÖZELLİKLER
+
+### Yeni Admin Sayfası: `/admin/visitors`
+
+**Özellikler:**
+- ✅ Ziyaretçi listesi (tarih, kaynak, operatör, cihaz)
+- ✅ **"TÜM ZİYARETLERİ SİL"** butonu (güvenli onay ile)
+- ✅ **"Tarih Aralığına Göre Sil"** butonu
+- ✅ Tek tek ziyaret silme
+- ✅ Mobil operatör istatistikleri (Türkcell, Vodafone, Turk Telekom)
+- ✅ Cihaz türü istatistikleri (mobile, tablet, desktop)
+- ✅ Tarayıcı ve işletim sistemi dağılımı
+- ✅ Google Ads / Facebook kaynak göstergeleri
+
+**Nasıl Erişilir:**
+```
+https://adananakliye.com.tr/admin/visitors
+```
+
+---
+
 ## 📋 YAPMANIZ GEREKENLER
 
-### ADIM 1: Supabase'de Visitors Tablosunu Oluştur
+### ADIM 1: Supabase'de Visitors Tablosunu Oluştur veya Güncelle
 
 1. Supabase Dashboard'a git: https://supabase.com/dashboard
 2. Projenizi seçin
