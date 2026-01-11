@@ -48,7 +48,7 @@ export default function AdminZiyaretcilerPage() {
     setLoading(false)
   }
 
-  // TÜM ZİYARETLERİ SİL - YENİ FONKSİYON!
+  // TÜM ZİYARETLERİ SİL - DÜZELTİLMİŞ!
   const deleteAllVisitors = async () => {
     const confirmText = 'TÜM ZİYARETLERİ SİLMEK İSTEDİĞİNİZE EMİN MİSİNİZ?\n\nBu işlem geri alınamaz!\n\nDevam etmek için "SIFIRLA" yazın:'
     
@@ -101,7 +101,7 @@ export default function AdminZiyaretcilerPage() {
       withLocation: data.filter(v => v.konum_izni).length,
       fromAds: data.filter(v => v.utm_source).length,
       direct: data.filter(v => !v.referrer && !v.utm_source).length,
-      mobileOperator: data.filter(v => v.mobil_operator).length, // YENİ!
+      mobileOperator: data.filter(v => v.mobil_operator).length,
       
       // İl bazlı
       cities: {},
@@ -113,7 +113,7 @@ export default function AdminZiyaretcilerPage() {
       os: {},
       // Kaynak bazlı
       sources: {},
-      // Operatör bazlı - YENİ!
+      // Operatör bazlı
       operators: {},
     }
 
@@ -122,7 +122,7 @@ export default function AdminZiyaretcilerPage() {
       if (v.cihaz_markasi) stats.brands[v.cihaz_markasi] = (stats.brands[v.cihaz_markasi] || 0) + 1
       if (v.tarayici) stats.browsers[v.tarayici] = (stats.browsers[v.tarayici] || 0) + 1
       if (v.isletim_sistemi) stats.os[v.isletim_sistemi] = (stats.os[v.isletim_sistemi] || 0) + 1
-      if (v.mobil_operator) stats.operators[v.mobil_operator] = (stats.operators[v.mobil_operator] || 0) + 1 // YENİ!
+      if (v.mobil_operator) stats.operators[v.mobil_operator] = (stats.operators[v.mobil_operator] || 0) + 1
       
       const source = v.utm_source || (v.referrer ? 'Referrer' : 'Direkt')
       stats.sources[source] = (stats.sources[source] || 0) + 1
@@ -171,7 +171,7 @@ export default function AdminZiyaretcilerPage() {
       v.il?.toLowerCase().includes(searchLower) ||
       v.cihaz_markasi?.toLowerCase().includes(searchLower) ||
       v.fingerprint?.toLowerCase().includes(searchLower) ||
-      v.mobil_operator?.toLowerCase().includes(searchLower) // YENİ!
+      v.mobil_operator?.toLowerCase().includes(searchLower)
     )
   })
 
@@ -189,7 +189,7 @@ export default function AdminZiyaretcilerPage() {
           <p className="text-gray-500 text-sm mt-1">Detaylı ziyaretçi takibi ve analiz</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* TÜM ZİYARETLERİ SİL BUTONU - YENİ! */}
+          {/* TÜM ZİYARETLERİ SİL BUTONU */}
           <button 
             onClick={deleteAllVisitors} 
             disabled={loading}
@@ -236,7 +236,6 @@ export default function AdminZiyaretcilerPage() {
           <p className="text-2xl font-bold">{stats.desktop || 0}</p>
           <p className="text-sm text-gray-500">Masaüstü</p>
         </div>
-        {/* MOBİL OPERATÖR KARTI - YENİ! */}
         <div className="admin-card text-center">
           <FaMobile className="text-3xl text-yellow-500 mx-auto mb-2" />
           <p className="text-2xl font-bold">{stats.mobileOperator || 0}</p>
@@ -297,7 +296,7 @@ export default function AdminZiyaretcilerPage() {
           </div>
         </div>
 
-        {/* MOBİL OPERATÖRLER - YENİ KART! */}
+        {/* Mobil Operatörler */}
         <div className="admin-card">
           <h3 className="font-bold mb-3 flex items-center gap-2">
             <FaMobile className="text-yellow-500" /> Mobil Operatörler
@@ -344,7 +343,7 @@ export default function AdminZiyaretcilerPage() {
             <tr className="border-b">
               <th className="text-left py-3 px-2">Zaman</th>
               <th className="text-left py-3 px-2">IP</th>
-              <th className="text-left py-3 px-2">Operatör</th> {/* YENİ KOLON! */}
+              <th className="text-left py-3 px-2">Operatör</th>
               <th className="text-left py-3 px-2">Konum</th>
               <th className="text-left py-3 px-2">Cihaz</th>
               <th className="text-left py-3 px-2">Tarayıcı</th>
@@ -370,7 +369,6 @@ export default function AdminZiyaretcilerPage() {
                   <td className="py-3 px-2">
                     <code className="text-xs bg-gray-100 px-1 rounded">{v.ip_adresi || '-'}</code>
                   </td>
-                  {/* MOBİL OPERATÖR KOLONU - YENİ! */}
                   <td className="py-3 px-2">
                     {v.mobil_operator ? (
                       <span className={`px-2 py-1 rounded-full text-xs font-bold ${
@@ -469,7 +467,6 @@ export default function AdminZiyaretcilerPage() {
                 <div className="space-y-2 text-sm">
                   <p><span className="text-gray-500">Fingerprint:</span> <code className="bg-gray-100 px-1 rounded">{selectedVisitor.fingerprint}</code></p>
                   <p><span className="text-gray-500">IP:</span> {selectedVisitor.ip_adresi}</p>
-                  {/* MOBİL OPERATÖR - YENİ! */}
                   {selectedVisitor.mobil_operator && (
                     <p>
                       <span className="text-gray-500">Operatör:</span>{' '}
@@ -497,7 +494,6 @@ export default function AdminZiyaretcilerPage() {
                     <p><span className="text-gray-500">Koordinat:</span> {selectedVisitor.enlem}, {selectedVisitor.boylam}</p>
                   )}
                 </div>
-                {/* Mini Harita */}
                 {selectedVisitor.enlem && selectedVisitor.boylam && (
                   <VisitorMap 
                     lat={selectedVisitor.enlem} 
