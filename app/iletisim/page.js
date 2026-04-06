@@ -9,7 +9,7 @@ import { FaChevronRight, FaPhone, FaEnvelope, FaMapMarkerAlt, FaWhatsapp, FaCloc
 export async function generateMetadata() {
   const supabase = await createClient()
   const [{ data: seo }, { data: ayarlar }] = await Promise.all([
-    supabase.from('seo_ayarlari').select('*').eq('sayfa_turu', 'iletisim').single(),
+    supabase.from('seo_ayarlari').select('*').eq('sayfa_turu', 'iletisim').maybeSingle(),
     supabase.from('ayarlar').select('*'),
   ])
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
@@ -73,10 +73,9 @@ export default async function IletisimPage() {
                       <div>
                         <div className="font-semibold" style={{ color: '#1e3a5f' }}>{item.label}</div>
                         {item.href ? (
-                          <a 
-                            href={item.href} 
+                          
+                            href={item.href}
                             className="text-gray-600 hover:text-blue-600"
-                            // GOOGLE ADS TAKİP KODU BURAYA GELDİ
                             onClick={() => {
                               if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
                                 window.gtag('event', 'conversion', {
