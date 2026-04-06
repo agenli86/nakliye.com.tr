@@ -17,7 +17,9 @@ import Image from 'next/image'
 import { FaPhone, FaCheckCircle } from 'react-icons/fa'
 import dynamic from 'next/dynamic'
 
-// Dynamic import for ChatBotEmbed - reduce initial bundle size
+// ✅ 1 saatte bir cache yenilenir — cold start olmaz
+export const revalidate = 3600
+
 const ChatBotEmbed = dynamic(() => import('@/components/ChatBotEmbed'), {
   ssr: false,
   loading: () => null
@@ -26,7 +28,7 @@ const ChatBotEmbed = dynamic(() => import('@/components/ChatBotEmbed'), {
 export async function generateMetadata() {
   const supabase = await createClient()
   const [{ data: seo }, { data: ayarlar }] = await Promise.all([
-    supabase.from('seo_ayarlari').select('*').eq('sayfa_turu', 'anasayfa').single(),
+    supabase.from('seo_ayarlari').select('*').eq('sayfa_turu', 'anasayfa').maybeSingle(), // ✅ düzeltildi
     supabase.from('ayarlar').select('*'),
   ])
 
@@ -123,14 +125,12 @@ export default async function Home() {
       <Header ayarlar={ayarlar} menu={menu} />
       
       <main className="home-page">
-        {/* 🚀 LCP Element - SADECE slider'a priority */}
         <HeroSlider sliders={sliders} priority={true} />
         
         <AnnouncementBar duyurular={duyurular} />
         <ChatBotEmbed />
         <FeatureBoxes kutucuklar={kutucuklar} />
 
-        {/* Slider Altı Bölüm */}
         <section className="section bg-white">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -168,14 +168,13 @@ export default async function Home() {
               </div>
               
               <div className="relative">
-                {/* ✅ Priority KALDIRILDI - Slider LCP'dir, bu değil */}
                 <Image 
                   src={sliderAlti.resim || '/resimler/294-adana-nakliyat.webp'} 
                   alt="Adana Nakliyat Hizmetleri" 
                   width={600}
                   height={450}
                   className="w-full rounded-2xl shadow-2xl"
-                  loading="lazy" // ✅ Lazy loading eklendi
+                  loading="lazy"
                   quality={85}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                 />
@@ -189,10 +188,8 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Tablar */}
         {tablar && tablar.length > 0 && <HomeTabs tablar={tablar} />}
 
-        {/* Hizmetler */}
         <section className="section bg-gray-50">
           <div className="container mx-auto px-4">
             <h2 className="section-title">
@@ -214,13 +211,10 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Fiyat Tablosu */}
         <PriceTable fiyatlar={fiyatlar} bolum={getBolum('fiyatlar_baslik')} />
         
-        {/* Sayaçlar */}
         <CounterSection ayarlar={ayarlar} />
 
-        {/* CTA Bölümü */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div 
@@ -257,7 +251,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Blog Makaleleri */}
         {makaleler?.length > 0 && (
           <section className="section bg-gray-50">
             <div className="container mx-auto px-4">
@@ -281,7 +274,6 @@ export default async function Home() {
           </section>
         )}
 
-        {/* Galeri */}
         <HomeGallery galeri={galeri} />
       </main>
       
