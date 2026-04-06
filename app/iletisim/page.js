@@ -73,17 +73,7 @@ export default async function IletisimPage() {
                       <div>
                         <div className="font-semibold" style={{ color: '#1e3a5f' }}>{item.label}</div>
                         {item.href ? (
-                          
-                            href={item.href}
-                            className="text-gray-600 hover:text-blue-600"
-                            onClick={() => {
-                              if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-                                window.gtag('event', 'conversion', {
-                                  'send_to': 'AW-10842738572/28z6CO6-69sbEIyfnLIo'
-                                });
-                              }
-                            }}
-                          >
+                          <a href={item.href} className="text-gray-600 hover:text-blue-600">
                             {item.value}
                           </a>
                         ) : (
