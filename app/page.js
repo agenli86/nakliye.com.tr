@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase-server'
+import { createClient } from '@/lib/supabase-public'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import HeroSlider from '@/components/HeroSlider'
@@ -20,6 +20,9 @@ import dynamic from 'next/dynamic'
 // ✅ 1 saatte bir cache yenilenir — cold start olmaz
 export const revalidate = 3600
 
+// Chatbot sayfanın alt kısmında; JS paketi ana render'ı beklemesin diye
+// dinamik yükleniyor. Aktiflik bilgisi sunucudan geldiği için artık
+// yer kaplayan bir "yükleniyor" boşluğu veya sonradan açılma kayması yok.
 const ChatBotEmbed = dynamic(() => import('@/components/ChatBotEmbed'), {
   ssr: false,
   loading: () => null
@@ -78,7 +81,7 @@ async function getData() {
   const [
     { data: ayarlar }, { data: menu }, { data: sliders }, { data: hizmetler },
     { data: makaleler }, { data: fiyatlar }, { data: bolumler }, { data: tablar },
-    { data: duyurular }, { data: galeri }, { data: kutucuklar },
+    { data: duyurular }, { data: galeri }, { data: kutucuklar }, { data: chatbotAktif },
   ] = await Promise.all([
     supabase.from('ayarlar').select('*'),
     supabase.from('menu').select('*').eq('aktif', true).order('sira'),
@@ -91,12 +94,13 @@ async function getData() {
     supabase.from('duyurular').select('*').eq('aktif', true).order('sira'),
     supabase.from('galeri').select('*').eq('aktif', true).order('sira').limit(9),
     supabase.from('ozellik_kutucuklari').select('*').eq('aktif', true).order('sira').limit(3),
+    supabase.from('chatbot_ayarlari').select('deger').eq('anahtar', 'aktif').maybeSingle(),
   ])
-  return { ayarlar, menu, sliders, hizmetler, makaleler, fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar }
+  return { ayarlar, menu, sliders, hizmetler, makaleler, fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar, chatbotAktif: chatbotAktif?.deger === 'true' }
 }
 
 export default async function Home() {
-  const { ayarlar, menu, sliders, hizmetler, makaleler, fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar } = await getData()
+  const { ayarlar, menu, sliders, hizmetler, makaleler, fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar, chatbotAktif } = await getData()
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
   const getBolum = (ad) => bolumler?.find(b => b.bolum_adi === ad) || {}
   
@@ -128,7 +132,7 @@ export default async function Home() {
         <HeroSlider sliders={sliders} priority={true} />
         
         <AnnouncementBar duyurular={duyurular} />
-        <ChatBotEmbed />
+        {chatbotAktif && <ChatBotEmbed aktif />}
         <FeatureBoxes kutucuklar={kutucuklar} />
 
         <section className="section bg-white">

@@ -1,4 +1,7 @@
-import { createClient } from '@/lib/supabase-server'
+// ISR: sayfa bir kez üretilir, en fazla 1 saatte bir arka planda tazelenir.
+export const revalidate = 3600
+
+import { createClient } from '@/lib/supabase-public'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ArticleCard from '@/components/ArticleCard'

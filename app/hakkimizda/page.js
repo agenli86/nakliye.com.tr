@@ -1,5 +1,5 @@
 export const revalidate = 3600
-import { createClient } from '@/lib/supabase-server'
+import { createClient } from '@/lib/supabase-public'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import StickyButtons from '@/components/StickyButtons'

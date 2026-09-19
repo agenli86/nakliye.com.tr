@@ -10,6 +10,8 @@ export default function FaqAccordion({ items }) {
     setOpenIndex(openIndex === index ? -1 : index)
   }
 
+  if (!items || items.length === 0) return null
+
   return (
     <div className="space-y-4">
       {items.map((item, index) => (

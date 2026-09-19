@@ -27,49 +27,19 @@ const nextConfig = {
   reactStrictMode: true, // ✅ true yapıldı (best practice)
   swcMinify: true,
 
-  // 🚀 Webpack Optimizasyonu
-  webpack: (config, { dev, isServer }) => {
-    // Production build için optimizasyon
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        moduleIds: 'deterministic',
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            // Framework (React, Next.js)
-            framework: {
-              name: 'framework',
-              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types)[\\/]/,
-              priority: 40,
-              enforce: true,
-            },
-            // Commons (shared code)
-            commons: {
-              name: 'commons',
-              minChunks: 2,
-              priority: 20,
-            },
-            // Libraries
-            lib: {
-              test: /[\\/]node_modules[\\/]/,
-              name(module) {
-                const packageName = module.context.match(
-                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                )?.[1];
-                return `npm.${packageName?.replace('@', '')}`;
-              },
-              priority: 30,
-              minChunks: 1,
-              reuseExistingChunk: true,
-            },
-          },
-        },
-      };
-    }
-    return config;
+  // 🚀 Paket içe aktarma optimizasyonu
+  //
+  // react-icons ve swiper "barrel" dosyalar üzerinden içe aktarılıyor
+  // (react-icons/fa tek dosyada binlerce ikon export eder). Bu ayar
+  // Next.js'in yalnızca gerçekten kullanılan export'ları paketlemesini
+  // sağlar.
+  //
+  // Not: Buradaki özel splitChunks yapılandırması kaldırıldı. Tüm
+  // node_modules'ü paket adına göre tek tek chunk'lara bölerken
+  // pratikte her şeyi 137 kB'lık tek bir "npm.next" chunk'ına topluyor
+  // ve Next.js'in kendi ayarlı chunk stratejisini devre dışı bırakıyordu.
+  experimental: {
+    optimizePackageImports: ['react-icons', 'swiper', '@tiptap/react', '@tiptap/starter-kit'],
   },
 
   // 🚀 Compiler Optimizasyonları
