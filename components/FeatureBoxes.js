@@ -22,8 +22,12 @@ export default function FeatureBoxes({ kutucuklar }) {
   const boxes = kutucuklar && kutucuklar.length > 0 ? kutucuklar : defaultBoxes
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-white" aria-labelledby="ozellikler-basligi">
       <div className="container mx-auto px-4">
+        {/* Başlık sırası h1'den h3'e atlıyordu. Tasarımda görünür bir başlık
+            olmadığı için ekran okuyucuya görünen, gözle görünmeyen bir h2
+            ekledik; böylece anahat h1 > h2 > h3 olarak ilerliyor. */}
+        <h2 id="ozellikler-basligi" className="sr-only">Neden Adana Nakliye</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {boxes.map((box, index) => {
             const IconComponent = iconMap[box.icon] || FaAward

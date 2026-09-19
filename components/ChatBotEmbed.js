@@ -192,7 +192,7 @@ export default function ChatBotEmbed({ aktif = false }) {
                   <FaRobot /> Sohbete Başla
                 </button>
                 
-                <p className="text-xs text-gray-400 mt-4">
+                <p className="text-xs text-gray-600 mt-4">
                   Günlük 5 soru hakkınız var • Daha fazlası için bizi arayın
                 </p>
               </div>
@@ -206,11 +206,11 @@ export default function ChatBotEmbed({ aktif = false }) {
                     </div>
                     <div>
                       <h3 className="font-bold">Nakliye Asistanı</h3>
-                      <p className="text-xs text-blue-100">Yapay Zeka ile Sohbet</p>
+                      <p className="text-xs text-blue-50">Yapay Zeka ile Sohbet</p>
                     </div>
                   </div>
                   <div className="text-right text-sm">
-                    <p className="text-blue-100">Kalan soru hakkı</p>
+                    <p className="text-blue-50">Kalan soru hakkı</p>
                     <p className="font-bold text-lg">{remainingQuestions}/5</p>
                   </div>
                 </div>

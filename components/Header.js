@@ -56,7 +56,7 @@ export default function Header({ ayarlar, menu }) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-yellow-300 font-semibold">7/24 Hizmet</span>
+              <span className="text-white font-semibold">7/24 Hizmet</span>
             </div>
           </div>
         </div>
