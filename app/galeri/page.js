@@ -43,15 +43,15 @@ export default async function GaleriPage() {
     <>
       <Header ayarlar={ayarlar} menu={menu} />
       <main>
-        <section className="py-20" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #0559c9 100%)' }}>
+        <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
-            <nav className="flex items-center gap-2 text-white/80 text-sm mb-4">
+            <nav className="flex items-center gap-2 text-white text-sm mb-4">
               <Link href="/" className="hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Galeri</span>
             </nav>
             <h1 className="text-4xl md:text-5xl font-bold text-white">Galeri</h1>
-            <p className="text-xl text-white/90 mt-4">Çalışmalarımızdan kareler</p>
+            <p className="text-xl text-white mt-4">Çalışmalarımızdan kareler</p>
           </div>
         </section>
 
@@ -65,7 +65,7 @@ export default async function GaleriPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                         {item.baslik && <h3 className="font-semibold">{item.baslik}</h3>}
-                        {item.kategori && <span className="text-sm text-white/80">{item.kategori}</span>}
+                        {item.kategori && <span className="text-sm text-white">{item.kategori}</span>}
                       </div>
                     </div>
                   </div>

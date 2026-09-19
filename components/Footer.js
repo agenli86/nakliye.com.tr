@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from 'react-icons/fa'
+import { POPULER_ROTALAR } from '@/lib/populer-rotalar'
 
 const SOSYAL_MEDYA = [
   { key: 'facebook', label: 'Facebook sayfamız', url: 'https://www.facebook.com/adanaevdenevetasima/', Icon: FaFacebook },
@@ -59,6 +60,9 @@ export default function Footer({ ayarlar, hizmetler }) {
             <h3 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">KURUMSAL</h3>
             <ul className="flex flex-col gap-5">
               <li><Link href="/hakkimizda" className="hover:text-[#d4ed31] py-2 block">Hakkımızda</Link></li>
+              <li><Link href="/blog" className="hover:text-[#d4ed31] py-2 block">Blog</Link></li>
+              <li><Link href="/rota" className="hover:text-[#d4ed31] py-2 block">Nakliye Rotaları</Link></li>
+              <li><Link href="/nakliye-hizmetleri" className="hover:text-[#d4ed31] py-2 block">İllere Göre Hizmetler</Link></li>
               <li><Link href="/iletisim" className="hover:text-[#d4ed31] py-2 block">İletişim</Link></li>
             </ul>
           </div>
@@ -93,6 +97,27 @@ export default function Footer({ ayarlar, hizmetler }) {
             </div>
           </div>
         </div>
+
+        {/* Popüler rotalar: her sayfadan rota ağına giden iç bağlantılar.
+            Arama motorları için sitenin en derin sayfalarını üç tık
+            uzaklığa indiriyor. */}
+        <nav aria-labelledby="footer-rotalar" className="mt-14 border-t border-white/10 pt-10">
+          <h3 id="footer-rotalar" className="text-lg font-bold mb-5 border-b-2 border-[#d4ed31] w-fit pb-2">
+            POPÜLER ROTALAR
+          </h3>
+          <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-white/80">
+            {POPULER_ROTALAR.map((rota) => (
+              <li key={rota.href}>
+                <Link href={rota.href} className="block py-2 hover:text-[#d4ed31]">{rota.metin}</Link>
+              </li>
+            ))}
+            <li>
+              <Link href="/rota" className="block py-2 font-semibold text-[#d4ed31] hover:underline">
+                Tüm rotalar →
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </div>
     </footer>
   )

@@ -7,7 +7,8 @@ import Footer from '@/components/Footer'
 import StickyButtons from '@/components/StickyButtons'
 import Link from 'next/link'
 import { FaChevronRight, FaCalendar, FaUser, FaEye } from 'react-icons/fa'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
+import { makaleRotaHedefi, rotaUrl } from '@/lib/rotalar'
 
 // Hizmet/makale sayfalarını build sırasında önceden üret; listede olmayan
 // yeni bir slug istendiğinde ilk istekte üretilip önbelleğe alınır.
@@ -18,7 +19,11 @@ export async function generateStaticParams() {
       .from('makaleler')
       .select('slug')
       .eq('aktif', true)
-    return (data || []).filter(r => r.slug).map(r => ({ slug: r.slug }))
+    // Rota makaleleri artik /rota/... altinda yayinlaniyor; bunlari statik
+    // uretmiyoruz, istek geldiginde 301 ile yeni adrese yonlendiriliyorlar.
+    return (data || [])
+      .filter(r => r.slug && !makaleRotaHedefi(r))
+      .map(r => ({ slug: r.slug }))
   } catch {
     return []
   }
@@ -32,6 +37,7 @@ export async function generateMetadata({ params }) {
     supabase.from('ayarlar').select('*'),
   ])
   if (!makale) return { title: 'Sayfa Bulunamadı' }
+  if (makaleRotaHedefi(makale)) return { title: makale.baslik, robots: { index: false, follow: true } }
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
   const siteUrl = getAyar('site_url') || 'https://adananakliye.com.tr'
   return {
@@ -63,8 +69,14 @@ async function getData(slug) {
 
 export default async function MakaleDetayPage({ params }) {
   const { slug } = await params
+  const hedef = makaleRotaHedefi({ slug })
+  if (hedef) permanentRedirect(rotaUrl(hedef))
+
   const { ayarlar, menu, hizmetler, makale, sonMakaleler } = await getData(slug)
   if (!makale) notFound()
+  // Kategorisi rota olan eski yazilar da yeni rota sayfasina tasindi.
+  const kayitHedefi = makaleRotaHedefi(makale)
+  if (kayitHedefi) permanentRedirect(rotaUrl(kayitHedefi))
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
 
   const tarih = new Date(makale.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -73,9 +85,9 @@ export default async function MakaleDetayPage({ params }) {
     <>
       <Header ayarlar={ayarlar} menu={menu} />
       <main>
-        <section className="py-20" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #0559c9 100%)' }}>
+        <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
-            <nav className="flex items-center gap-2 text-white/80 text-sm mb-4">
+            <nav className="flex items-center gap-2 text-white text-sm mb-4">
               <Link href="/" className="hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <Link href="/blog" className="hover:text-white">Blog</Link>
@@ -83,7 +95,7 @@ export default async function MakaleDetayPage({ params }) {
               <span className="text-white">{makale.baslik}</span>
             </nav>
             <h1 className="text-3xl md:text-4xl font-bold text-white">{makale.baslik}</h1>
-            <div className="flex items-center gap-6 mt-4 text-white/80">
+            <div className="flex items-center gap-6 mt-4 text-white">
               <span className="flex items-center gap-2"><FaCalendar /> {tarih}</span>
               <span className="flex items-center gap-2"><FaUser /> {makale.yazar || 'Admin'}</span>
               {makale.goruntulenme > 0 && <span className="flex items-center gap-2"><FaEye /> {makale.goruntulenme}</span>}

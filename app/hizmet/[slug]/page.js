@@ -85,7 +85,7 @@ export default async function HizmetDetayPage({ params }) {
           )}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(4,111,251,0.85), rgba(30,58,95,0.9))' }} />
           <div className="container mx-auto px-4 relative z-10">
-            <nav className="flex items-center gap-2 text-white/90 text-sm mb-4">
+            <nav className="flex items-center gap-2 text-white text-sm mb-4">
               <Link href="/" className="hover:text-white transition-colors">Anasayfa</Link>
               <FaChevronRight className="text-[10px]" />
               <Link href="/hizmetler" className="hover:text-white transition-colors">Hizmetler</Link>

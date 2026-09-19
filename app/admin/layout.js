@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 import {
   FaHome, FaCog, FaImages, FaConciergeBell, FaNewspaper, FaMoneyBillWave,
   FaQuestionCircle, FaBars, FaEnvelope, FaSignOutAlt, FaTimes, FaTachometerAlt,
-  FaListUl, FaSearch, FaPhotoVideo, FaBullhorn, FaCode, FaAward, FaUsers, FaRobot, FaShieldAlt, FaBan
+  FaListUl, FaSearch, FaPhotoVideo, FaBullhorn, FaCode, FaAward, FaUsers, FaRobot, FaShieldAlt, FaBan, FaRoute
 } from 'react-icons/fa'
 
 const menuItems = [
@@ -25,6 +25,7 @@ const menuItems = [
   { href: '/admin/sliders', label: 'Slider', icon: FaImages },
   { href: '/admin/hizmetler', label: 'Hizmetler', icon: FaConciergeBell },
   { href: '/admin/makaleler', label: 'Makaleler', icon: FaNewspaper },
+  { href: '/admin/rotalar', label: 'Rota Sayfaları', icon: FaRoute },
   { href: '/admin/galeri', label: 'Galeri', icon: FaPhotoVideo },
   { href: '/admin/fiyatlar', label: 'Fiyatlar', icon: FaMoneyBillWave },
   { href: '/admin/sss', label: 'SSS', icon: FaQuestionCircle },

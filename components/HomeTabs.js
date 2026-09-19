@@ -18,14 +18,21 @@ export default function HomeTabs({ tablar }) {
         
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Tab Buttons */}
-          <div className="flex flex-wrap">
+          {/* role="tab" yalnizca role="tablist" icinde gecerli; Lighthouse
+              "[role] rolleri gerekli ust ogelerinin icinde bulunmuyor"
+              uyarisi bundan kaynaklaniyordu. */}
+          <div className="flex flex-wrap" role="tablist" aria-label="Hizmet avantajları">
             {tablar.map((tab, index) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(index)}
+                type="button"
+                id={`home-tab-${index}`}
                 aria-label={`${tab.baslik} sekmesini aç`}
                 aria-selected={activeTab === index}
+                aria-controls={`home-tabpanel-${index}`}
                 role="tab"
+                tabIndex={activeTab === index ? 0 : -1}
                 className={`flex-1 min-w-[200px] py-5 px-6 text-center font-semibold transition-all duration-300 relative group ${
                   activeTab === index ? 'bg-gradient-to-r from-yellow-400 to-yellow-300' : 'bg-gray-50 hover:bg-gray-100'
                 }`}
@@ -49,6 +56,10 @@ export default function HomeTabs({ tablar }) {
             {tablar.map((tab, index) => (
               <div
                 key={tab.id}
+                id={`home-tabpanel-${index}`}
+                role="tabpanel"
+                aria-labelledby={`home-tab-${index}`}
+                hidden={activeTab !== index}
                 className={`transition-all duration-500 ${
                   activeTab === index 
                     ? 'opacity-100 translate-y-0' 

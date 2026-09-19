@@ -7,7 +7,8 @@ import Footer from '@/components/Footer'
 import ArticleCard from '@/components/ArticleCard'
 import StickyButtons from '@/components/StickyButtons'
 import Link from 'next/link'
-import { FaChevronRight } from 'react-icons/fa'
+import { FaChevronRight, FaRoute } from 'react-icons/fa'
+import { rotaOlmayanMakaleler } from '@/lib/rotalar'
 
 export async function generateMetadata() {
   const supabase = await createClient()
@@ -38,29 +39,46 @@ async function getData() {
 
 export default async function BlogPage() {
   const { ayarlar, menu, hizmetler, makaleler } = await getData()
+  // Guzergah yazilari bloga degil /rota altindaki rota sayfalarina ait.
+  const yazilar = rotaOlmayanMakaleler(makaleler)
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
 
   return (
     <>
       <Header ayarlar={ayarlar} menu={menu} />
       <main>
-        <section className="py-20" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #0559c9 100%)' }}>
+        <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
-            <nav className="flex items-center gap-2 text-white/80 text-sm mb-4">
+            <nav className="flex items-center gap-2 text-white text-sm mb-4">
               <Link href="/" className="hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Blog</span>
             </nav>
             <h1 className="text-4xl md:text-5xl font-bold text-white">Blog</h1>
-            <p className="text-xl text-white/90 mt-4">Nakliyat hakkında faydalı bilgiler</p>
+            <p className="text-xl text-white mt-4">Nakliyat hakkında faydalı bilgiler</p>
           </div>
         </section>
 
         <section className="section">
           <div className="container mx-auto px-4">
-            {makaleler && makaleler.length > 0 ? (
+            <Link
+              href="/rota"
+              className="mb-10 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-6 transition-all hover:border-[#046ffb] hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+            >
+              <span>
+                <span className="flex items-center gap-2 text-lg font-bold text-[#1e3a5f]">
+                  <FaRoute aria-hidden="true" className="text-[#0b5bd3]" /> Şehirler arası rota sayfaları
+                </span>
+                <span className="mt-1 block text-sm text-slate-600">
+                  Adana&apos;dan 81 ile ve turistik ilçelere taşınma bilgileri, mesafe ve tahmini fiyatlar artık ayrı sayfalarda.
+                </span>
+              </span>
+              <span className="shrink-0 font-semibold text-[#0b5bd3]">Tüm rotaları gör →</span>
+            </Link>
+
+            {yazilar.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {makaleler.map((makale) => <ArticleCard key={makale.id} makale={makale} />)}
+                {yazilar.map((makale) => <ArticleCard key={makale.id} makale={makale} />)}
               </div>
             ) : (
               <p className="text-center py-16 text-gray-500">Henüz makale eklenmemiş.</p>

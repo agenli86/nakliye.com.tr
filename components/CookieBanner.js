@@ -59,13 +59,13 @@ export default function CookieBanner() {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={declineCookies}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium"
+              className="px-4 py-3 min-h-[44px] text-gray-700 hover:text-gray-900 text-sm font-medium"
             >
               Reddet
             </button>
             <button
               onClick={acceptCookies}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 min-h-[44px] bg-blue-700 text-white rounded-lg font-semibold text-sm hover:bg-blue-800 transition-colors"
             >
               Kabul Et
             </button>

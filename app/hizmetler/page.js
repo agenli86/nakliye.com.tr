@@ -43,15 +43,15 @@ export default async function HizmetlerPage() {
     <>
       <Header ayarlar={ayarlar} menu={menu} />
       <main>
-        <section className="py-20" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #0559c9 100%)' }}>
+        <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
-            <nav className="flex items-center gap-2 text-white/80 text-sm mb-4">
+            <nav className="flex items-center gap-2 text-white text-sm mb-4">
               <Link href="/" className="hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Hizmetlerimiz</span>
             </nav>
             <h1 className="text-4xl md:text-5xl font-bold text-white">Hizmetlerimiz</h1>
-            <p className="text-xl text-white/90 mt-4">Profesyonel nakliyat çözümleri</p>
+            <p className="text-xl text-white mt-4">Profesyonel nakliyat çözümleri</p>
           </div>
         </section>
 
