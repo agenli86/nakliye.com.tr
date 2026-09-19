@@ -9,10 +9,17 @@ const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ss
 const FraudDetector = dynamic(() => import('@/components/FraudDetector'), { ssr: false })
 const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: false })
 
-const inter = Inter({ 
-  subsets: ['latin'],
+// latin-ext alt kümesi Türkçe karakterler (ş ğ İ ı ç ö ü) için gerekli.
+// Yalnızca 'latin' yüklendiğinde bu harfler sistem yazı tipine düşüyor,
+// bu da metnin iki farklı fontla çizilmesine ve düzen kaymasına yol açıyor.
+// adjustFontFallback, font inene kadar kullanılan yedek fontun ölçülerini
+// Inter'a yaklaştırarak kaymayı (CLS) sıfıra indirir.
+const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
   display: 'swap',
   variable: '--font-inter',
+  adjustFontFallback: true,
+  preload: true,
 })
 
 export const metadata = {
@@ -44,14 +51,14 @@ export default function RootLayout({ children }) {
     <html lang="tr" className={inter.variable}>
       <head>
         <link rel="icon" href="/resimler/adana-evden-eve-nakliyat.png" />
-        {/* Preconnect - Kritik bağlantılar */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://connect.facebook.net" />
-        <link rel="preconnect" href="https://hvkwboukgzblmqvjcyjt.supabase.co" />
-        <link rel="preconnect" href="https://api.ipify.org" />
+        {/* Preconnect yalnızca ilk boyamayı gerçekten etkileyen kaynak için.
+            Her preconnect bir TCP+TLS el sıkışması demek; analitik ve takip
+            alan adları artık sayfa yüklendikten sonra çağrıldığı için
+            onlara daha ucuz olan dns-prefetch yetiyor. api.ipify.org ve
+            nominatim tamamen kaldırıldı, artık hiç çağrılmıyorlar. */}
+        <link rel="preconnect" href="https://hvkwboukgzblmqvjcyjt.supabase.co" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
-        <link rel="dns-prefetch" href="https://hvkwboukgzblmqvjcyjt.supabase.co" />
         <link rel="dns-prefetch" href="https://ipapi.co" />
         
         {/* JSON-LD LocalBusiness */}
@@ -115,17 +122,22 @@ export default function RootLayout({ children }) {
         />
         {children}
         
-        {/* Google Analytics - afterInteractive (sayfa yüklendikten sonra) */}
-        <Script 
-          src="https://www.googletagmanager.com/gtag/js?id=G-FQBQFLNBJ8"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
+        {/* Google Analytics
+            Küçük başlatma kodu erken çalışıp gtag() kuyruğunu kurar, böylece
+            kütüphane inmeden önce tetiklenen dönüşüm olayları kaybolmaz.
+            Asıl kütüphane (≈90 kB) lazyOnload ile sayfa yüklendikten sonra
+            iniyor; bu TBT'yi ve ana iş parçacığı meşguliyetini düşürür. */}
+        <Script id="google-analytics-init" strategy="afterInteractive">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-FQBQFLNBJ8');`}
         </Script>
-        
-        {/* Facebook Pixel - afterInteractive */}
-        <Script id="facebook-pixel" strategy="afterInteractive">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-FQBQFLNBJ8"
+          strategy="lazyOnload"
+        />
+
+        {/* Facebook Pixel - snippet zaten kendi kuyruğunu kurduğu için
+            tamamen lazyOnload'a alınabilir, PageView kaybolmaz. */}
+        <Script id="facebook-pixel" strategy="lazyOnload">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','779004901018883');fbq('track','PageView');`}
         </Script>
       </body>

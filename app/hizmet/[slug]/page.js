@@ -1,4 +1,7 @@
-import { createClient } from '@/lib/supabase-server'
+// ISR: sayfa bir kez üretilir, en fazla 1 saatte bir arka planda tazelenir.
+export const revalidate = 3600
+
+import { createClient, createPublicClient } from '@/lib/supabase-public'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import StickyButtons from '@/components/StickyButtons'
@@ -6,6 +9,21 @@ import Link from 'next/link'
 import Image from 'next/image' // Image bileşenini ekledik
 import { FaChevronRight, FaPhone, FaWhatsapp } from 'react-icons/fa'
 import { notFound } from 'next/navigation'
+
+// Hizmet/makale sayfalarını build sırasında önceden üret; listede olmayan
+// yeni bir slug istendiğinde ilk istekte üretilip önbelleğe alınır.
+export async function generateStaticParams() {
+  try {
+    const supabase = createPublicClient()
+    const { data } = await supabase
+      .from('hizmetler')
+      .select('slug')
+      .eq('aktif', true)
+    return (data || []).filter(r => r.slug).map(r => ({ slug: r.slug }))
+  } catch {
+    return []
+  }
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params

@@ -1,39 +1,25 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { FaRobot, FaPaperPlane, FaPhone, FaSpinner, FaComments } from 'react-icons/fa'
-import { createClient } from '@/lib/supabase-browser'
 
-export default function ChatBotEmbed() {
+/**
+ * Chatbot bölümü.
+ *
+ * `aktif` bayrağı artık sunucudan prop olarak geliyor. Eskiden bileşen
+ * tarayıcıda mount olduktan sonra Supabase'e sorup cevap gelene kadar null
+ * dönüyordu; cevap gelince ~600px'lik bölüm sayfanın ortasına aniden
+ * açılıyor ve altındaki her şeyi aşağı itiyordu (CLS). Artık sunucu
+ * tarafında biliniyor, kayma yok ve bir istemci sorgusu eksildi.
+ */
+export default function ChatBotEmbed({ aktif = false }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [remainingQuestions, setRemainingQuestions] = useState(5)
   const [limitReached, setLimitReached] = useState(false)
   const [started, setStarted] = useState(false)
-  const [isActive, setIsActive] = useState(true)
-  const [checkingStatus, setCheckingStatus] = useState(true)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
-  const supabase = createClient()
-
-  // Chatbot aktif mi kontrol et
-  useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        const { data } = await supabase
-          .from('chatbot_ayarlari')
-          .select('deger')
-          .eq('anahtar', 'aktif')
-          .single()
-        
-        setIsActive(data?.deger === 'true')
-      } catch (e) {
-        setIsActive(false)
-      }
-      setCheckingStatus(false)
-    }
-    checkStatus()
-  }, [])
 
   // Fingerprint oluştur
   const [fingerprint, setFingerprint] = useState('')
@@ -42,14 +28,15 @@ export default function ChatBotEmbed() {
     setFingerprint(btoa(fp).substring(0, 20))
   }, [])
 
-  // Mesaj listesi güncellendiğinde aşağı kaydır
+  // Mesaj listesi güncellendiğinde aşağı kaydır — ilk render'da değil,
+  // yoksa sayfa açılır açılmaz chatbot'a kaydırıyor.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (messages.length === 0) return
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages])
 
   // Chatbot kapalıysa hiçbir şey gösterme
-  if (checkingStatus) return null
-  if (!isActive) return null
+  if (!aktif) return null
 
   const startChat = () => {
     setStarted(true)
@@ -205,7 +192,7 @@ export default function ChatBotEmbed() {
                   <FaRobot /> Sohbete Başla
                 </button>
                 
-                <p className="text-xs text-gray-400 mt-4">
+                <p className="text-xs text-gray-600 mt-4">
                   Günlük 5 soru hakkınız var • Daha fazlası için bizi arayın
                 </p>
               </div>
@@ -219,11 +206,11 @@ export default function ChatBotEmbed() {
                     </div>
                     <div>
                       <h3 className="font-bold">Nakliye Asistanı</h3>
-                      <p className="text-xs text-blue-100">Yapay Zeka ile Sohbet</p>
+                      <p className="text-xs text-blue-50">Yapay Zeka ile Sohbet</p>
                     </div>
                   </div>
                   <div className="text-right text-sm">
-                    <p className="text-blue-100">Kalan soru hakkı</p>
+                    <p className="text-blue-50">Kalan soru hakkı</p>
                     <p className="font-bold text-lg">{remainingQuestions}/5</p>
                   </div>
                 </div>

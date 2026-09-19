@@ -3,6 +3,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 
+const SOSYAL_MEDYA = [
+  { key: 'facebook', label: 'Facebook sayfamız', url: 'https://www.facebook.com/adanaevdenevetasima/', Icon: FaFacebook },
+  { key: 'instagram', label: 'Instagram sayfamız', url: 'https://www.instagram.com/adananabarajevdenevenakliyat/', Icon: FaInstagram },
+  { key: 'youtube', label: 'YouTube kanalımız', url: 'https://www.youtube.com/channel/UC8ZcBL6T-OELy9B_ykx79zQ', Icon: FaYoutube },
+]
+
 export default function Footer({ ayarlar, hizmetler }) {
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
   const telefon = getAyar('telefon') || '05057805551'
@@ -26,20 +32,38 @@ export default function Footer({ ayarlar, hizmetler }) {
           <div className="flex flex-col gap-6">
             <Image src={footerLogo} alt="Adana Nakliye Logo" width={180} height={80} className="h-16 w-auto brightness-0 invert" />
             <p className="text-white text-base leading-relaxed">Adana evden eve taşımacılık hizmetlerinde profesyonel çözümler için yanınızdayız.</p>
+            {/* Bağlantılar href="#" ile hiçbir yere gitmiyordu ve içlerinde
+                yalnızca ikon olduğu için ekran okuyucuya isimsiz görünüyordu.
+                Adresler ayarlardan, yoksa layout'taki yapısal veriden geliyor. */}
             <div className="flex gap-4">
-              <a href="#" className="w-12 h-12 rounded-lg bg-[#0f2744] flex items-center justify-center hover:bg-[#d4ed31] transition-all"><FaFacebook size={24}/></a>
-              <a href="#" className="w-12 h-12 rounded-lg bg-[#0f2744] flex items-center justify-center hover:bg-[#d4ed31] transition-all"><FaInstagram size={24}/></a>
+              {SOSYAL_MEDYA.map(({ key, label, url, Icon }) => {
+                const href = getAyar(key) || url
+                if (!href) return null
+                return (
+                  <a
+                    key={key}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="w-12 h-12 rounded-lg bg-[#0f2744] flex items-center justify-center hover:bg-[#d4ed31] hover:text-[#1e3a5f] transition-all"
+                  >
+                    <Icon size={24} aria-hidden="true" />
+                  </a>
+                )
+              })}
             </div>
           </div>
           <div>
-            <h4 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">KURUMSAL</h4>
+            <h3 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">KURUMSAL</h3>
             <ul className="flex flex-col gap-5">
               <li><Link href="/hakkimizda" className="hover:text-[#d4ed31] py-2 block">Hakkımızda</Link></li>
               <li><Link href="/iletisim" className="hover:text-[#d4ed31] py-2 block">İletişim</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">HİZMETLERİMİZ</h4>
+            <h3 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">HİZMETLERİMİZ</h3>
             <ul className="flex flex-col gap-5">
               {hizmetler?.slice(0, 4).map((h) => (
                 <li key={h.id}><Link href={`/hizmet/${h.slug}`} className="hover:text-[#d4ed31] py-2 block">{h.baslik}</Link></li>
@@ -47,7 +71,7 @@ export default function Footer({ ayarlar, hizmetler }) {
             </ul>
           </div>
           <div>
-            <h4 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">İLETİŞİM</h4>
+            <h3 className="text-lg font-bold mb-8 border-b-2 border-[#d4ed31] w-fit pb-2">İLETİŞİM</h3>
             <div className="flex flex-col gap-6">
               {/* Telefon Tıklama Takibi */}
               <a 

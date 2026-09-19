@@ -1,14 +1,28 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
+import { SUPABASE_ANON_KEY, SUPABASE_URL, hasSupabaseConfig } from '@/lib/supabase-config'
 
 export async function middleware(request) {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
+  // Yapılandırma yoksa oturum doğrulanamaz. Bu durumda güvenli tarafta
+  // kalıp admin isteklerini giriş sayfasına yönlendiriyoruz; istemciyi
+  // oluşturmaya çalışmak her istekte 500 dönmesine yol açıyordu.
+  if (!hasSupabaseConfig()) {
+    if (request.nextUrl.pathname.startsWith('/admin') &&
+        request.nextUrl.pathname !== '/admin/giris') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/giris'
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {

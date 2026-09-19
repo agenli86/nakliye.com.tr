@@ -129,3 +129,19 @@ main:not(.home-page) {
     min-width: 48px;
   }
 }
+
+/* Hero slider noktaları görsel olarak 12px; dokunma hedefi olarak çok küçük
+   (Lighthouse 24px altını işaretliyor). Görünümü değiştirmeden, pseudo-element
+   ile 44px'lik görünmez bir dokunma alanı veriyoruz. */
+.swiper-pagination-bullet {
+  position: relative;
+}
+.swiper-pagination-bullet::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}

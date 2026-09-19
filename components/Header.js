@@ -10,9 +10,26 @@ export default function Header({ ayarlar, menu }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState(null)
 
+  // Scroll dinleyicisi passive + requestAnimationFrame ile çalışıyor.
+  // Eskiden her scroll olayında setState çağrılıyordu; passive olmayan
+  // dinleyici tarayıcının kaydırmayı ana iş parçacığından ayırmasını
+  // engelliyor ve kaydırmada takılmaya (INP) yol açıyordu.
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50)
-    window.addEventListener('scroll', handleScroll)
+    let ticking = false
+
+    const handleScroll = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(() => {
+        setIsScrolled(prev => {
+          const next = window.scrollY > 50
+          return prev === next ? prev : next
+        })
+        ticking = false
+      })
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -39,7 +56,7 @@ export default function Header({ ayarlar, menu }) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-yellow-300 font-semibold">7/24 Hizmet</span>
+              <span className="text-white font-semibold">7/24 Hizmet</span>
             </div>
           </div>
         </div>

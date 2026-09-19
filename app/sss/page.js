@@ -1,7 +1,11 @@
-import { createClient } from '@/lib/supabase-server'
+// ISR: sayfa bir kez üretilir, en fazla 1 saatte bir arka planda tazelenir.
+export const revalidate = 3600
+
+import { createClient } from '@/lib/supabase-public'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import FaqAccordion from '@/components/FaqAccordion'
+import JsonLd from '@/components/JsonLd'
 import StickyButtons from '@/components/StickyButtons'
 import Link from 'next/link'
 import { FaChevronRight } from 'react-icons/fa'
@@ -37,8 +41,24 @@ export default async function SSSPage() {
   const { ayarlar, menu, hizmetler, sss } = await getData()
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
 
+  // FAQPage yapısal verisi — Google'ın arama sonuçlarında soru/cevapları
+  // doğrudan göstermesini sağlar.
+  const faqJsonLd = sss && sss.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: sss.map(item => ({
+      '@type': 'Question',
+      name: item.soru,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: String(item.cevap || '').replace(/<[^>]*>/g, '').trim(),
+      },
+    })),
+  } : null
+
   return (
     <>
+      {faqJsonLd && <JsonLd data={faqJsonLd} />}
       <Header ayarlar={ayarlar} menu={menu} />
       <main>
         <section className="py-20" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #0559c9 100%)' }}>
