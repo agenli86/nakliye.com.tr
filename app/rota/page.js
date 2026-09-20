@@ -55,7 +55,7 @@ export default async function RotaDizini() {
         <section className="py-16 md:py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
             <nav aria-label="Sayfa yolu" className="mb-4 flex items-center gap-2 text-sm text-white">
-              <Link href="/" className="hover:text-white hover:underline">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white hover:underline">Anasayfa</Link>
               <FaChevronRight className="text-[10px]" aria-hidden="true" />
               <span className="font-medium text-white">Nakliye Rotaları</span>
             </nav>
@@ -83,7 +83,7 @@ export default async function RotaDizini() {
                     <li key={rota.rotaSlug}>
                       <Link
                         href={rota.url}
-                        className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 transition-all hover:border-[#046ffb] hover:shadow-md"
+                        className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 transition-all hover:border-[#0561e0] hover:shadow-md"
                       >
                         <span className="font-semibold text-[#1e3a5f]">{rota.rotaAdi}</span>
                         <span className="whitespace-nowrap text-xs font-medium text-slate-500">~{rota.mesafe} km</span>

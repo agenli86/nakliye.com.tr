@@ -1,6 +1,28 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
+/**
+ * Duyuru şeridi.
+ *
+ * Metin sunucudan geliyor ve yerini baştan kaplıyor: sonradan eklenmiş
+ * olsaydı altındaki bölümleri aşağı iter, düzen kayması (CLS) olurdu.
+ * Kayan animasyon ise sayfa tamamen yüklenene kadar başlamıyor; böylece
+ * ilk boyama ve LCP sırasında tarayıcı sürekli yeni kare çizmiyor.
+ */
 export default function AnnouncementBar({ duyurular }) {
+  const [animasyon, setAnimasyon] = useState(false)
+
+  useEffect(() => {
+    if (document.readyState === 'complete') {
+      setAnimasyon(true)
+      return
+    }
+    const baslat = () => setAnimasyon(true)
+    window.addEventListener('load', baslat, { once: true })
+    return () => window.removeEventListener('load', baslat)
+  }, [])
+
   if (!duyurular || duyurular.length === 0) return null
 
   const text = duyurular.map(d => d.metin).join('   •   ')
@@ -8,7 +30,7 @@ export default function AnnouncementBar({ duyurular }) {
   return (
     <div className="overflow-hidden py-3" style={{ backgroundColor: '#d4ed31' }}>
       <div className="announcement-wrapper">
-        <div className="announcement-content">
+        <div className={`announcement-content${animasyon ? ' animasyonlu' : ''}`}>
           {[1, 2, 3].map((_, idx) => (
             <span key={idx} className="inline-block whitespace-nowrap px-8">
               {duyurular.map((d, i) => (
@@ -34,13 +56,15 @@ export default function AnnouncementBar({ duyurular }) {
         }
         .announcement-content {
           display: flex;
+        }
+        .announcement-content.animasyonlu {
           animation: scroll 20s linear infinite;
         }
         @keyframes scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-33.33%); }
         }
-        .announcement-content:hover {
+        .announcement-content.animasyonlu:hover {
           animation-play-state: paused;
         }
       `}</style>

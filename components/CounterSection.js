@@ -48,7 +48,7 @@ export default function CounterSection({ ayarlar }) {
     <section 
       ref={sectionRef} 
       className="py-20 relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #046ffb 0%, #1e3a5f 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #0561e0 0%, #1e3a5f 100%)' }}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">

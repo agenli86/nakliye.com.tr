@@ -58,14 +58,14 @@ export default async function TeklifAlPage() {
       <Header ayarlar={ayarlar} menu={menu} />
       <main>
         {/* Hero */}
-        <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #046ffb 0%, #1e3a5f 100%)' }}>
+        <section className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0561e0 0%, #1e3a5f 100%)' }}>
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full" />
             <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full" />
           </div>
           <div className="container mx-auto px-4 relative z-10">
             <nav className="flex items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Teklif Al</span>
             </nav>

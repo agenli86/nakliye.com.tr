@@ -104,7 +104,7 @@ export default function AdminKutucuklarPage() {
             const IconComp = getIconComponent(k.icon)
             return (
               <div key={k.id} className="text-center p-4 bg-white rounded-xl shadow-sm">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3" style={{ backgroundColor: '#046ffb' }}>
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3" style={{ backgroundColor: '#0561e0' }}>
                   <IconComp className="text-xl text-white" />
                 </div>
                 <h4 className="font-bold text-sm mb-1" style={{ color: '#1e3a5f' }}>{k.baslik}</h4>
@@ -144,7 +144,7 @@ export default function AdminKutucuklarPage() {
                         formData.icon === opt.value ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-100 hover:bg-gray-200'
                       }`}
                     >
-                      <opt.icon className="text-xl" style={{ color: formData.icon === opt.value ? '#046ffb' : '#666' }} />
+                      <opt.icon className="text-xl" style={{ color: formData.icon === opt.value ? '#0561e0' : '#666' }} />
                       <span className="text-xs">{opt.label}</span>
                     </button>
                   ))}
@@ -175,7 +175,7 @@ export default function AdminKutucuklarPage() {
           const IconComp = getIconComponent(k.icon)
           return (
             <div key={k.id} className="admin-card flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#046ffb' }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#0561e0' }}>
                 <IconComp className="text-xl text-white" />
               </div>
               <div className="flex-1">

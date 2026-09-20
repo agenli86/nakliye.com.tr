@@ -37,7 +37,7 @@ export default function FeatureBoxes({ kutucuklar }) {
                 className="group text-center p-8 rounded-2xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100"
               >
                 {/* Icon */}
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 transition-all duration-300 group-hover:scale-110" style={{ backgroundColor: '#046ffb' }}>
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 transition-all duration-300 group-hover:scale-110" style={{ backgroundColor: '#0561e0' }}>
                   <IconComponent className="text-3xl text-white" />
                 </div>
 
@@ -55,7 +55,7 @@ export default function FeatureBoxes({ kutucuklar }) {
                 <a 
                   href={box.link || '/hizmetler'}
                   className="inline-flex items-center gap-2 font-semibold transition-all group-hover:gap-3"
-                  style={{ color: '#046ffb' }}
+                  style={{ color: '#0561e0' }}
                 >
                   Devamı
                   <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

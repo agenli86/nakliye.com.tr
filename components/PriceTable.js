@@ -23,7 +23,7 @@ export default function PriceTable({ fiyatlar, bolum }) {
                   <tr key={fiyat.id} className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
                     <td className="py-5 px-6 font-medium" style={{ color: '#1e3a5f' }}>{fiyat.daire_tipi}</td>
                     <td className="py-5 px-6 text-right">
-                      <span className="text-lg font-bold" style={{ color: '#046ffb' }}>
+                      <span className="text-lg font-bold" style={{ color: '#0561e0' }}>
                         {Number(fiyat.min_fiyat).toLocaleString('tr-TR')} ₺ - {Number(fiyat.max_fiyat).toLocaleString('tr-TR')} ₺
                       </span>
                     </td>

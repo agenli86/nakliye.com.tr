@@ -17,7 +17,9 @@ export default function HeroSlide({ slide, index = 0 }) {
         priority={index === 0}
         fetchPriority={index === 0 ? 'high' : 'low'}
         loading={index === 0 ? 'eager' : 'lazy'}
-        quality={75}
+        // Hero fotoğrafının üstünde koyu bir degrade var; 60 kalite ile 75
+        // arasındaki fark gözle görülmüyor ama dosya belirgin küçülüyor.
+        quality={60}
         sizes="100vw"
       />
 

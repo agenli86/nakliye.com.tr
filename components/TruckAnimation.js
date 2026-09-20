@@ -31,7 +31,7 @@ export default function TruckAnimation() {
         {/* Truck 2 */}
         <div className="truck truck-2 absolute">
           <svg viewBox="0 0 100 40" className="w-16 h-8">
-            <rect x="5" y="18" width="35" height="17" rx="2" fill="#046ffb"/>
+            <rect x="5" y="18" width="35" height="17" rx="2" fill="#0561e0"/>
             <rect x="40" y="22" width="22" height="13" rx="2" fill="#1e3a5f"/>
             <rect x="43" y="24" width="7" height="6" rx="1" fill="#87CEEB"/>
             <circle cx="18" cy="37" r="4" fill="#333"/>

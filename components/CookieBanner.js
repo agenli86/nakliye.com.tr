@@ -9,10 +9,22 @@ export default function CookieBanner() {
 
   useEffect(() => {
     // Daha önce kabul edilmiş mi kontrol et
-    const consent = localStorage.getItem('cookie_consent')
-    if (!consent) {
-      // 2 saniye sonra göster
-      setTimeout(() => setShowBanner(true), 2000)
+    let consent = null
+    try { consent = localStorage.getItem('cookie_consent') } catch {}
+    if (consent) return
+
+    // Kutu, sayfa tamamen yüklendikten 3 saniye sonra açılıyor. Eskiden
+    // sabit 2 saniyelik zamanlayıcıyla açılıyordu; bu, LCP henüz
+    // ölçülürken ekranın altına yeni bir katman çiziyordu.
+    let timer = null
+    const planla = () => { timer = window.setTimeout(() => setShowBanner(true), 3000) }
+
+    if (document.readyState === 'complete') planla()
+    else window.addEventListener('load', planla, { once: true })
+
+    return () => {
+      window.removeEventListener('load', planla)
+      if (timer) window.clearTimeout(timer)
     }
   }, [])
 

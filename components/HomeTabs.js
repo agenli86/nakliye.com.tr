@@ -78,7 +78,7 @@ export default function HomeTabs({ tablar }) {
                     <a 
                       href="tel:05057805551" 
                       className="inline-flex items-center gap-2 mt-6 font-semibold transition-all hover:gap-3"
-                      style={{ color: '#046ffb' }}
+                      style={{ color: '#0561e0' }}
                     >
                       Hemen Arayın <FaChevronRight />
                     </a>
@@ -86,7 +86,7 @@ export default function HomeTabs({ tablar }) {
                   
                   {tab.resim ? (
                     <div className="relative">
-                      <img src={tab.resim} alt={tab.baslik} className="rounded-2xl shadow-lg" />
+                      <img src={tab.resim} alt={tab.baslik} loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-lg" />
                     </div>
                   ) : (
                     <div className="hidden md:flex items-center justify-center">
@@ -100,20 +100,29 @@ export default function HomeTabs({ tablar }) {
             ))}
           </div>
           
-          {/* Tab Navigation Dots */}
-          <div className="flex justify-center gap-2 pb-6">
+          {/* Tab Navigation Dots
+              Dokunma hedefi butonun kendi ölçüsüyle belirleniyor, görsel
+              nokta ise içindeki span. Eskiden buton 12x12 px'ti ve mobilde
+              parmakla isabet ettirmek zordu; artık buton 44x44 px. */}
+          <div className="flex justify-center pb-4">
             {tablar.map((_, index) => (
               <button
                 key={index}
+                type="button"
                 onClick={() => setActiveTab(index)}
                 aria-label={`Sekme ${index + 1}`}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  activeTab === index
-                    ? 'w-8'
-                    : 'bg-gray-300 hover:bg-gray-400'
-                }`}
-                style={activeTab === index ? { backgroundColor: '#d4ed31' } : {}}
-              />
+                aria-pressed={activeTab === index}
+                className="group flex h-11 w-11 items-center justify-center"
+              >
+                <span
+                  className={`h-3 rounded-full transition-all ${
+                    activeTab === index
+                      ? 'w-8'
+                      : 'w-3 bg-gray-300 group-hover:bg-gray-400'
+                  }`}
+                  style={activeTab === index ? { backgroundColor: '#d4ed31' } : {}}
+                />
+              </button>
             ))}
           </div>
         </div>

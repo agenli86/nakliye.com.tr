@@ -50,7 +50,7 @@ export default async function BlogPage() {
         <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
             <nav className="flex items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Blog</span>
             </nav>
@@ -63,7 +63,7 @@ export default async function BlogPage() {
           <div className="container mx-auto px-4">
             <Link
               href="/rota"
-              className="mb-10 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-6 transition-all hover:border-[#046ffb] hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+              className="mb-10 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-6 transition-all hover:border-[#0561e0] hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
             >
               <span>
                 <span className="flex items-center gap-2 text-lg font-bold text-[#1e3a5f]">

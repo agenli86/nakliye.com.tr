@@ -1,8 +1,8 @@
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { Inter } from 'next/font/google'
-import Script from 'next/script'
 import dynamic from 'next/dynamic'
+import DeferredAnalytics from '@/components/DeferredAnalytics'
 
 // Kritik olmayan component'ler - lazy load
 const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ssr: false })
@@ -41,7 +41,7 @@ export const metadata = {
 }
 
 export const viewport = {
-  themeColor: '#046ffb',
+  themeColor: '#0561e0',
   width: 'device-width',
   initialScale: 1,
 }
@@ -122,24 +122,9 @@ export default function RootLayout({ children }) {
         />
         {children}
         
-        {/* Google Analytics
-            Küçük başlatma kodu erken çalışıp gtag() kuyruğunu kurar, böylece
-            kütüphane inmeden önce tetiklenen dönüşüm olayları kaybolmaz.
-            Asıl kütüphane (≈90 kB) lazyOnload ile sayfa yüklendikten sonra
-            iniyor; bu TBT'yi ve ana iş parçacığı meşguliyetini düşürür. */}
-        <Script id="google-analytics-init" strategy="afterInteractive">
-          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-FQBQFLNBJ8');`}
-        </Script>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-FQBQFLNBJ8"
-          strategy="lazyOnload"
-        />
-
-        {/* Facebook Pixel - snippet zaten kendi kuyruğunu kurduğu için
-            tamamen lazyOnload'a alınabilir, PageView kaybolmaz. */}
-        <Script id="facebook-pixel" strategy="lazyOnload">
-          {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','779004901018883');fbq('track','PageView');`}
-        </Script>
+        {/* Analitik ve pixel kodları: ilk etkileşime ya da 5. saniyeye
+            kadar hiç indirilmiyor (bkz. components/DeferredAnalytics.js). */}
+        <DeferredAnalytics />
       </body>
     </html>
   )

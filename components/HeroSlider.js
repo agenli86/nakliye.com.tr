@@ -10,10 +10,20 @@ import HeroSlide from './HeroSlide'
  *
  * Eskiden Swiper (≈40 kB gzip) ilk render'ın parçasıydı; hero görseli
  * ancak JS indirilip hydrate olduktan sonra çizilebiliyordu. Artık ilk
- * slayt sunucudan düz HTML olarak geliyor, carousel ise sayfa yüklendikten
- * sonra arka planda indirilip yerine geçiyor. Tek slayt varsa Swiper hiç
+ * slayt sunucudan düz HTML olarak geliyor. Tek slayt varsa Swiper hiç
  * indirilmiyor.
+ *
+ * Carousel'e geçiş neden `load` + idle değil de etkileşime bağlı: devir
+ * anında sunucudan gelen <img> DOM'dan çıkıp yerine Swiper'ınki geliyor.
+ * Bu yeni öğe tarayıcı için yeni bir LCP adayı ve boyanma zamanı sayfanın
+ * LCP'si olarak kaydediliyordu — ölçümde "öğe oluşturma gecikmesi" olarak
+ * görünen ~2 saniyenin muhtemel kaynağı bu. Devir artık kullanıcı sayfaya
+ * dokunduğunda ya da 6. saniyede yapılıyor; ikisi de LCP penceresinin
+ * dışında kalıyor.
  */
+
+const DEVIR_GECIKMESI_MS = 6000
+const OLAYLAR = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll']
 const HeroSwiper = dynamic(() => import('./HeroSwiper'), {
   ssr: false,
   loading: () => null,
@@ -26,28 +36,24 @@ export default function HeroSlider({ sliders }) {
   useEffect(() => {
     if (!hasCarousel) return
 
-    let handle = null
-    let cancelled = false
+    let timer = null
 
-    const schedule = () => {
-      if (cancelled) return
-      if ('requestIdleCallback' in window) {
-        handle = window.requestIdleCallback(() => !cancelled && setCarouselReady(true), { timeout: 3000 })
-      } else {
-        handle = window.setTimeout(() => !cancelled && setCarouselReady(true), 600)
-      }
+    const devret = () => {
+      temizle()
+      setCarouselReady(true)
     }
 
-    if (document.readyState === 'complete') schedule()
-    else window.addEventListener('load', schedule, { once: true })
-
-    return () => {
-      cancelled = true
-      window.removeEventListener('load', schedule)
-      if (handle == null) return
-      if ('cancelIdleCallback' in window) window.cancelIdleCallback(handle)
-      else window.clearTimeout(handle)
+    const temizle = () => {
+      OLAYLAR.forEach((olay) => window.removeEventListener(olay, devret))
+      if (timer) window.clearTimeout(timer)
     }
+
+    OLAYLAR.forEach((olay) =>
+      window.addEventListener(olay, devret, { once: true, passive: true })
+    )
+    timer = window.setTimeout(devret, DEVIR_GECIKMESI_MS)
+
+    return temizle
   }, [hasCarousel])
 
   // Fallback (Yedek) Alanı

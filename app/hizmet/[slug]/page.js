@@ -86,9 +86,9 @@ export default async function HizmetDetayPage({ params }) {
           <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(4,111,251,0.85), rgba(30,58,95,0.9))' }} />
           <div className="container mx-auto px-4 relative z-10">
             <nav className="flex items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white transition-colors">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white transition-colors">Anasayfa</Link>
               <FaChevronRight className="text-[10px]" />
-              <Link href="/hizmetler" className="hover:text-white transition-colors">Hizmetler</Link>
+              <Link href="/hizmetler" className="inline-flex min-h-[24px] items-center hover:text-white transition-colors">Hizmetler</Link>
               <FaChevronRight className="text-[10px]" />
               <span className="text-white font-medium">{hizmet.baslik}</span>
             </nav>
@@ -124,7 +124,7 @@ export default async function HizmetDetayPage({ params }) {
                 <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 sticky top-28">
                   <h3 className="text-xl font-bold mb-6" style={{ color: '#1e3a5f' }}>Ücretsiz Teklif Al</h3>
                   <div className="flex flex-col gap-4">
-                    <a href={`tel:${telefon}`} className="flex items-center justify-center gap-3 bg-[#046ffb] text-white py-4 rounded-xl font-bold hover:bg-[#1e3a5f] transition-all shadow-md">
+                    <a href={`tel:${telefon}`} className="flex items-center justify-center gap-3 bg-[#0561e0] text-white py-4 rounded-xl font-bold hover:bg-[#1e3a5f] transition-all shadow-md">
                       <FaPhone /> {telefon}
                     </a>
                     <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 bg-[#25d366] text-white py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-md">
@@ -137,8 +137,8 @@ export default async function HizmetDetayPage({ params }) {
                     <ul className="grid grid-cols-1 gap-3">
                       {hizmetler?.filter(h => h.slug !== slug).slice(0, 6).map(h => (
                         <li key={h.id}>
-                          <Link href={`/hizmet/${h.slug}`} className="group flex items-center gap-2 text-slate-600 hover:text-[#046ffb] transition-colors text-sm font-medium">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-[#046ffb]" />
+                          <Link href={`/hizmet/${h.slug}`} className="group flex items-center gap-2 text-slate-600 hover:text-[#0561e0] transition-colors text-sm font-medium">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-[#0561e0]" />
                             {h.baslik}
                           </Link>
                         </li>

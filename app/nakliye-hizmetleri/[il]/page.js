@@ -120,9 +120,9 @@ export default async function IlHizmetSayfasi({ params }) {
         <section className="py-14 md:py-20" style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #0b5bd3 100%)' }}>
           <div className="container mx-auto px-4">
             <nav aria-label="Sayfa yolu" className="mb-4 flex flex-wrap items-center gap-2 text-sm text-white">
-              <Link href="/" className="hover:text-white hover:underline">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white hover:underline">Anasayfa</Link>
               <FaChevronRight className="text-[10px]" aria-hidden="true" />
-              <Link href="/nakliye-hizmetleri" className="hover:text-white hover:underline">Nakliye Hizmetleri</Link>
+              <Link href="/nakliye-hizmetleri" className="inline-flex min-h-[24px] items-center hover:text-white hover:underline">Nakliye Hizmetleri</Link>
               <FaChevronRight className="text-[10px]" aria-hidden="true" />
               <span className="font-medium text-white">{il.ad}</span>
             </nav>
@@ -249,13 +249,13 @@ export default async function IlHizmetSayfasi({ params }) {
                   <h2 className="mb-2 text-xl font-bold text-[#1e3a5f]">{il.ad} İçin Teklif Alın</h2>
                   <p className="mb-5 text-sm text-slate-600">Ekspertiz ücretsiz, fiyat yazılı ve taşıma günü değişmiyor.</p>
                   <div className="flex flex-col gap-3">
-                    <a href={`tel:${telefon}`} className="flex items-center justify-center gap-3 rounded-xl bg-[#046ffb] py-4 font-bold text-white shadow-md hover:bg-[#1e3a5f]">
+                    <a href={`tel:${telefon}`} className="flex items-center justify-center gap-3 rounded-xl bg-[#0561e0] py-4 font-bold text-white shadow-md hover:bg-[#1e3a5f]">
                       <FaPhone aria-hidden="true" /> {telefon}
                     </a>
                     <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 rounded-xl bg-[#1a8d47] py-4 font-bold text-white shadow-md hover:opacity-90">
                       <FaWhatsapp size={22} aria-hidden="true" /> WhatsApp
                     </a>
-                    <Link href="/teklif-al" className="flex items-center justify-center gap-3 rounded-xl border-2 border-[#046ffb] py-4 font-bold text-[#0b5bd3] hover:bg-blue-50">
+                    <Link href="/teklif-al" className="flex items-center justify-center gap-3 rounded-xl border-2 border-[#0561e0] py-4 font-bold text-[#0b5bd3] hover:bg-blue-50">
                       Formu Doldur
                     </Link>
                   </div>
