@@ -54,7 +54,7 @@ export default async function IletisimPage() {
         <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
             <nav className="flex items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">İletişim</span>
             </nav>
@@ -70,7 +70,7 @@ export default async function IletisimPage() {
                 <div className="space-y-4">
                   {contactInfo.map((item, i) => (
                     <div key={i} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: '#046ffb' }}>
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: '#0561e0' }}>
                         <item.icon />
                       </div>
                       <div>

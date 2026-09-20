@@ -52,7 +52,7 @@ export default async function HakkimizdaPage() {
         <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
             <nav className="flex items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Hakkımızda</span>
             </nav>
@@ -75,14 +75,14 @@ export default async function HakkimizdaPage() {
                 <div className="grid grid-cols-2 gap-4 mt-8">
                   {[{n: getAyar('tecrube_yili') || '17', l: 'Yıllık Tecrübe'}, {n: getAyar('mutlu_musteri') || '7800', l: 'Mutlu Müşteri'}].map((s, i) => (
                     <div key={i} className="text-center p-6 rounded-xl" style={{ backgroundColor: '#f0f9ff' }}>
-                      <div className="text-4xl font-bold" style={{ color: '#046ffb' }}>{s.n}+</div>
+                      <div className="text-4xl font-bold" style={{ color: '#0561e0' }}>{s.n}+</div>
                       <div className="text-gray-600 mt-2">{s.l}</div>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <img src={sayfa?.resim || '/resimler/201-hakkimizda.webp'} alt="Hakkımızda" className="rounded-2xl shadow-2xl" />
+                <img src={sayfa?.resim || '/resimler/201-hakkimizda.webp'} alt="Hakkımızda" loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-2xl" />
               </div>
             </div>
           </div>

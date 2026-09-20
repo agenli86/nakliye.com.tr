@@ -46,7 +46,7 @@ export default async function GaleriPage() {
         <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
             <nav className="flex items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Galeri</span>
             </nav>
@@ -61,7 +61,7 @@ export default async function GaleriPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {galeri.map((item) => (
                   <div key={item.id} className="group relative aspect-square rounded-xl overflow-hidden shadow-lg">
-                    <img src={item.resim} alt={item.baslik || 'Galeri'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={item.resim} alt={item.baslik || 'Galeri'} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                         {item.baslik && <h3 className="font-semibold">{item.baslik}</h3>}

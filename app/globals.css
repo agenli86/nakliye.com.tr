@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --primary: #046ffb;
+  --primary: #0561e0;
   --secondary: #1e3a5f;
   --yellow: #d4ed31;
 }
@@ -22,7 +22,7 @@ main:not(.home-page) {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #046ffb; border-radius: 5px; }
+::-webkit-scrollbar-thumb { background: #0561e0; border-radius: 5px; }
 
 /* Buttons - Limon Sarı */
 @layer components {
@@ -86,12 +86,12 @@ main:not(.home-page) {
 .sticky-icon.phone { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
 
 /* Rich Content */
-.rich-content h2 { @apply text-2xl md:text-3xl font-bold mt-8 mb-4; color: #046ffb; }
+.rich-content h2 { @apply text-2xl md:text-3xl font-bold mt-8 mb-4; color: #0561e0; }
 .rich-content h3 { @apply text-xl md:text-2xl font-bold mt-6 mb-3; }
 .rich-content p { @apply mb-4 text-gray-700 leading-relaxed; }
 .rich-content ul { @apply list-disc list-inside mb-4 space-y-2; }
 .rich-content li { @apply text-gray-700; }
-.rich-content strong { color: #046ffb; @apply font-semibold; }
+.rich-content strong { color: #0561e0; @apply font-semibold; }
 
 /* Price Table */
 .price-table { @apply w-full border-collapse rounded-xl overflow-hidden shadow-lg; }
@@ -110,7 +110,7 @@ main:not(.home-page) {
 .admin-btn-secondary { @apply admin-btn bg-gray-200 text-gray-700 hover:bg-gray-300; }
 
 /* Spinner */
-.spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #046ffb; border-radius: 50%; animation: spin 1s linear infinite; }
+.spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0561e0; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* Prose */
@@ -178,4 +178,32 @@ main:not(.home-page) {
 .prose,
 .rich-content {
   overflow-wrap: break-word;
+}
+
+/* Hero carousel noktaları.
+   Dokunma hedefi (buton) 44x44 px, görünen nokta 12 px. Eskiden butonun
+   kendisi 12x12 px'ti ve PageSpeed "dokunma hedefleri yeterli boyutta
+   değil" uyarısı veriyordu. */
+.hero-bullet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.hero-bullet > span {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.55);
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+.hero-bullet-aktif > span {
+  width: 32px;
+  background: #ffffff;
 }

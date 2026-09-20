@@ -238,7 +238,7 @@ export default function AdminRotalarPage() {
 
       {/* Fiyat ayarları: iki sayı tüm rota sayfalarındaki tabloyu belirler */}
       <section className="mb-8 rounded-xl border border-gray-200 bg-white p-6">
-        <h2 className="mb-1 flex items-center gap-2 text-lg font-bold"><FaCoins className="text-[#046ffb]" /> Fiyat Tablosu Ayarları</h2>
+        <h2 className="mb-1 flex items-center gap-2 text-lg font-bold"><FaCoins className="text-[#0561e0]" /> Fiyat Tablosu Ayarları</h2>
         <p className="mb-4 text-sm text-gray-600">
           Tahmini fiyat = baz ücret + (mesafe × km ücreti). Bu iki sayıyı değiştirdiğinizde tüm rota
           sayfalarındaki tablo güncellenir. Boş bırakılırsa varsayılan {VARSAYILAN_BAZ_UCRET} TL ve {VARSAYILAN_KM_UCRETI} TL/km kullanılır.
@@ -358,7 +358,7 @@ export default function AdminRotalarPage() {
                         </button>
                       )}
                       <button type="button" onClick={() => duzenle(satir)}
-                        className="rounded-lg p-2.5 text-[#046ffb] hover:bg-blue-50" title="Düzenle"
+                        className="rounded-lg p-2.5 text-[#0561e0] hover:bg-blue-50" title="Düzenle"
                         aria-label={`${satir.ad} sayfasını düzenle`}>
                         <FaEdit />
                       </button>
@@ -377,7 +377,7 @@ export default function AdminRotalarPage() {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold">{formData._ad}</h2>
-                <a href={formData._url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#046ffb] hover:underline">
+                <a href={formData._url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#0561e0] hover:underline">
                   {formData._url}
                 </a>
               </div>

@@ -10,7 +10,7 @@ export default function NotFound() {
   return (
     <main className="min-h-[60vh] flex items-center justify-center px-4 py-20">
       <div className="text-center max-w-lg">
-        <p className="text-6xl font-bold mb-4" style={{ color: '#046ffb' }}>404</p>
+        <p className="text-6xl font-bold mb-4" style={{ color: '#0561e0' }}>404</p>
         <h1 className="text-2xl md:text-3xl font-bold mb-4">Aradığınız sayfa bulunamadı</h1>
         <p className="text-gray-600 mb-8">
           Sayfa taşınmış veya adresi değişmiş olabilir. Aşağıdaki bağlantılardan devam edebilirsiniz.

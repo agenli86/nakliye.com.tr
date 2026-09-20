@@ -20,9 +20,13 @@ export default function HeroSwiper({ sliders }) {
       autoplay={{ delay: 5000, disableOnInteraction: false }}
       pagination={{
         clickable: true,
-        bulletClass: 'swiper-pagination-bullet !w-3 !h-3 !bg-white/50 !opacity-100',
-        bulletActiveClass: '!bg-white !w-8 !rounded-full',
-        renderBullet: (index, className) => `<button class="${className}" aria-label="Slayt ${index + 1}"></button>`,
+        // Nokta 12 px görünüyor ama buton 44x44 px: mobilde parmakla
+        // isabet ettirilebilir bir dokunma hedefi gerekiyor. Görünüm
+        // globals.css'teki .hero-bullet kurallarında.
+        bulletClass: 'hero-bullet',
+        bulletActiveClass: 'hero-bullet-aktif',
+        renderBullet: (index, className) =>
+          `<button type="button" class="${className}" aria-label="Slayt ${index + 1}"><span></span></button>`,
       }}
       loop={true}
       className="h-full"

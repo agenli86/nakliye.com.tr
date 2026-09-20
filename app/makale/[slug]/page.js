@@ -88,9 +88,9 @@ export default async function MakaleDetayPage({ params }) {
         <section className="py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
             <nav className="flex items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
-              <Link href="/blog" className="hover:text-white">Blog</Link>
+              <Link href="/blog" className="inline-flex min-h-[24px] items-center hover:text-white">Blog</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">{makale.baslik}</span>
             </nav>
@@ -107,7 +107,7 @@ export default async function MakaleDetayPage({ params }) {
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                {makale.resim && <img src={makale.resim} alt={makale.baslik} className="w-full rounded-2xl shadow-lg mb-8" />}
+                {makale.resim && <img src={makale.resim} alt={makale.baslik} loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-lg mb-8" />}
                 <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: makale.icerik }} />
               </div>
               <div className="space-y-6">
@@ -116,7 +116,7 @@ export default async function MakaleDetayPage({ params }) {
                   <ul className="space-y-3">
                     {sonMakaleler?.filter(m => m.slug !== slug).slice(0, 4).map(m => (
                       <li key={m.id} className="flex gap-3">
-                        {m.resim && <img src={m.resim} alt="" className="w-16 h-16 object-cover rounded" />}
+                        {m.resim && <img src={m.resim} alt="" loading="lazy" decoding="async" className="w-16 h-16 object-cover rounded" />}
                         <Link href={`/makale/${m.slug}`} className="text-sm hover:text-blue-600">{m.baslik}</Link>
                       </li>
                     ))}

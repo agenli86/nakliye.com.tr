@@ -169,9 +169,9 @@ export default async function RotaSayfasi({ params }) {
         <section className="py-14 md:py-20" style={{ background: 'linear-gradient(135deg, #0b63e5 0%, #0450bb 100%)' }}>
           <div className="container mx-auto px-4">
             <nav aria-label="Sayfa yolu" className="flex flex-wrap items-center gap-2 text-white text-sm mb-4">
-              <Link href="/" className="hover:text-white underline-offset-2 hover:underline">Anasayfa</Link>
+              <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white underline-offset-2 hover:underline">Anasayfa</Link>
               <FaChevronRight className="text-[10px]" aria-hidden="true" />
-              <Link href="/rota" className="hover:text-white underline-offset-2 hover:underline">Nakliye Rotaları</Link>
+              <Link href="/rota" className="inline-flex min-h-[24px] items-center hover:text-white underline-offset-2 hover:underline">Nakliye Rotaları</Link>
               <FaChevronRight className="text-[10px]" aria-hidden="true" />
               <span className="text-white font-medium">{rota.rotaAdi}</span>
             </nav>
@@ -317,7 +317,7 @@ export default async function RotaSayfasi({ params }) {
                   <div className="flex flex-col gap-3">
                     <a
                       href={`tel:${telefon}`}
-                      className="flex items-center justify-center gap-3 rounded-xl bg-[#046ffb] py-4 font-bold text-white shadow-md transition-all hover:bg-[#1e3a5f]"
+                      className="flex items-center justify-center gap-3 rounded-xl bg-[#0561e0] py-4 font-bold text-white shadow-md transition-all hover:bg-[#1e3a5f]"
                     >
                       <FaPhone aria-hidden="true" /> {telefon}
                     </a>
@@ -331,7 +331,7 @@ export default async function RotaSayfasi({ params }) {
                     </a>
                     <Link
                       href="/teklif-al"
-                      className="flex items-center justify-center gap-3 rounded-xl border-2 border-[#046ffb] py-4 font-bold text-[#0b5bd3] transition-all hover:bg-blue-50"
+                      className="flex items-center justify-center gap-3 rounded-xl border-2 border-[#0561e0] py-4 font-bold text-[#0b5bd3] transition-all hover:bg-blue-50"
                     >
                       Formu Doldur
                     </Link>
