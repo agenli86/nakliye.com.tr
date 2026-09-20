@@ -57,6 +57,9 @@ export default async function HizmetlerPage() {
 
         <section className="section">
           <div className="container mx-auto px-4">
+            {/* Kartların başlığı H3. Araya H2 konmazsa H1'den H3'e
+                atlanıyor ve başlık sırası bozuluyor. */}
+            <h2 className="section-title">Adana Nakliye Hizmetlerimiz</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {hizmetler?.map((hizmet) => <ServiceCard key={hizmet.id} hizmet={hizmet} />)}
             </div>
