@@ -9,6 +9,14 @@ import { useEffect, useState } from 'react'
  * olsaydı altındaki bölümleri aşağı iter, düzen kayması (CLS) olurdu.
  * Kayan animasyon ise sayfa tamamen yüklenene kadar başlamıyor; böylece
  * ilk boyama ve LCP sırasında tarayıcı sürekli yeni kare çizmiyor.
+ *
+ * Şeridin yerleşim kuralları neden globals.css'te: `<style jsx>` bloğu
+ * tarayıcıya ancak hydrate sırasında ulaşıyordu. O ana kadar şeridin üç
+ * metin kopyası `display: flex` olmadan alt alta diziliyor, şerit üç satır
+ * yüksekliğinde çiziliyor, stil gelince tek satıra düşüyordu. Bu 56
+ * piksellik daralma altındaki bütün bölümleri yukarı çekiyor ve tek
+ * başına 0,20 CLS üretiyordu. Kurallar artık ilk boyamadan önce yüklenen
+ * gerçek CSS dosyasında.
  */
 export default function AnnouncementBar({ duyurular }) {
   const [animasyon, setAnimasyon] = useState(false)
@@ -49,25 +57,6 @@ export default function AnnouncementBar({ duyurular }) {
         </div>
       </div>
 
-      <style jsx>{`
-        .announcement-wrapper {
-          display: flex;
-          width: 100%;
-        }
-        .announcement-content {
-          display: flex;
-        }
-        .announcement-content.animasyonlu {
-          animation: scroll 20s linear infinite;
-        }
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-33.33%); }
-        }
-        .announcement-content.animasyonlu:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
     </div>
   )
 }

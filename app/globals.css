@@ -207,3 +207,29 @@ main:not(.home-page) {
   width: 32px;
   background: #ffffff;
 }
+
+/* Duyuru şeridi.
+   Bu kurallar bilerek globals.css'te: bileşenin içindeki <style jsx>
+   bloğu tarayıcıya ancak hydrate sırasında ulaşıyor, o ana kadar şerit
+   yanlış yükseklikte çiziliyor ve stil gelince altındaki her şeyi
+   yukarı çekiyordu (düzen kayması). */
+.announcement-wrapper {
+  display: flex;
+  width: 100%;
+}
+.announcement-content {
+  display: flex;
+}
+.announcement-content.animasyonlu {
+  animation: duyuru-kaydir 20s linear infinite;
+}
+.announcement-content.animasyonlu:hover {
+  animation-play-state: paused;
+}
+@keyframes duyuru-kaydir {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.33%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .announcement-content.animasyonlu { animation: none; }
+}
