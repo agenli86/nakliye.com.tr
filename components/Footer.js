@@ -63,6 +63,7 @@ export default function Footer({ ayarlar, hizmetler }) {
               <li><Link href="/blog" className="hover:text-[#d4ed31] py-2 block">Blog</Link></li>
               <li><Link href="/rota" className="hover:text-[#d4ed31] py-2 block">Nakliye Rotaları</Link></li>
               <li><Link href="/nakliye-hizmetleri" className="hover:text-[#d4ed31] py-2 block">İllere Göre Hizmetler</Link></li>
+              <li><Link href="/nakliyat" className="hover:text-[#d4ed31] py-2 block">Adana Semtleri</Link></li>
               <li><Link href="/iletisim" className="hover:text-[#d4ed31] py-2 block">İletişim</Link></li>
             </ul>
           </div>

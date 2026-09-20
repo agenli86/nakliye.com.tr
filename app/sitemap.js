@@ -4,6 +4,7 @@ import { ROTALAR, ilHizmetUrl, rotaMakalesiMi } from '@/lib/rotalar'
 import { sehirlerarasiUrl } from '@/lib/sehirlerarasi-icerik'
 import { nakliyecilerUrl } from '@/lib/nakliyeciler-icerik'
 import { HIZMET_SAYFALARI, hizmetSayfaUrl } from '@/lib/hizmet-sayfalari'
+import { SEMT_SAYFALARI, semtUrl } from '@/lib/semtler'
 
 const SITE_URL = 'https://www.adananakliye.com.tr'
 
@@ -20,6 +21,7 @@ const STATIC_ROUTES = [
   { path: '/nakliye-hizmetleri', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/sehirler-arasi-nakliye', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/nakliyeciler-sitesi', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/nakliyat', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/sss', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/iletisim', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/teklif-al', priority: 0.9, changeFrequency: 'monthly' },
@@ -86,6 +88,14 @@ export default async function sitemap() {
     priority: 0.8,
   }))
 
+  // Adana semt ve ilçe sayfaları.
+  const semtEntries = SEMT_SAYFALARI.map(sayfa => ({
+    url: `${SITE_URL}${semtUrl(sayfa.slug)}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: sayfa.tip === 'ilce' ? 0.8 : 0.7,
+  }))
+
   let dynamicEntries = []
 
   try {
@@ -119,6 +129,7 @@ export default async function sitemap() {
     ...sehirlerarasiEntries,
     ...nakliyecilerEntries,
     ...ozelHizmetEntries,
+    ...semtEntries,
     ...dynamicEntries,
   ]
 }
