@@ -78,8 +78,8 @@ export default async function NakliyecilerSayfasi({ params }) {
   if (!veri) notFound()
 
   const { il, ayarlar, menu, hizmetler, kayit } = veri
-  const telefon = ayarAl(ayarlar, 'telefon', '05057805551')
-  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905057805551')
+  const telefon = ayarAl(ayarlar, 'telefon', '05051774097')
+  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905051774097')
   const url = `${SITE_URL}${nakliyecilerUrl(il.slug)}`
   const yil = new Date().getFullYear()
 

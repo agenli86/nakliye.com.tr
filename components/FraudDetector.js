@@ -224,10 +224,10 @@ function BlockedScreen({ info }) {
             Bu engellenmenin hatalı olduğunu düşünüyorsanız:
           </p>
           <a
-            href="tel:05057805551"
+            href="tel:05051774097"
             className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition-colors"
           >
-            <FaPhone /> 0505 780 55 51
+            <FaPhone /> 0505 177 40 97
           </a>
         </div>
       </div>

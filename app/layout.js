@@ -29,7 +29,7 @@ const inter = Inter({
 
 export const metadata = {
   metadataBase: new URL('https://www.adananakliye.com.tr'),
-  title: 'Adana Nakliye | Evden Eve Nakliyat | 05057805551',
+  title: 'Adana Nakliye | Evden Eve Nakliyat | 05051774097',
   description: 'Adana evden eve nakliyat fiyatlarında %25 indirim dönemi. Profesyonel Adana nakliye şehir içi şehirler arası nakliyat ev taşımacılık için bize ulaşın.',
   keywords: 'adana nakliye, adana evden eve nakliyat, adana nakliyat, evden eve taşımacılık',
   openGraph: {
@@ -78,7 +78,7 @@ export default function RootLayout({ children }) {
               "logo": "https://www.adananakliye.com.tr/resimler/adananakliye.png",
               "image": "https://www.adananakliye.com.tr/resimler/adanaevdenevenakliyat.jpg",
               "description": "Adana evden eve nakliyat fiyatlarında %25 indirim. Profesyonel nakliye hizmeti.",
-              "telephone": "+905057805551",
+              "telephone": "+905051774097",
               "email": "info@adananakliye.com.tr",
               "priceRange": "₺₺",
               "address": {

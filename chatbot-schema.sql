@@ -77,9 +77,9 @@ INSERT INTO chatbot_ayarlari (anahtar, deger, aciklama) VALUES
 ('aktif', 'true', 'Chatbot açık/kapalı'),
 ('gunluk_limit', '5', 'IP başına günlük soru limiti'),
 ('hosgeldin_mesaji', 'Merhaba! 👋 Ben Adana Nakliye yapay zeka asistanıyım. Size nakliyat, taşımacılık ve fiyatlar hakkında yardımcı olabilirim.', 'Karşılama mesajı'),
-('limit_doldu_mesaji', 'Günlük soru limitiniz doldu. Daha fazla bilgi için bizi arayın: 0505 780 55 51', 'Limit dolduğunda gösterilecek mesaj'),
+('limit_doldu_mesaji', 'Günlük soru limitiniz doldu. Daha fazla bilgi için bizi arayın: 0505 177 40 97', 'Limit dolduğunda gösterilecek mesaj'),
 ('hata_mesaji', 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin veya bizi arayın.', 'Hata durumunda gösterilecek mesaj'),
-('firma_telefon', '05057805551', 'Firmaya yönlendirme telefonu')
+('firma_telefon', '05051774097', 'Firmaya yönlendirme telefonu')
 ON CONFLICT (anahtar) DO NOTHING;
 
 -- =====================================================

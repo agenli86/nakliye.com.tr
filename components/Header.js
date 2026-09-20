@@ -33,7 +33,7 @@ export default function Header({ ayarlar, menu }) {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const telefon = ayarlar?.find(a => a.anahtar === 'telefon')?.deger || '05057805551'
+  const telefon = ayarlar?.find(a => a.anahtar === 'telefon')?.deger || '05051774097'
   const logo = ayarlar?.find(a => a.anahtar === 'logo')?.deger || '/resimler/adananakliye.png'
   
   const menuItems = menu?.filter(item => !item.parent_id) || []

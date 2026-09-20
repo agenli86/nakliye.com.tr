@@ -19,7 +19,7 @@ const SYSTEM_PROMPT = `Sen Adana Nakliye firmasının yapay zeka asistanısın. 
 
 ## FİRMA BİLGİLERİ:
 - Firma Adı: Adana Nakliye
-- Telefon: 0505 780 55 51
+- Telefon: 0505 177 40 97
 - Hizmet Bölgesi: Adana ve tüm Türkiye (şehirler arası)
 
 ## HİZMETLERİMİZ:
@@ -59,23 +59,23 @@ Fiyatlar ORTALAMA değerlerdir, kesin fiyat için keşif gerekir:
 2. Bir taraf zemin/1. kat, diğer taraf 1. kattan yukarı ise: Ortalama 16.000 TL (tek asansör)
 3. Her iki taraf da 1. kattan yukarı ise: Ortalama 18.000 TL (çift asansör gerekir)
 
-İndirim isteyen müşterilere: "İndirim için firma yetkilimizle görüşebilirsiniz" de ve bu numarayı ver: [0505 780 55 51](tel:05057805551)
+İndirim isteyen müşterilere: "İndirim için firma yetkilimizle görüşebilirsiniz" de ve bu numarayı ver: [0505 177 40 97](tel:05051774097)
 
 ## ŞEHİRLER ARASI NAKLİYAT:
 - Şehirler arası nakliyat fiyatları buradan verilmiyor
 - Mesafe, eşya miktarı gibi faktörlere göre değişir
-- Müşteri mutlaka firmayı aramalı: 0505 780 55 51
+- Müşteri mutlaka firmayı aramalı: 0505 177 40 97
 
 ## RANDEVU VE TEKLİF:
 - Randevu almak için sitemizdeki "Teklif Al" formunu kullanabilirler
-- Veya direkt arayabilirler: 0505 780 55 51
+- Veya direkt arayabilirler: 0505 177 40 97
 
 ## ÖNEMLİ KURALLAR:
 1. SADECE nakliyat, taşımacılık, paketleme konularında cevap ver
-2. Bilmediğin veya emin olmadığın konularda "Bu konuda bilgim yok, lütfen firmamızı arayın: 0505 780 55 51" de
+2. Bilmediğin veya emin olmadığın konularda "Bu konuda bilgim yok, lütfen firmamızı arayın: 0505 177 40 97" de
 3. Siyaset, din, spor gibi alakasız konularda CEVAP VERME
 4. Her zaman nazik ve profesyonel ol
-5. Telefon numarasını tıklanabilir olarak ver: [0505 780 55 51](tel:05057805551)
+5. Telefon numarasını tıklanabilir olarak ver: [0505 177 40 97](tel:05051774097)
 6. Fiyat sorarlarsa ORTALAMA olduğunu ve kesin fiyat için aranması gerektiğini belirt`
 
 // Günlük limiti kontrol et ve güncelle
@@ -168,7 +168,7 @@ export async function POST(request) {
         hata_mesaji: 'Günlük limit aşıldı'
       })
       return NextResponse.json({
-        error: 'Günlük soru limitiniz doldu (5 soru). Daha fazla bilgi için bizi arayın: 0505 780 55 51',
+        error: 'Günlük soru limitiniz doldu (5 soru). Daha fazla bilgi için bizi arayın: 0505 177 40 97',
         limitReached: true,
         remainingQuestions: 0
       }, { status: 429 })
@@ -178,7 +178,7 @@ export async function POST(request) {
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) {
       return NextResponse.json({ 
-        reply: 'Sistem bakımda. Lütfen bizi arayın: [0505 780 55 51](tel:05057805551)',
+        reply: 'Sistem bakımda. Lütfen bizi arayın: [0505 177 40 97](tel:05051774097)',
         remainingQuestions: limitCheck.remaining 
       })
     }
@@ -213,7 +213,7 @@ export async function POST(request) {
       })
 
       return NextResponse.json({ 
-        reply: 'Şu an yoğunluk var. Lütfen bizi arayın: [0505 780 55 51](tel:05057805551)',
+        reply: 'Şu an yoğunluk var. Lütfen bizi arayın: [0505 177 40 97](tel:05051774097)',
         remainingQuestions: limitCheck.remaining 
       })
     }
@@ -242,7 +242,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Chatbot Error:', error)
     return NextResponse.json({ 
-      reply: 'Bağlantı hatası. Lütfen bizi arayın: [0505 780 55 51](tel:05057805551)',
+      reply: 'Bağlantı hatası. Lütfen bizi arayın: [0505 177 40 97](tel:05051774097)',
       remainingQuestions: 5 
     })
   }

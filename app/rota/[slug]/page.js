@@ -73,8 +73,8 @@ export default async function RotaSayfasi({ params }) {
   if (!veri) notFound()
 
   const { rota, ayarlar, menu, hizmetler, kayit } = veri
-  const telefon = ayarAl(ayarlar, 'telefon', '05057805551')
-  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905057805551')
+  const telefon = ayarAl(ayarlar, 'telefon', '05051774097')
+  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905051774097')
 
   const fiyatSecenekleri = fiyatAyarlari(ayarlar)
   const fiyatlar = fiyatSecenekleri.goster ? fiyatTablosu(rota, ayarlar) : []

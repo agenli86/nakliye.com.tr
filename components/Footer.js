@@ -12,9 +12,9 @@ const SOSYAL_MEDYA = [
 
 export default function Footer({ ayarlar, hizmetler }) {
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
-  const telefon = getAyar('telefon') || '05057805551'
+  const telefon = getAyar('telefon') || '05051774097'
   const adres = getAyar('adres') || 'Belediye Evleri, 84244. Sk. No:9 Adana / Çukurova'
-  const whatsapp = getAyar('whatsapp') || '905057805551'
+  const whatsapp = getAyar('whatsapp') || '905051774097'
   const footerLogo = getAyar('footer_logo') || getAyar('logo') || '/resimler/adananakliye.png'
 
   // Google Ads Dönüşüm Takip Fonksiyonu

@@ -38,7 +38,7 @@ export default function PriceTable({ fiyatlar, bolum }) {
           )}
 
           <div className="text-center mt-8">
-            <a href={bolum?.buton_link || 'tel:05057805551'} className="btn-primary inline-flex items-center gap-2">
+            <a href={bolum?.buton_link || 'tel:05051774097'} className="btn-primary inline-flex items-center gap-2">
               <FaPhone />
               {bolum?.buton_metin || 'Ücretsiz Keşif İçin Arayın'}
             </a>
