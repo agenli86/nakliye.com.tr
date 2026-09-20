@@ -12,12 +12,21 @@ import RotaSSS from '@/components/RotaSSS'
 import IcLinkAgi from '@/components/IcLinkAgi'
 
 import { ILLER, ilBul } from '@/lib/iller'
-import { ILCE_ROTA_LISTESI, ilgiliRotalar, rotaBul, rotaSlug, rotaUrl, ilHizmetUrl } from '@/lib/rotalar'
+import { ilHizmetUrl, rotaBul, rotaSlug } from '@/lib/rotalar'
 import { SITE_URL, ayarAl, siteVerisi } from '@/lib/site-verisi'
-import { sehirlerarasiUrl } from '@/lib/sehirlerarasi-icerik'
+import { fiyatAyarlari } from '@/lib/rota-icerik'
 import { nakliyecilerUrl } from '@/lib/nakliyeciler-icerik'
-import { fiyatAyarlari, fiyatTablosu } from '@/lib/rota-icerik'
-import { IL_HIZMETLERI, ilGirisMetni, ilHizmetAciklamasi, ilSSS } from '@/lib/il-icerik'
+import {
+  SA_TASIMALARI,
+  bolgeKomsulari,
+  saFiyatTablosu,
+  saGirisMetni,
+  saMakale,
+  saSSS,
+  saTasimaAciklamasi,
+  sehirlerarasiUrl,
+  teslimSuresi,
+} from '@/lib/sehirlerarasi-icerik'
 
 export async function generateStaticParams() {
   return ILLER.map((il) => ({ il: il.slug }))
@@ -27,7 +36,9 @@ async function sayfaVerisi(ilSlug) {
   const il = ilBul(ilSlug)
   if (!il) return null
   const { ayarlar, menu, hizmetler, rotaKayitlari } = await siteVerisi()
-  const kayit = rotaKayitlari.find((k) => k.tur === 'il-hizmet' && k.slug === ilSlug) || null
+  // Panelden düzenleme: rota_sayfalari tablosunda tur = 'sehirler-arasi'.
+  // Tablo henüz yoksa kayıt null kalıyor ve sayfa üretilen metinle çiziliyor.
+  const kayit = rotaKayitlari.find((k) => k.tur === 'sehirler-arasi' && k.slug === ilSlug) || null
   if (kayit && kayit.aktif === false) return null
   return { il, ayarlar, menu, hizmetler, kayit }
 }
@@ -37,22 +48,28 @@ export async function generateMetadata({ params }) {
   const veri = await sayfaVerisi(ilSlug)
   if (!veri) return { title: 'Sayfa Bulunamadı' }
   const { il, kayit } = veri
-  const url = `${SITE_URL}${ilHizmetUrl(il.slug)}`
-  const baslik = kayit?.meta_title || `${il.ad} Nakliye Hizmetleri | Evden Eve Nakliyat`
+  const url = `${SITE_URL}${sehirlerarasiUrl(il.slug)}`
+  const baslik = kayit?.meta_title || `${il.ad} Şehirler Arası Nakliye - Evden Eve Taşıma`
+  const kucuk = il.ad.toLocaleLowerCase('tr-TR')
+
   return {
     title: baslik,
     description:
       kayit?.meta_description ||
-      `${il.ad} nakliye hizmetleri: evden eve nakliyat, ofis taşıma, asansörlü nakliyat, parça eşya taşıma ve eşya depolama. ${il.ad} merkez ve tüm ilçelerine sigortalı taşımacılık.`,
+      `${il.ad} şehirler arası nakliye: evden eve nakliyat, şehirler arası ev taşıma, şehirler arası küçük nakliye ve ${il.ad} asansörlü taşıma. Sigortalı, tek araçla, yazılı fiyatla.`,
     keywords:
       kayit?.meta_keywords ||
-      `${il.ad.toLowerCase()} nakliye hizmetleri, ${il.ad.toLowerCase()} evden eve nakliyat, ${il.ad.toLowerCase()} nakliyat firması, adana ${il.ad.toLowerCase()} nakliye`,
-    openGraph: { title: baslik, description: `${il.ad} nakliye hizmetleri ve evden eve nakliyat.`, url },
+      `${kucuk} şehirler arası nakliye, ${kucuk} evden eve nakliyat, ${kucuk} şehirler arası ev taşıma, ${kucuk} küçük nakliye, ${kucuk} asansörlü taşıma`,
+    openGraph: {
+      title: baslik,
+      description: `${il.ad} şehirler arası nakliye ve evden eve taşıma hizmetleri.`,
+      url,
+    },
     alternates: { canonical: kayit?.canonical_url || url },
   }
 }
 
-export default async function IlHizmetSayfasi({ params }) {
+export default async function SehirlerArasiSayfasi({ params }) {
   const { il: ilSlug } = await params
   const veri = await sayfaVerisi(ilSlug)
   if (!veri) notFound()
@@ -60,15 +77,16 @@ export default async function IlHizmetSayfasi({ params }) {
   const { il, ayarlar, menu, hizmetler, kayit } = veri
   const telefon = ayarAl(ayarlar, 'telefon', '05057805551')
   const whatsapp = ayarAl(ayarlar, 'whatsapp', '905057805551')
-  const url = `${SITE_URL}${ilHizmetUrl(il.slug)}`
+  const url = `${SITE_URL}${sehirlerarasiUrl(il.slug)}`
+  const yil = new Date().getFullYear()
 
-  const rota = il.slug === 'adana' ? null : rotaBul(rotaSlug(il.slug))
+  const giris = saGirisMetni(il)
+  const bolumler = saMakale(il)
   const fiyatSecenekleri = fiyatAyarlari(ayarlar)
-  const fiyatlar = rota && fiyatSecenekleri.goster ? fiyatTablosu(rota, ayarlar) : []
-  const sorular = ilSSS(il, rota)
-  const giris = ilGirisMetni(il)
-  const ilceRotalari = ILCE_ROTA_LISTESI.filter((r) => r.ilSlug === il.slug)
-  const komsular = rota ? ilgiliRotalar(rota, 10).filter((k) => k.ilSlug !== il.slug) : []
+  const fiyatlar = fiyatSecenekleri.goster ? saFiyatTablosu(il, ayarlar) : []
+  const sorular = saSSS(il, fiyatlar)
+  const komsular = bolgeKomsulari(il, 10)
+  const rota = il.slug === 'adana' ? null : rotaBul(rotaSlug(il.slug))
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -77,14 +95,14 @@ export default async function IlHizmetSayfasi({ params }) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Anasayfa', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: 'Nakliye Hizmetleri', item: `${SITE_URL}/nakliye-hizmetleri` },
-          { '@type': 'ListItem', position: 3, name: `${il.ad} Nakliye Hizmetleri`, item: url },
+          { '@type': 'ListItem', position: 2, name: 'Şehirler Arası Nakliye', item: `${SITE_URL}/sehirler-arasi-nakliye` },
+          { '@type': 'ListItem', position: 3, name: `${il.ad} Şehirler Arası Nakliye`, item: url },
         ],
       },
       {
         '@type': 'Service',
-        name: `${il.ad} Nakliye Hizmetleri`,
-        serviceType: 'Nakliyat',
+        name: `${il.ad} Şehirler Arası Nakliye`,
+        serviceType: 'Şehirler Arası Nakliyat',
         url,
         areaServed: { '@type': 'State', name: il.ad },
         provider: {
@@ -95,10 +113,10 @@ export default async function IlHizmetSayfasi({ params }) {
         },
         hasOfferCatalog: {
           '@type': 'OfferCatalog',
-          name: `${il.ad} nakliye hizmet listesi`,
-          itemListElement: IL_HIZMETLERI.map((h) => ({
+          name: `${il.ad} şehirler arası taşıma türleri`,
+          itemListElement: SA_TASIMALARI.map((t) => ({
             '@type': 'Offer',
-            itemOffered: { '@type': 'Service', name: `${il.ad} ${h.ad}` },
+            itemOffered: { '@type': 'Service', name: `${il.ad} ${t.ad}` },
           })),
         },
       },
@@ -124,14 +142,19 @@ export default async function IlHizmetSayfasi({ params }) {
             <nav aria-label="Sayfa yolu" className="mb-4 flex flex-wrap items-center gap-2 text-sm text-white">
               <Link href="/" className="inline-flex min-h-[24px] items-center hover:text-white hover:underline">Anasayfa</Link>
               <FaChevronRight className="text-[10px]" aria-hidden="true" />
-              <Link href="/nakliye-hizmetleri" className="inline-flex min-h-[24px] items-center hover:text-white hover:underline">Nakliye Hizmetleri</Link>
+              <Link href="/sehirler-arasi-nakliye" className="inline-flex min-h-[24px] items-center hover:text-white hover:underline">Şehirler Arası Nakliye</Link>
               <FaChevronRight className="text-[10px]" aria-hidden="true" />
               <span className="font-medium text-white">{il.ad}</span>
             </nav>
+
             <h1 className="text-3xl font-bold tracking-tight text-white md:text-5xl">
-              {kayit?.h1 || `${il.ad} Nakliye Hizmetleri`}
+              {kayit?.h1 || `${il.ad} Şehirler Arası Nakliye`}
             </h1>
+            <p className="mt-3 text-lg font-medium text-white md:text-xl">
+              {il.ad} Evden Eve Taşıma
+            </p>
             <p className="mt-4 max-w-3xl leading-relaxed text-white">{kayit?.ozet || giris[0]}</p>
+
             <div className="mt-8 flex flex-wrap gap-3">
               <a href={`tel:${telefon}`} className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-[#0b5bd3] shadow-md hover:bg-slate-100">
                 <FaPhone aria-hidden="true" /> {telefon}
@@ -139,11 +162,9 @@ export default async function IlHizmetSayfasi({ params }) {
               <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#1a8d47] px-6 py-3 font-bold text-white shadow-md hover:bg-[#15753a]">
                 <FaWhatsapp size={20} aria-hidden="true" /> WhatsApp
               </a>
-              {rota && (
-                <Link href={rota.url} className="inline-flex items-center gap-2 rounded-xl border-2 border-white px-6 py-3 font-bold text-white hover:bg-white/10">
-                  {rota.rotaAdi} Sayfası
-                </Link>
-              )}
+              <Link href={nakliyecilerUrl(il.slug)} className="inline-flex items-center gap-2 rounded-xl border-2 border-white px-6 py-3 font-bold text-white hover:bg-white/10">
+                {il.ad} Nakliyeciler Sitesi
+              </Link>
             </div>
           </div>
         </section>
@@ -154,7 +175,7 @@ export default async function IlHizmetSayfasi({ params }) {
               <div className="min-w-0 lg:col-span-2">
                 <section className="mb-10">
                   <h2 className="mb-4 text-2xl font-bold text-[#1e3a5f] md:text-3xl">
-                    {il.ad} Nakliyat Hakkında
+                    {il.ad} Şehirler Arası Nakliye Hakkında
                   </h2>
                   {giris.slice(1).map((p, i) => (
                     <p key={i} className="mb-4 leading-relaxed text-slate-700">{p}</p>
@@ -164,55 +185,60 @@ export default async function IlHizmetSayfasi({ params }) {
                   )}
                 </section>
 
-                <section id="hizmetler" className="mb-10 scroll-mt-28">
+                <section id="tasima-turleri" className="mb-10 scroll-mt-28">
                   <h2 className="mb-5 text-2xl font-bold text-[#1e3a5f] md:text-3xl">
-                    {il.ad} İçin Verdiğimiz Hizmetler
+                    {il.ad} İçin Dört Taşıma Türü
                   </h2>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    {IL_HIZMETLERI.map((hizmet) => (
-                      <article key={hizmet.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    {SA_TASIMALARI.map((tasima) => (
+                      <article key={tasima.id} id={tasima.id} className="scroll-mt-28 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <h3 className="mb-2 flex items-start gap-2 text-lg font-bold text-[#1e3a5f]">
                           <FaCheckCircle aria-hidden="true" className="mt-1 shrink-0 text-[#1a8d47]" />
-                          {il.ad} {hizmet.ad}
+                          {il.ad} {tasima.ad}
                         </h3>
-                        <p className="text-sm leading-relaxed text-slate-700">{ilHizmetAciklamasi(hizmet, il)}</p>
+                        <p className="text-sm leading-relaxed text-slate-700">{saTasimaAciklamasi(tasima, il)}</p>
                       </article>
                     ))}
                   </div>
                 </section>
 
-                <section id="ilceler" className="mb-10 scroll-mt-28">
-                  <h2 className="mb-4 text-2xl font-bold text-[#1e3a5f] md:text-3xl">
-                    {il.ad} Hizmet Verdiğimiz İlçeler
-                  </h2>
-                  <p className="mb-4 leading-relaxed text-slate-700">
-                    {il.ad} {il.bolgeAdi} sınırlarında. Aşağıdaki ilçelerin tamamına aynı hizmet kapsamıyla
-                    çalışıyoruz; listede olmayan bir yerleşim için de bizi arayabilirsiniz.
-                  </p>
-                  <ul className="flex flex-wrap gap-2">
-                    {il.ilceler.map((ilce) => (
-                      <li key={ilce} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">
-                        {il.ad} {ilce}
-                      </li>
-                    ))}
-                  </ul>
+                <section id="makale" className="mb-10 scroll-mt-28">
+                  {bolumler.map((bolum) => (
+                    <div key={bolum.baslik} className="mb-8">
+                      <h2 className="mb-4 text-2xl font-bold text-[#1e3a5f] md:text-3xl">{bolum.baslik}</h2>
+                      {bolum.paragraflar.map((p, i) => (
+                        <p key={i} className="mb-4 leading-relaxed text-slate-700">{p}</p>
+                      ))}
+                    </div>
+                  ))}
                 </section>
 
                 {fiyatlar.length > 0 && (
                   <section id="fiyatlar" className="mb-10 scroll-mt-28">
                     <h2 className="mb-4 text-2xl font-bold text-[#1e3a5f] md:text-3xl">
-                      Adana {il.ad} Nakliye Fiyatları {new Date().getFullYear()}
+                      {il.ad} Şehirler Arası Nakliye Fiyatları {yil}
                     </h2>
-                    <RotaFiyatTablosu satirlar={fiyatlar} baslik={`Adana ${il.ad} nakliye fiyat tablosu`} not={kayit?.fiyat_notu} />
+                    <RotaFiyatTablosu
+                      satirlar={fiyatlar}
+                      baslik={`${il.ad} şehirler arası nakliye fiyat tablosu`}
+                      not={kayit?.fiyat_notu}
+                    />
                     <p className="mt-4 text-slate-700">
-                      Güzergaha özel ayrıntılar, teslim süresi ve taşınma rehberi için{' '}
-                      <Link href={rota.url} className="font-semibold text-[#0b5bd3] hover:underline">{rota.rotaAdi}</Link>{' '}
-                      sayfasına bakabilirsiniz.
+                      {il.mesafe
+                        ? `Tablodaki tutarlar ${il.mesafe} km'lik mesafe üzerinden hesaplandı; ortalama teslim süresi ${teslimSuresi(il.mesafe)}.`
+                        : 'Tablodaki tutarlar şehir içi ve kısa mesafe taşımalar için ortalama değerlerdir.'}
+                      {rota && (
+                        <>
+                          {' '}Güzergaha özel ayrıntılar için{' '}
+                          <Link href={rota.url} className="font-semibold text-[#0b5bd3] hover:underline">{rota.rotaAdi}</Link>{' '}
+                          sayfasına bakabilirsiniz.
+                        </>
+                      )}
                     </p>
                   </section>
                 )}
 
-                <RotaSSS sorular={sorular} baslik={`${il.ad} Nakliye Hakkında Sık Sorulan Sorular`} />
+                <RotaSSS sorular={sorular} baslik={`${il.ad} Şehirler Arası Nakliye Hakkında Sık Sorulan Sorular`} />
 
                 <IcLinkAgi
                   baslik="Bu Sayfayla İlgili Diğer Sayfalar"
@@ -220,33 +246,24 @@ export default async function IlHizmetSayfasi({ params }) {
                     {
                       baslik: `${il.ad} sayfaları`,
                       linkler: [
-                        { href: sehirlerarasiUrl(il.slug), metin: `${il.ad} Şehirler Arası Nakliye` },
+                        { href: ilHizmetUrl(il.slug), metin: `${il.ad} Nakliye Hizmetleri` },
                         { href: nakliyecilerUrl(il.slug), metin: `${il.ad} Nakliyeciler Sitesi` },
-                      ],
-                    },
-                    {
-                      baslik: `${il.ad} rotaları`,
-                      linkler: [
                         ...(rota ? [{ href: rota.url, metin: rota.rotaAdi }] : []),
-                        ...ilceRotalari.map((r) => ({ href: r.url, metin: r.rotaAdi })),
                       ],
                     },
                     {
                       baslik: `${il.bolgeAdi} illeri`,
-                      linkler: ILLER.filter((x) => x.bolge === il.bolge && x.slug !== il.slug)
-                        .slice(0, 10)
-                        .map((x) => ({ href: ilHizmetUrl(x.slug), metin: `${x.ad} Nakliye Hizmetleri` })),
-                    },
-                    {
-                      baslik: 'Yakın mesafeli rotalar',
-                      linkler: komsular.slice(0, 8).map((k) => ({ href: k.url, metin: k.rotaAdi })),
+                      linkler: komsular.map((x) => ({
+                        href: sehirlerarasiUrl(x.slug),
+                        metin: `${x.ad} Şehirler Arası Nakliye`,
+                      })),
                     },
                     {
                       baslik: 'Adana nakliye hizmetleri',
                       linkler: [
                         ...(hizmetler || []).slice(0, 6).map((h) => ({ href: `/hizmet/${h.slug}`, metin: h.baslik })),
+                        { href: '/sehirler-arasi-nakliye', metin: 'Tüm İller' },
                         { href: '/rota', metin: 'Tüm Nakliye Rotaları' },
-                        { href: '/nakliye-hizmetleri', metin: 'Tüm İller' },
                       ],
                     },
                   ]}
@@ -268,14 +285,18 @@ export default async function IlHizmetSayfasi({ params }) {
                       Formu Doldur
                     </Link>
                   </div>
+
                   <div className="mt-8">
                     <h3 className="mb-3 border-b pb-2 font-bold text-[#1e3a5f]">Özet</h3>
                     <dl className="space-y-2 text-sm">
                       <div className="flex justify-between gap-3"><dt className="text-slate-600">Plaka kodu</dt><dd className="font-semibold text-[#1e3a5f]">{String(il.plaka).padStart(2, '0')}</dd></div>
                       <div className="flex justify-between gap-3"><dt className="text-slate-600">Bölge</dt><dd className="font-semibold text-[#1e3a5f]">{il.bolgeAdi}</dd></div>
                       <div className="flex justify-between gap-3"><dt className="text-slate-600">İlçe sayısı</dt><dd className="font-semibold text-[#1e3a5f]">{il.ilceler.length}+</dd></div>
-                      {il.slug !== 'adana' && (
-                        <div className="flex justify-between gap-3"><dt className="text-slate-600">Adana&apos;ya uzaklık</dt><dd className="font-semibold text-[#1e3a5f]">~{il.mesafe} km</dd></div>
+                      {il.mesafe > 0 && (
+                        <>
+                          <div className="flex justify-between gap-3"><dt className="text-slate-600">Adana&apos;ya uzaklık</dt><dd className="font-semibold text-[#1e3a5f]">~{il.mesafe} km</dd></div>
+                          <div className="flex justify-between gap-3"><dt className="text-slate-600">Teslim süresi</dt><dd className="font-semibold text-[#1e3a5f]">{teslimSuresi(il.mesafe)}</dd></div>
+                        </>
                       )}
                     </dl>
                   </div>

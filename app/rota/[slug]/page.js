@@ -15,6 +15,8 @@ import IcLinkAgi from '@/components/IcLinkAgi'
 import { ROTALAR, rotaBul, ilgiliRotalar, ilHizmetUrl } from '@/lib/rotalar'
 import { rotaBirlestir } from '@/lib/rota-db'
 import { SITE_URL, ayarAl, siteVerisi } from '@/lib/site-verisi'
+import { sehirlerarasiUrl } from '@/lib/sehirlerarasi-icerik'
+import { nakliyecilerUrl } from '@/lib/nakliyeciler-icerik'
 import {
   fiyatAyarlari,
   fiyatTablosu,
@@ -133,6 +135,8 @@ export default async function RotaSayfasi({ params }) {
       baslik: `${rota.il} içinde`,
       linkler: [
         { href: ilHizmetUrl(rota.ilSlug), metin: `${rota.il} Nakliye Hizmetleri` },
+        { href: sehirlerarasiUrl(rota.ilSlug), metin: `${rota.il} Şehirler Arası Nakliye` },
+        { href: nakliyecilerUrl(rota.ilSlug), metin: `${rota.il} Nakliyeciler Sitesi` },
         ...komsular
           .filter((k) => k.ilSlug === rota.ilSlug)
           .slice(0, 8)

@@ -1,6 +1,8 @@
 import { createPublicClient } from '@/lib/supabase-public'
 import { ILLER } from '@/lib/iller'
 import { ROTALAR, ilHizmetUrl, rotaMakalesiMi } from '@/lib/rotalar'
+import { sehirlerarasiUrl } from '@/lib/sehirlerarasi-icerik'
+import { nakliyecilerUrl } from '@/lib/nakliyeciler-icerik'
 
 const SITE_URL = 'https://www.adananakliye.com.tr'
 
@@ -15,6 +17,8 @@ const STATIC_ROUTES = [
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/rota', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/nakliye-hizmetleri', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/sehirler-arasi-nakliye', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/nakliyeciler-sitesi', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/sss', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/iletisim', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/teklif-al', priority: 0.9, changeFrequency: 'monthly' },
@@ -56,6 +60,22 @@ export default async function sitemap() {
     priority: 0.75,
   }))
 
+  // İl başına iki şablon seti daha: şehirler arası nakliye ve
+  // nakliyeciler sitesi. Bunlar da kod tarafındaki il listesinden geliyor.
+  const sehirlerarasiEntries = ILLER.map(il => ({
+    url: `${SITE_URL}${sehirlerarasiUrl(il.slug)}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.75,
+  }))
+
+  const nakliyecilerEntries = ILLER.map(il => ({
+    url: `${SITE_URL}${nakliyecilerUrl(il.slug)}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }))
+
   let dynamicEntries = []
 
   try {
@@ -82,5 +102,12 @@ export default async function sitemap() {
     // Veritabanına ulaşılamazsa en azından statik sayfalar yayınlansın.
   }
 
-  return [...staticEntries, ...rotaEntries, ...ilEntries, ...dynamicEntries]
+  return [
+    ...staticEntries,
+    ...rotaEntries,
+    ...ilEntries,
+    ...sehirlerarasiEntries,
+    ...nakliyecilerEntries,
+    ...dynamicEntries,
+  ]
 }
