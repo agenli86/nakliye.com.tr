@@ -2,7 +2,7 @@
 
 import { FaWhatsapp, FaPhone } from 'react-icons/fa'
 
-export default function StickyButtons({ whatsapp = '905057805551', telefon = '05057805551' }) {
+export default function StickyButtons({ whatsapp = '905051774097', telefon = '05051774097' }) {
   
   // Google Ads Dönüşüm Takip Fonksiyonu
   const handleConversion = () => {

@@ -22,8 +22,8 @@ export async function generateMetadata() {
 
 export default async function SehirlerArasiDizini() {
   const { ayarlar, menu, hizmetler } = await siteVerisi()
-  const telefon = ayarAl(ayarlar, 'telefon', '05057805551')
-  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905057805551')
+  const telefon = ayarAl(ayarlar, 'telefon', '05051774097')
+  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905051774097')
 
   const gruplar = new Map()
   for (const il of ILLER) {

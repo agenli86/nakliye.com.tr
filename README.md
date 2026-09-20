@@ -137,7 +137,7 @@ npm run start
 
 ## 📞 İletişim Bilgileri
 
-- **Telefon**: 05057805551
+- **Telefon**: 05051774097
 - **Email**: info@adananakliye.com.tr
 - **Firma**: Adana Nakliye
 

@@ -266,10 +266,10 @@ export default function ChatBotEmbed({ aktif = false }) {
                     <div className="text-center py-2">
                       <p className="text-sm text-gray-600 mb-3">Günlük soru limitiniz doldu</p>
                       <a
-                        href="tel:05057805551"
+                        href="tel:05051774097"
                         className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition-colors"
                       >
-                        <FaPhone /> 0505 780 55 51 - Bizi Arayın
+                        <FaPhone /> 0505 177 40 97 - Bizi Arayın
                       </a>
                     </div>
                   ) : (
@@ -302,8 +302,8 @@ export default function ChatBotEmbed({ aktif = false }) {
           <div className="text-center mt-6 text-sm text-gray-500">
             <p>
               Detaylı bilgi ve randevu için: 
-              <a href="tel:05057805551" className="text-blue-600 font-semibold ml-1 hover:underline">
-                0505 780 55 51
+              <a href="tel:05051774097" className="text-blue-600 font-semibold ml-1 hover:underline">
+                0505 177 40 97
               </a>
             </p>
           </div>

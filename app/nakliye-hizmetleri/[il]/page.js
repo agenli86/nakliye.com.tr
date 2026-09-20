@@ -58,8 +58,8 @@ export default async function IlHizmetSayfasi({ params }) {
   if (!veri) notFound()
 
   const { il, ayarlar, menu, hizmetler, kayit } = veri
-  const telefon = ayarAl(ayarlar, 'telefon', '05057805551')
-  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905057805551')
+  const telefon = ayarAl(ayarlar, 'telefon', '05051774097')
+  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905051774097')
   const url = `${SITE_URL}${ilHizmetUrl(il.slug)}`
 
   const rota = il.slug === 'adana' ? null : rotaBul(rotaSlug(il.slug))

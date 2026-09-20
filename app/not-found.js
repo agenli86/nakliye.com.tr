@@ -18,7 +18,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/" className="btn-primary">Anasayfa</Link>
           <Link href="/hizmetler" className="btn-outline">Hizmetlerimiz</Link>
-          <a href="tel:05057805551" className="btn-secondary">Hemen Arayın</a>
+          <a href="tel:05051774097" className="btn-secondary">Hemen Arayın</a>
         </div>
       </div>
     </main>

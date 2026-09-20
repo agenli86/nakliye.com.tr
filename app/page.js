@@ -105,8 +105,8 @@ export default async function Home() {
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
   const getBolum = (ad) => bolumler?.find(b => b.bolum_adi === ad) || {}
   
-  const whatsapp = getAyar('whatsapp') || '905057805551'
-  const telefon = getAyar('telefon') || '05057805551'
+  const whatsapp = getAyar('whatsapp') || '905051774097'
+  const telefon = getAyar('telefon') || '05051774097'
   const sliderAlti = getBolum('slider_alti')
   const hizmetlerBaslik = getBolum('hizmetler_baslik')
   const ctaBolum = getBolum('cta')
@@ -174,10 +174,10 @@ export default async function Home() {
               
               <div className="relative">
                 <Image 
-                  src={sliderAlti.resim || '/resimler/294-adana-nakliyat.webp'} 
-                  alt="Adana Nakliyat Hizmetleri" 
-                  width={600}
-                  height={450}
+                  src={sliderAlti.resim || '/resimler/anasayfa-hakkimizda.webp'} 
+                  alt="Adana Nakliye - Evden Eve Nakliyat" 
+                  width={1000}
+                  height={838}
                   className="w-full rounded-2xl shadow-2xl"
                   loading="lazy"
                   quality={85}

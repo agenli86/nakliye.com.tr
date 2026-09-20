@@ -163,8 +163,8 @@ export default async function HizmetSayfasi({ params }) {
   if (!sayfa) notFound()
 
   const { ayarlar, menu, hizmetler } = await siteVerisi()
-  const telefon = ayarAl(ayarlar, 'telefon', '05057805551')
-  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905057805551')
+  const telefon = ayarAl(ayarlar, 'telefon', '05051774097')
+  const whatsapp = ayarAl(ayarlar, 'whatsapp', '905051774097')
   const url = `${SITE_URL}${hizmetSayfaUrl(sayfa.slug)}`
 
   const bolumler = sayfa.bolumler(ayarlar)

@@ -40,18 +40,18 @@ INSERT INTO ayarlar (anahtar, deger, tur, grup, aciklama, sira) VALUES
 ('logo', '/resimler/adananakliye.png', 'image', 'genel', 'Site logosu', 3),
 ('favicon', '/resimler/adana-evden-eve-nakliyat.png', 'image', 'genel', 'Favicon', 4),
 ('footer_logo', '/resimler/adananakliye.png', 'image', 'genel', 'Footer logosu', 5),
-('telefon', '05057805551', 'text', 'iletisim', 'Telefon', 1),
+('telefon', '05051774097', 'text', 'iletisim', 'Telefon', 1),
 ('telefon2', '', 'text', 'iletisim', 'İkinci telefon', 2),
 ('email', 'info@adananakliye.com.tr', 'text', 'iletisim', 'E-posta', 3),
 ('adres', 'Belediye Evleri, 84244. Sk. No:9 Adana / Çukurova', 'textarea', 'iletisim', 'Adres', 4),
 ('harita_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3186.0!2d35.3!3d37.0', 'textarea', 'iletisim', 'Google Maps', 5),
-('whatsapp', '905057805551', 'text', 'iletisim', 'WhatsApp', 6),
+('whatsapp', '905051774097', 'text', 'iletisim', 'WhatsApp', 6),
 ('calisma_saatleri', 'Pazartesi - Pazar: 07:00 - 21:30', 'text', 'iletisim', 'Çalışma saatleri', 7),
 ('facebook', 'https://www.facebook.com/adanaevdenevetasima/', 'text', 'sosyal', 'Facebook', 1),
 ('instagram', 'https://www.instagram.com/adananabarajevdenevenakliyat/', 'text', 'sosyal', 'Instagram', 2),
 ('youtube', 'https://www.youtube.com/channel/UC8ZcBL6T-OELy9B_ykx79zQ', 'text', 'sosyal', 'YouTube', 3),
 ('twitter', '', 'text', 'sosyal', 'Twitter', 4),
-('meta_title', 'Adana Nakliye | Evden Eve Nakliyat | 05057805551', 'text', 'seo', 'Meta başlık', 1),
+('meta_title', 'Adana Nakliye | Evden Eve Nakliyat | 05051774097', 'text', 'seo', 'Meta başlık', 1),
 ('meta_description', 'Adana evden eve nakliyat fiyatlarında %25 indirim. Profesyonel Adana nakliye.', 'textarea', 'seo', 'Meta açıklama', 2),
 ('meta_keywords', 'adana nakliye, adana evden eve nakliyat', 'textarea', 'seo', 'Anahtar kelimeler', 3),
 ('og_image', '/resimler/adanaevdenevenakliyat.jpg', 'image', 'seo', 'OG Image', 4),
@@ -87,11 +87,11 @@ CREATE TABLE anasayfa_bolumleri (
 INSERT INTO anasayfa_bolumleri (bolum_adi, baslik, alt_baslik, icerik, resim, buton_metin, buton_link, sira) VALUES
 ('slider_alti', 'Adana Evden Eve Nakliyat', 'Sitemize Hoşgeldiniz', 
 '<p><strong>Adana Nakliye</strong>, müşteri memnuniyetini ön planda tutan evden eve nakliyat hizmetlerinde lider firmalardan biridir.</p><p>Profesyonel ekip ve modern ekipmanlarla eşyalarınız güvenle taşınır.</p>', 
-'/resimler/294-adana-nakliyat.webp', 'Hakkımızda', '/hakkimizda', 1),
+'/resimler/anasayfa-hakkimizda.webp', 'Hakkımızda', '/hakkimizda', 1),
 ('hizmetler_baslik', 'Öne Çıkan Hizmetlerimiz', 'Profesyonel nakliyat hizmetlerimizle taşınma sürecinizi kolaylaştırıyoruz', NULL, NULL, 'Tüm Hizmetlerimiz', '/hizmetler', 2),
-('fiyatlar_baslik', 'Adana Evden Eve Nakliyat Fiyatları', '2025 Güncel Fiyat Listesi', '<p><strong>Not:</strong> Fiyatlar tahmini olup, kesin fiyat için ücretsiz keşif hizmetimizden yararlanabilirsiniz.</p>', '/resimler/adanaevdenevenakliyatfiyatlari.jpg', 'Ücretsiz Keşif İçin Arayın', 'tel:05057805551', 3),
+('fiyatlar_baslik', 'Adana Evden Eve Nakliyat Fiyatları', '2025 Güncel Fiyat Listesi', '<p><strong>Not:</strong> Fiyatlar tahmini olup, kesin fiyat için ücretsiz keşif hizmetimizden yararlanabilirsiniz.</p>', '/resimler/adanaevdenevenakliyatfiyatlari.jpg', 'Ücretsiz Keşif İçin Arayın', 'tel:05051774097', 3),
 ('sayac_baslik', 'Rakamlarla Biz', 'Yılların tecrübesi ve binlerce mutlu müşteri', NULL, NULL, NULL, NULL, 4),
-('cta', 'Yardıma mı İhtiyacınız Var?', 'Uzman ekibimiz taşınma sürecinizde size yardımcı olmak için hazır.', NULL, NULL, 'Hemen Arayın', 'tel:05057805551', 5),
+('cta', 'Yardıma mı İhtiyacınız Var?', 'Uzman ekibimiz taşınma sürecinizde size yardımcı olmak için hazır.', NULL, NULL, 'Hemen Arayın', 'tel:05051774097', 5),
 ('blog_baslik', 'Son Makaleler', 'Nakliyat hakkında faydalı bilgiler ve ipuçları', NULL, NULL, 'Tüm Makaleler', '/blog', 6);
 
 -- =====================================================
@@ -159,12 +159,12 @@ CREATE TABLE hizmetler (
 );
 
 INSERT INTO hizmetler (baslik, slug, kisa_aciklama, icerik, resim, sira, meta_title, meta_description) VALUES
-('Adana Asansörlü Nakliyat', 'adana-asansorlu-nakliyat', 'Modern asansör sistemleriyle hızlı ve güvenilir taşımacılık.', '<h2>Adana Asansörlü Nakliyat</h2><p>Asansörlü nakliyat hizmetlerimizle eşyalarınızı güvenle taşıyoruz.</p><ul><li>Modern asansör sistemleri</li><li>Profesyonel ekip</li><li>Sigortalı taşımacılık</li></ul>', '/resimler/901-adana-asansorlu-nakliyat.webp', 1, 'Adana Asansörlü Nakliyat - 05057805551', 'Adana asansörlü nakliyat hizmeti.'),
-('Adana Şehir İçi Nakliye', 'adana-sehir-ici-nakliye', 'Şehir içi nakliyat hizmetleri.', '<h2>Şehir İçi Nakliye</h2><p>Adana şehir içi nakliyat hizmeti.</p>', '/resimler/207-adana-sehir-ici-nakliye.webp', 2, 'Adana Şehir İçi Nakliye - 05057805551', 'Adana şehir içi nakliye.'),
-('Adana Şehirler Arası Nakliyat', 'adana-sehirler-arasi-nakliyat', 'Sigortalı şehirler arası nakliyat.', '<h2>Şehirler Arası Nakliyat</h2><p>Türkiye geneli nakliyat.</p>', '/resimler/782-adana-sehirler-arasi-nakliyat.webp', 3, 'Adana Şehirler Arası Nakliyat - 05057805551', 'Şehirler arası nakliyat.'),
-('Adana Ofis Taşıma', 'adana-ofis-tasima', 'Profesyonel ofis taşıma.', '<h2>Ofis Taşıma</h2><p>Ofis taşıma hizmeti.</p>', '/resimler/338-adana-ofis-tasima.webp', 4, 'Adana Ofis Taşıma - 05057805551', 'Ofis taşıma hizmeti.'),
-('Adana Asansör Kiralama', 'adana-asansor-kiralama', 'Mobil asansör kiralama.', '<h2>Asansör Kiralama</h2><p>Mobil asansör kiralama.</p>', '/resimler/843-adana-asansor-kiralama.webp', 5, 'Adana Asansör Kiralama - 05057805551', 'Asansör kiralama.'),
-('Adana Kamyonet Nakliyat', 'adana-kamyonet-nakliyat', 'Ekonomik kamyonet nakliyat.', '<h2>Kamyonet Nakliyat</h2><p>Parça eşya taşıma.</p>', '/resimler/134-adana-kamyonet-nakliyat.webp', 6, 'Adana Kamyonet Nakliyat - 05057805551', 'Kamyonet nakliyat.');
+('Adana Asansörlü Nakliyat', 'adana-asansorlu-nakliyat', 'Modern asansör sistemleriyle hızlı ve güvenilir taşımacılık.', '<h2>Adana Asansörlü Nakliyat</h2><p>Asansörlü nakliyat hizmetlerimizle eşyalarınızı güvenle taşıyoruz.</p><ul><li>Modern asansör sistemleri</li><li>Profesyonel ekip</li><li>Sigortalı taşımacılık</li></ul>', '/resimler/901-adana-asansorlu-nakliyat.webp', 1, 'Adana Asansörlü Nakliyat - 05051774097', 'Adana asansörlü nakliyat hizmeti.'),
+('Adana Şehir İçi Nakliye', 'adana-sehir-ici-nakliye', 'Şehir içi nakliyat hizmetleri.', '<h2>Şehir İçi Nakliye</h2><p>Adana şehir içi nakliyat hizmeti.</p>', '/resimler/207-adana-sehir-ici-nakliye.webp', 2, 'Adana Şehir İçi Nakliye - 05051774097', 'Adana şehir içi nakliye.'),
+('Adana Şehirler Arası Nakliyat', 'adana-sehirler-arasi-nakliyat', 'Sigortalı şehirler arası nakliyat.', '<h2>Şehirler Arası Nakliyat</h2><p>Türkiye geneli nakliyat.</p>', '/resimler/782-adana-sehirler-arasi-nakliyat.webp', 3, 'Adana Şehirler Arası Nakliyat - 05051774097', 'Şehirler arası nakliyat.'),
+('Adana Ofis Taşıma', 'adana-ofis-tasima', 'Profesyonel ofis taşıma.', '<h2>Ofis Taşıma</h2><p>Ofis taşıma hizmeti.</p>', '/resimler/338-adana-ofis-tasima.webp', 4, 'Adana Ofis Taşıma - 05051774097', 'Ofis taşıma hizmeti.'),
+('Adana Asansör Kiralama', 'adana-asansor-kiralama', 'Mobil asansör kiralama.', '<h2>Asansör Kiralama</h2><p>Mobil asansör kiralama.</p>', '/resimler/843-adana-asansor-kiralama.webp', 5, 'Adana Asansör Kiralama - 05051774097', 'Asansör kiralama.'),
+('Adana Kamyonet Nakliyat', 'adana-kamyonet-nakliyat', 'Ekonomik kamyonet nakliyat.', '<h2>Kamyonet Nakliyat</h2><p>Parça eşya taşıma.</p>', '/resimler/134-adana-kamyonet-nakliyat.webp', 6, 'Adana Kamyonet Nakliyat - 05051774097', 'Kamyonet nakliyat.');
 
 -- =====================================================
 -- 6. MAKALELER
@@ -191,8 +191,8 @@ CREATE TABLE makaleler (
 );
 
 INSERT INTO makaleler (baslik, slug, ozet, icerik, resim, meta_title, meta_description) VALUES
-('Sarıçam Nakliyeci', 'saricam-nakliyeci', 'Sarıçam nakliye hizmeti.', '<h2>Sarıçam Nakliyeci</h2><p>Sarıçam evden eve nakliyat.</p>', '/resimler/829-saricam-nakliyeci.webp', 'Sarıçam Nakliyeci - 05057805551', 'Sarıçam nakliyeci.'),
-('Çukurova Nakliyeci', 'cukurova-nakliyeci', 'Çukurova nakliye hizmeti.', '<h2>Çukurova Nakliyeci</h2><p>Çukurova evden eve nakliyat.</p>', '/resimler/950-cukurova-nakliyeci.webp', 'Çukurova Nakliyeci - 05057805551', 'Çukurova nakliyeci.');
+('Sarıçam Nakliyeci', 'saricam-nakliyeci', 'Sarıçam nakliye hizmeti.', '<h2>Sarıçam Nakliyeci</h2><p>Sarıçam evden eve nakliyat.</p>', '/resimler/829-saricam-nakliyeci.webp', 'Sarıçam Nakliyeci - 05051774097', 'Sarıçam nakliyeci.'),
+('Çukurova Nakliyeci', 'cukurova-nakliyeci', 'Çukurova nakliye hizmeti.', '<h2>Çukurova Nakliyeci</h2><p>Çukurova evden eve nakliyat.</p>', '/resimler/950-cukurova-nakliyeci.webp', 'Çukurova Nakliyeci - 05051774097', 'Çukurova nakliyeci.');
 
 -- =====================================================
 -- 7. SAYFALAR
@@ -388,7 +388,7 @@ CREATE TABLE seo_ayarlari (
 );
 
 INSERT INTO seo_ayarlari (sayfa_turu, sayfa_slug, meta_title, meta_description, canonical_url) VALUES
-('anasayfa', NULL, 'Adana Nakliye | Evden Eve Nakliyat | 05057805551', 'Adana evden eve nakliyat.', 'https://adananakliye.com.tr/'),
+('anasayfa', NULL, 'Adana Nakliye | Evden Eve Nakliyat | 05051774097', 'Adana evden eve nakliyat.', 'https://adananakliye.com.tr/'),
 ('hizmetler', NULL, 'Hizmetlerimiz | Adana Nakliye', 'Nakliye hizmetlerimiz.', 'https://adananakliye.com.tr/hizmetler'),
 ('blog', NULL, 'Blog | Adana Nakliye', 'Nakliyat blog.', 'https://adananakliye.com.tr/blog'),
 ('iletisim', NULL, 'İletişim | Adana Nakliye', 'İletişim bilgileri.', 'https://adananakliye.com.tr/iletisim'),

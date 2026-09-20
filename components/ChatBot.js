@@ -152,7 +152,7 @@ export default function ChatBot() {
           {/* Kalan Soru Sayısı */}
           <div className="bg-blue-50 px-4 py-2 text-xs text-blue-600 flex justify-between items-center">
             <span>Günlük kalan soru hakkınız: <strong>{remainingQuestions}</strong></span>
-            <a href="tel:05057805551" className="flex items-center gap-1 text-green-600 hover:underline">
+            <a href="tel:05051774097" className="flex items-center gap-1 text-green-600 hover:underline">
               <FaPhone size={10} /> Bizi Arayın
             </a>
           </div>
@@ -200,10 +200,10 @@ export default function ChatBot() {
               <div className="text-center py-2">
                 <p className="text-sm text-gray-600 mb-2">Günlük soru limitiniz doldu</p>
                 <a
-                  href="tel:05057805551"
+                  href="tel:05051774097"
                   className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-700"
                 >
-                  <FaPhone /> 0505 780 55 51
+                  <FaPhone /> 0505 177 40 97
                 </a>
               </div>
             ) : (

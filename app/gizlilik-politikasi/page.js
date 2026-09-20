@@ -24,8 +24,8 @@ async function getData() {
 export default async function GizlilikPolitikasiPage() {
   const { ayarlar, menu, hizmetler } = await getData()
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
-  const whatsapp = getAyar('whatsapp') || '905057805551'
-  const telefon = getAyar('telefon') || '05057805551'
+  const whatsapp = getAyar('whatsapp') || '905051774097'
+  const telefon = getAyar('telefon') || '05051774097'
 
   return (
     <>
@@ -223,7 +223,7 @@ export default async function GizlilikPolitikasiPage() {
                 </p>
                 <ul>
                   <li><strong>E-posta:</strong> info@adananakliye.com.tr</li>
-                  <li><strong>Telefon:</strong> 0505 780 55 51</li>
+                  <li><strong>Telefon:</strong> 0505 177 40 97</li>
                   <li><strong>Adres:</strong> Belediye Evleri, 84244. Sk. No:9 Adana / Çukurova</li>
                 </ul>
 

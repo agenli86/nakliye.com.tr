@@ -76,7 +76,7 @@ export default function HomeTabs({ tablar }) {
                       dangerouslySetInnerHTML={{ __html: tab.icerik }}
                     />
                     <a 
-                      href="tel:05057805551" 
+                      href="tel:05051774097" 
                       className="inline-flex items-center gap-2 mt-6 font-semibold transition-all hover:gap-3"
                       style={{ color: '#0561e0' }}
                     >
