@@ -68,12 +68,17 @@ export default function Header({ ayarlar, menu }) {
           <div className="flex items-center justify-between h-20 md:h-24">
             {/* Logo */}
             <Link href="/" className="flex items-center">
+              {/* Logo ekranda en fazla 176 piksel genişliğinde çiziliyor.
+                  sizes verilmediğinde Next yalnızca 256 ve 640 piksellik iki
+                  aday üretiyor, 1.75 piksel yoğunluklu telefonlar da 640'ı
+                  seçiyordu: 14 kB'lık dosya 154 piksellik bir alan için. */}
               <Image
                 src={logo}
                 alt="Adana Nakliye"
                 width={220}
                 height={80}
                 className="h-14 md:h-16 w-auto"
+                sizes="176px"
                 priority
               />
             </Link>

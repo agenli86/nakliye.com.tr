@@ -19,7 +19,13 @@ const inter = Inter({
   display: 'swap',
   variable: '--font-inter',
   adjustFontFallback: true,
-  preload: true,
+  // preload kapalı. İki alt küme birlikte 134 kB ediyor ve preload onları
+  // hero görseliyle aynı öncelik sınıfına koyuyordu; yavaş 4G'de bu 134 kB
+  // hattı doldurup LCP öğesi olan hero görselini geciktiriyordu. Yazı tipi
+  // artık CSS ayrıştırılınca normal öncelikle iniyor. Metin bu sürede
+  // yedek fontla çiziliyor, adjustFontFallback ölçüleri Inter'a eşitlediği
+  // için geçiş sırasında düzen kaymıyor.
+  preload: false,
 })
 
 export const metadata = {
