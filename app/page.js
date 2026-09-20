@@ -2,8 +2,8 @@ import { createClient } from '@/lib/supabase-public'
 import { rotaOlmayanMakaleler } from '@/lib/rotalar'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import HeroSlider from '@/components/HeroSlider'
-import AnnouncementBar from '@/components/AnnouncementBar'
+import HeroBanner from '@/components/HeroBanner'
+import HeroGiris from '@/components/HeroGiris'
 import ServiceCard from '@/components/ServiceCard'
 import CounterSection from '@/components/CounterSection'
 import PriceTable from '@/components/PriceTable'
@@ -80,13 +80,12 @@ export async function generateMetadata() {
 async function getData() {
   const supabase = await createClient()
   const [
-    { data: ayarlar }, { data: menu }, { data: sliders }, { data: hizmetler },
+    { data: ayarlar }, { data: menu }, { data: hizmetler },
     { data: makaleler }, { data: fiyatlar }, { data: bolumler }, { data: tablar },
-    { data: duyurular }, { data: galeri }, { data: kutucuklar }, { data: chatbotAktif },
+    { data: galeri }, { data: kutucuklar }, { data: chatbotAktif },
   ] = await Promise.all([
     supabase.from('ayarlar').select('*'),
     supabase.from('menu').select('*').eq('aktif', true).order('sira'),
-    supabase.from('sliders').select('*').eq('aktif', true).order('sira'),
     supabase.from('hizmetler').select('*').eq('aktif', true).eq('anasayfada_goster', true).order('sira'),
     // Rota yazıları bloga değil /rota sayfalarına ait olduğu için biraz
     // fazla çekip filtreden sonra üçe indiriyoruz.
@@ -94,16 +93,15 @@ async function getData() {
     supabase.from('fiyatlar').select('*').eq('aktif', true).order('sira'),
     supabase.from('anasayfa_bolumleri').select('*').eq('aktif', true).order('sira'),
     supabase.from('anasayfa_tablari').select('*').eq('aktif', true).order('sira'),
-    supabase.from('duyurular').select('*').eq('aktif', true).order('sira'),
     supabase.from('galeri').select('*').eq('aktif', true).order('sira').limit(9),
     supabase.from('ozellik_kutucuklari').select('*').eq('aktif', true).order('sira').limit(3),
     supabase.from('chatbot_ayarlari').select('deger').eq('anahtar', 'aktif').maybeSingle(),
   ])
-  return { ayarlar, menu, sliders, hizmetler, makaleler: rotaOlmayanMakaleler(makaleler).slice(0, 3), fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar, chatbotAktif: chatbotAktif?.deger === 'true' }
+  return { ayarlar, menu, hizmetler, makaleler: rotaOlmayanMakaleler(makaleler).slice(0, 3), fiyatlar, bolumler, tablar, galeri, kutucuklar, chatbotAktif: chatbotAktif?.deger === 'true' }
 }
 
 export default async function Home() {
-  const { ayarlar, menu, sliders, hizmetler, makaleler, fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar, chatbotAktif } = await getData()
+  const { ayarlar, menu, hizmetler, makaleler, fiyatlar, bolumler, tablar, galeri, kutucuklar, chatbotAktif } = await getData()
   const getAyar = (key) => ayarlar?.find(a => a.anahtar === key)?.deger || ''
   const getBolum = (ad) => bolumler?.find(b => b.bolum_adi === ad) || {}
   
@@ -132,9 +130,9 @@ export default async function Home() {
       <Header ayarlar={ayarlar} menu={menu} />
       
       <main className="home-page">
-        <HeroSlider sliders={sliders} priority={true} />
-        
-        <AnnouncementBar duyurular={duyurular} />
+        <HeroBanner telefon={telefon} />
+        <HeroGiris bolum={getBolum('giris')} />
+
         {chatbotAktif && <ChatBotEmbed aktif />}
         <FeatureBoxes kutucuklar={kutucuklar} />
 

@@ -1,4 +1,6 @@
-'use client'
+// Sunucu bileşeni. Kutucuklar sabit; durum ya da olay dinleyicisi yok.
+// 'use client' gereksiz yere istemci paketine giriyor ve altı react-icons
+// ikonunu da beraberinde sürüklüyordu.
 
 import { FaAward, FaShieldAlt, FaMoneyBillWave, FaTruck, FaClock, FaHeadset } from 'react-icons/fa'
 

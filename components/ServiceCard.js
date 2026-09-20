@@ -1,4 +1,6 @@
-'use client'
+// Sunucu bileşeni. Kart yalnızca metin ve bağlantı çiziyor, durumu ya da
+// olay dinleyicisi yok; 'use client' gereksiz yere istemci paketine
+// giriyor ve yanındaki react-icons içe aktarmasını da sürüklüyordu.
 
 import Image from 'next/image'
 import Link from 'next/link'

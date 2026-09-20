@@ -7,7 +7,6 @@ import DeferredAnalytics from '@/components/DeferredAnalytics'
 // Kritik olmayan component'ler - lazy load
 const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ssr: false })
 const FraudDetector = dynamic(() => import('@/components/FraudDetector'), { ssr: false })
-const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: false })
 
 // latin-ext alt kümesi Türkçe karakterler (ş ğ İ ı ç ö ü) için gerekli.
 // Yalnızca 'latin' yüklendiğinde bu harfler sistem yazı tipine düşüyor,
@@ -118,7 +117,6 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <FraudDetector />
         <VisitorTracker />
-        <CookieBanner />
         <Toaster 
           position="top-right"
           toastOptions={{
