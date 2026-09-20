@@ -226,7 +226,7 @@ export default async function RotaSayfasi({ params }) {
         <section className="py-12 md:py-16">
           <div className="container mx-auto px-4">
             <div className="grid gap-10 lg:grid-cols-3">
-              <div className="lg:col-span-2">
+              <div className="min-w-0 lg:col-span-2">
                 {bolumler.map((bolum) => (
                   <section key={bolum.id} id={bolum.id} className="mb-10 scroll-mt-28">
                     <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-4">{bolum.baslik}</h2>
@@ -308,7 +308,7 @@ export default async function RotaSayfasi({ params }) {
                 <IcLinkAgi gruplar={linkGruplari} baslik="Bu Sayfayla İlgili Diğer Sayfalar" />
               </div>
 
-              <aside className="space-y-6">
+              <aside className="min-w-0 space-y-6">
                 <div className="sticky top-28 rounded-2xl border border-slate-100 bg-white p-7 shadow-lg">
                   <h2 className="mb-2 text-xl font-bold text-[#1e3a5f]">{rota.ad} İçin Teklif Alın</h2>
                   <p className="mb-5 text-sm text-slate-600">
