@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { createClient } from '@/lib/supabase-browser'
 import { FaExclamationTriangle, FaPhone, FaShieldAlt } from 'react-icons/fa'
 import { getFingerprint, getIpInfo, isAutomatedClient, runWhenIdle } from '@/lib/visitor-signals'
 
@@ -132,6 +131,9 @@ async function evaluate({ fingerprint, ipInfo, history, mouseMovedRef, scrolledR
   safeSet(`blocked_${fingerprint}`, (now + BLOCK_DURATION_MS).toString())
 
   try {
+    // Bu noktaya yalnızca eşiği aşan ziyaretlerde geliniyor; Supabase
+    // istemcisi de ancak o zaman indiriliyor.
+    const { createClient } = await import('@/lib/supabase-browser')
     const supabase = createClient()
     await supabase.from('sahte_tiklamalar').insert({
       fingerprint,
