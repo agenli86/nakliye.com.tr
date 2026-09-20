@@ -8,6 +8,7 @@ import ServiceCard from '@/components/ServiceCard'
 import StickyButtons from '@/components/StickyButtons'
 import Link from 'next/link'
 import { FaChevronRight } from 'react-icons/fa'
+import { HIZMET_SAYFALARI, hizmetSayfaUrl } from '@/lib/hizmet-sayfalari'
 
 export async function generateMetadata() {
   const supabase = await createClient()
@@ -63,6 +64,32 @@ export default async function HizmetlerPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {hizmetler?.map((hizmet) => <ServiceCard key={hizmet.id} hizmet={hizmet} />)}
             </div>
+          </div>
+        </section>
+
+        {/* Kod tarafında duran dar konu sayfaları. Panelden girilen
+            hizmetlerden ayrı tutuluyor; tek girişleri burası olduğu için
+            listelenmezlerse yetim sayfa olarak kalıyorlar. */}
+        <section className="section bg-slate-50">
+          <div className="container mx-auto px-4">
+            <h2 className="section-title">Adana İçi Özel Hizmetler</h2>
+            <p className="mb-8 max-w-3xl text-slate-600">
+              Evden eve nakliye dışında sık istenen işler: pikap taşıma, hamaliye, mobilya montajı,
+              tek beyaz eşya taşıma ve daire tipine göre ev taşıma ücretleri.
+            </p>
+            <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {HIZMET_SAYFALARI.map((sayfa) => (
+                <li key={sayfa.slug}>
+                  <Link
+                    href={hizmetSayfaUrl(sayfa.slug)}
+                    className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-lg"
+                  >
+                    <h3 className="mb-2 text-lg font-bold text-[#1e3a5f]">{sayfa.baslik}</h3>
+                    <p className="text-sm leading-relaxed text-slate-600">{sayfa.ozet}</p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       </main>
