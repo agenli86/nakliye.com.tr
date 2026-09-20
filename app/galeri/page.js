@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import StickyButtons from '@/components/StickyButtons'
 import Link from 'next/link'
 import { FaChevronRight } from 'react-icons/fa'
+import { resimYolu } from '@/lib/resim'
 
 export async function generateMetadata() {
   const supabase = await createClient()
@@ -61,7 +62,7 @@ export default async function GaleriPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {galeri.map((item) => (
                   <div key={item.id} className="group relative aspect-square rounded-xl overflow-hidden shadow-lg">
-                    <img src={item.resim} alt={item.baslik || 'Galeri'} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={resimYolu(item.resim)} alt={item.baslik || 'Galeri'} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                         {item.baslik && <h3 className="font-semibold">{item.baslik}</h3>}

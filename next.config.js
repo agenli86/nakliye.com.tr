@@ -74,14 +74,26 @@ const nextConfig = {
   // 🔒 Security & Performance Headers
   async headers() {
     return [
-      // Resim dosyaları için cache
+      // İçeriği yerinde değişebilen görseller.
+      //
+      // Buradaki dosyaların adı sabit kalıp içeriği güncellenebiliyor
+      // (veritabanındaki yollar kırılmasın diye). 'immutable' verildiğinde
+      // tarayıcı süre dolmadan dosyayı bir daha hiç sormuyordu; yenile
+      // tuşu bile işe yaramıyor, ziyaretçi eski resmi görmeye devam
+      // ediyordu. Bir gün sonra koşullu istek atılsın istiyoruz: değişen
+      // dosya hemen geliyor, değişmeyen için sunucu 304 dönüyor.
+      // Kasıtlı değişikliklerde ayrıca lib/resim.js'teki RESIM_SURUMU
+      // artırılarak adres değiştiriliyor.
       {
-        source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
+        source: '/resimler/:yol*',
         headers: [
-          { 
-            key: 'Cache-Control', 
-            value: 'public, max-age=31536000, immutable' // immutable eklendi
-          }
+          { key: 'Cache-Control', value: 'public, max-age=86400, must-revalidate' }
+        ],
+      },
+      {
+        source: '/resimler-optimized/:yol*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, must-revalidate' }
         ],
       },
       // Font dosyaları için cache

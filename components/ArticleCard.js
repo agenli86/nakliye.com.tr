@@ -5,6 +5,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaCalendarAlt, FaArrowRight } from 'react-icons/fa'
+import { resimYolu } from '@/lib/resim'
 
 export default function ArticleCard({ makale }) {
   const formatDate = (dateString) => {
@@ -21,7 +22,7 @@ export default function ArticleCard({ makale }) {
     <div className="card card-hover group">
       <div className="relative h-52 overflow-hidden">
         <Image
-          src={makale.resim || '/resimler/default-article.jpg'}
+          src={resimYolu(makale.resim || '/resimler/default-article.jpg')}
           alt={makale.baslik}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"

@@ -9,7 +9,8 @@ import toast from 'react-hot-toast'
 import {
   FaHome, FaCog, FaImages, FaConciergeBell, FaNewspaper, FaMoneyBillWave,
   FaQuestionCircle, FaBars, FaEnvelope, FaSignOutAlt, FaTimes, FaTachometerAlt,
-  FaListUl, FaSearch, FaPhotoVideo, FaBullhorn, FaCode, FaAward, FaUsers, FaRobot, FaShieldAlt, FaBan, FaRoute
+  FaListUl, FaSearch, FaPhotoVideo, FaBullhorn, FaCode, FaAward, FaUsers, FaRobot, FaShieldAlt, FaBan, FaRoute,
+  FaSyncAlt
 } from 'react-icons/fa'
 
 const menuItems = [
@@ -40,11 +41,28 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState(null)
+  const [temizleniyor, setTemizleniyor] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
   }, [])
+
+  // Sayfalar ISR ile önbelleğe alındığı için panelde yapılan değişiklik
+  // saatler sonra görünebiliyor. Bu düğme önbelleği hemen düşürüyor.
+  const onbellegiTemizle = async () => {
+    setTemizleniyor(true)
+    try {
+      const cevap = await fetch('/api/onbellek-temizle', { method: 'POST' })
+      const sonuc = await cevap.json()
+      if (!cevap.ok) throw new Error(sonuc?.hata || 'Önbellek temizlenemedi')
+      toast.success(sonuc.mesaj || 'Önbellek temizlendi')
+    } catch (hata) {
+      toast.error(hata.message)
+    } finally {
+      setTemizleniyor(false)
+    }
+  }
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -111,6 +129,14 @@ export default function AdminLayout({ children }) {
             <FaHome className="flex-shrink-0" /> 
             <span>Siteyi Gör</span>
           </Link>
+          <button
+            onClick={onbellegiTemizle}
+            disabled={temizleniyor}
+            className="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg w-full text-sm font-medium transition-all mt-1 disabled:opacity-50"
+          >
+            <FaSyncAlt className={`flex-shrink-0 ${temizleniyor ? 'animate-spin' : ''}`} />
+            <span>{temizleniyor ? 'Temizleniyor...' : 'Değişiklikleri Yayınla'}</span>
+          </button>
           <button 
             onClick={handleLogout} 
             className="flex items-center gap-3 px-3 py-2.5 text-red-300 hover:bg-red-500/20 rounded-lg w-full text-sm font-medium transition-all mt-1"

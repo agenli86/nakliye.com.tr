@@ -9,6 +9,7 @@ import Link from 'next/link'
 import Image from 'next/image' // Image bileşenini ekledik
 import { FaChevronRight, FaPhone, FaWhatsapp } from 'react-icons/fa'
 import { notFound } from 'next/navigation'
+import { resimYolu } from '@/lib/resim'
 
 // Hizmet/makale sayfalarını build sırasında önceden üret; listede olmayan
 // yeni bir slug istendiğinde ilk istekte üretilip önbelleğe alınır.
@@ -76,7 +77,7 @@ export default async function HizmetDetayPage({ params }) {
         <section className="py-20 relative overflow-hidden bg-slate-900">
           {hizmet.resim && (
             <Image 
-              src={hizmet.resim} 
+              src={resimYolu(hizmet.resim)} 
               alt={`${hizmet.baslik} Arka Plan`}
               fill
               priority // Sayfa açılır açılmaz bu resmi yükle dedik (LCP için)
@@ -104,7 +105,7 @@ export default async function HizmetDetayPage({ params }) {
                 {hizmet.resim && (
                   <div className="relative h-[300px] md:h-[450px] w-full mb-8">
                     <Image 
-                      src={hizmet.resim} 
+                      src={resimYolu(hizmet.resim)} 
                       alt={hizmet.baslik} 
                       fill
                       sizes="(max-width: 768px) 100vw, 800px"

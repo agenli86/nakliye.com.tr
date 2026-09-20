@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { FaChevronRight, FaTruck } from 'react-icons/fa'
+import { resimYolu } from '@/lib/resim'
 
 export default function HomeTabs({ tablar }) {
   const [activeTab, setActiveTab] = useState(0)
@@ -86,7 +87,7 @@ export default function HomeTabs({ tablar }) {
                   
                   {tab.resim ? (
                     <div className="relative">
-                      <img src={tab.resim} alt={tab.baslik} loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-lg" />
+                      <img src={resimYolu(tab.resim)} alt={tab.baslik} loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-lg" />
                     </div>
                   ) : (
                     <div className="hidden md:flex items-center justify-center">
