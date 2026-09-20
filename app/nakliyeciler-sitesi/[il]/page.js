@@ -27,6 +27,7 @@ import {
   kmFiyatTablosu,
   nakliyecilerUrl,
   nkBolumMetni,
+  nkMakale,
   nkGirisMetni,
   nkSSS,
 } from '@/lib/nakliyeciler-icerik'
@@ -87,6 +88,7 @@ export default async function NakliyecilerSayfasi({ params }) {
   const giris = nkGirisMetni(il, ayarlar)
   const tablo = fiyatGoster ? kmFiyatTablosu(ayarlar) : []
   const ilFiyatlari = fiyatGoster ? ilKamyonFiyatlari(il, ayarlar) : []
+  const makaleBolumleri = nkMakale(il, ayarlar)
   const sorular = nkSSS(il, ayarlar)
   const komsular = bolgeKomsulari(il, 10)
   const rota = il.slug === 'adana' ? null : rotaBul(rotaSlug(il.slug))
@@ -260,6 +262,17 @@ export default async function NakliyecilerSayfasi({ params }) {
                     </section>
                   )
                 })}
+
+                <section id="makale" className="mb-10 scroll-mt-28">
+                  {makaleBolumleri.map((bolum) => (
+                    <div key={bolum.baslik} className="mb-8">
+                      <h2 className="mb-4 text-2xl font-bold text-[#1e3a5f] md:text-3xl">{bolum.baslik}</h2>
+                      {bolum.paragraflar.map((p, i) => (
+                        <p key={i} className="mb-4 leading-relaxed text-slate-700">{p}</p>
+                      ))}
+                    </div>
+                  ))}
+                </section>
 
                 {ilFiyatlari.length > 0 && (
                   <section id="adana-rotasi" className="mb-10 scroll-mt-28">
