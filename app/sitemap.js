@@ -3,6 +3,7 @@ import { ILLER } from '@/lib/iller'
 import { ROTALAR, ilHizmetUrl, rotaMakalesiMi } from '@/lib/rotalar'
 import { sehirlerarasiUrl } from '@/lib/sehirlerarasi-icerik'
 import { nakliyecilerUrl } from '@/lib/nakliyeciler-icerik'
+import { HIZMET_SAYFALARI, hizmetSayfaUrl } from '@/lib/hizmet-sayfalari'
 
 const SITE_URL = 'https://www.adananakliye.com.tr'
 
@@ -76,6 +77,15 @@ export default async function sitemap() {
     priority: 0.7,
   }))
 
+  // Kod tarafındaki dar konu hizmet sayfaları (pikap nakliye, hamaliye,
+  // 1+1 ev taşıma ücretleri gibi).
+  const ozelHizmetEntries = HIZMET_SAYFALARI.map(sayfa => ({
+    url: `${SITE_URL}${hizmetSayfaUrl(sayfa.slug)}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  }))
+
   let dynamicEntries = []
 
   try {
@@ -108,6 +118,7 @@ export default async function sitemap() {
     ...ilEntries,
     ...sehirlerarasiEntries,
     ...nakliyecilerEntries,
+    ...ozelHizmetEntries,
     ...dynamicEntries,
   ]
 }
