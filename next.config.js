@@ -12,7 +12,14 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.co' },
       // CDN veya diğer güvenli kaynaklar buraya
     ],
-    formats: ['image/avif', 'image/webp'], // AVIF önce, daha optimize
+    // Yalnızca WebP. AVIF daha küçük dosya üretiyor ama üretmesi çok
+    // pahalı: kaynak görselin 750 piksellik sürümü ölçüldüğünde AVIF'e
+    // kodlama 683 ms, WebP'ye kodlama 43 ms sürdü. Bu bedel önbellekte
+    // karşılığı olmayan her istekte ödeniyor; hero görseli sayfanın LCP
+    // öğesi olduğu için doğrudan LCP'ye yazılıyor. Kazanılan 5,6 kB yavaş
+    // 4G'de ancak 30 ms'lik bir aktarım demek, yani 640 ms'lik kodlama
+    // gecikmesinin yanında önemsiz.
+    formats: ['image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840], // Büyük ekranlar eklendi
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // 384 eklendi
     minimumCacheTTL: 31536000, // 1 yıl - iyi
