@@ -28,7 +28,8 @@ export default function AdminMesajlarPage() {
   const handleView = async (mesaj) => {
     setSelectedMesaj(mesaj)
     if (!mesaj.okundu) {
-      await supabase.from('iletisim_mesajlari').update({ okundu: true }).eq('id', mesaj.id)
+      const { error } = await supabase.from('iletisim_mesajlari').update({ okundu: true }).eq('id', mesaj.id)
+      if (error) toast.error('Okundu işaretlenemedi: ' + error.message)
       fetchMesajlar()
     }
   }

@@ -38,10 +38,12 @@ export default function AdminSlidersPage() {
     if (!formData.baslik || !formData.resim) { toast.error('Başlık ve resim zorunlu'); return }
     try {
       if (editMode === 'new') {
-        await supabase.from('sliders').insert([formData])
+        const { error } = await supabase.from('sliders').insert([formData])
+        if (error) throw error
         toast.success('Slider eklendi')
       } else {
-        await supabase.from('sliders').update(formData).eq('id', editMode)
+        const { error } = await supabase.from('sliders').update(formData).eq('id', editMode)
+        if (error) throw error
         toast.success('Slider güncellendi')
       }
       fetchSliders(); handleCancel()
@@ -50,7 +52,8 @@ export default function AdminSlidersPage() {
 
   const handleDelete = async (id) => {
     if (!confirm('Silmek istediğinize emin misiniz?')) return
-    await supabase.from('sliders').delete().eq('id', id)
+    const { error } = await supabase.from('sliders').delete().eq('id', id)
+    if (error) { toast.error('Silinemedi: ' + error.message); return }
     toast.success('Silindi'); fetchSliders()
   }
 
@@ -61,13 +64,15 @@ export default function AdminSlidersPage() {
     const [item] = newOrder.splice(idx, 1)
     newOrder.splice(idx + direction, 0, item)
     for (let i = 0; i < newOrder.length; i++) {
-      await supabase.from('sliders').update({ sira: i }).eq('id', newOrder[i].id)
+      const { error } = await supabase.from('sliders').update({ sira: i }).eq('id', newOrder[i].id)
+      if (error) { toast.error('Sıra değiştirilemedi: ' + error.message); break }
     }
     fetchSliders()
   }
 
   const toggleAktif = async (id, aktif) => {
-    await supabase.from('sliders').update({ aktif: !aktif }).eq('id', id)
+    const { error } = await supabase.from('sliders').update({ aktif: !aktif }).eq('id', id)
+    if (error) toast.error('Değiştirilemedi: ' + error.message)
     fetchSliders()
   }
 
