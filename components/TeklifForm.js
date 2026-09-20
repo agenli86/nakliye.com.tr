@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase-browser'
 import { FaPaperPlane, FaSpinner } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 
@@ -23,8 +22,6 @@ export default function TeklifForm({ hizmetler }) {
     asansor_var_mi: '',
     notlar: ''
   })
-
-  const supabase = createClient()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -62,6 +59,9 @@ Asansör: ${formData.asansor_var_mi || 'Belirtilmedi'}
 Notlar: ${formData.notlar || '-'}
       `.trim()
 
+      // Supabase istemcisi yalnızca form gönderilirken indiriliyor.
+      const { createClient } = await import('@/lib/supabase-browser')
+      const supabase = createClient()
       const { error } = await supabase.from('iletisim_mesajlari').insert([{
         ad_soyad: formData.ad_soyad,
         telefon: formData.telefon,

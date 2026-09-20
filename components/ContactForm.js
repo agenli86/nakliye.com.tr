@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase-browser'
 import toast from 'react-hot-toast'
 import { FaPaperPlane } from 'react-icons/fa'
 
@@ -27,6 +26,9 @@ export default function ContactForm() {
     setLoading(true)
 
     try {
+      // Supabase istemcisi yalnızca form gönderilirken indiriliyor;
+      // sayfanın ilk yüklemesinde ~52 kB'lık paket artık yok.
+      const { createClient } = await import('@/lib/supabase-browser')
       const supabase = createClient()
       
       const { error } = await supabase

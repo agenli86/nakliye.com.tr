@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { createClient } from '@/lib/supabase-browser'
 import {
   getFingerprint,
   getGpuInfo,
@@ -34,6 +33,11 @@ export default function VisitorTracker() {
 }
 
 async function trackVisitor() {
+  // Supabase istemcisi (~52 kB) modül düzeyinde içe aktarıldığında her
+  // sayfanın ilk JavaScript paketine giriyor ve anasayfada %95'i hiç
+  // çalıştırılmıyordu. Artık yalnızca kayıt gerçekten yapılacağı anda,
+  // sayfa yüklenip ana iş parçacığı boşaldıktan sonra indiriliyor.
+  const { createClient } = await import('@/lib/supabase-browser')
   const supabase = createClient()
   const data = await collectVisitorData()
   await saveVisitorData(supabase, data)
