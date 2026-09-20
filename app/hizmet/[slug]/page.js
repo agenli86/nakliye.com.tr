@@ -99,7 +99,7 @@ export default async function HizmetDetayPage({ params }) {
         <section className="py-12 md:py-16">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-3 gap-10">
-              <div className="lg:col-span-2">
+              <div className="min-w-0 lg:col-span-2">
                 {/* Ana Resim - Width/Height sorununu Next.js Image ile çözdük */}
                 {hizmet.resim && (
                   <div className="relative h-[300px] md:h-[450px] w-full mb-8">
@@ -120,7 +120,7 @@ export default async function HizmetDetayPage({ params }) {
               </div>
 
               {/* Sağ Taraf - Yan Menü */}
-              <aside className="space-y-6">
+              <aside className="min-w-0 space-y-6">
                 <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 sticky top-28">
                   <h3 className="text-xl font-bold mb-6" style={{ color: '#1e3a5f' }}>Ücretsiz Teklif Al</h3>
                   <div className="flex flex-col gap-4">

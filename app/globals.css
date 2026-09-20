@@ -145,3 +145,37 @@ main:not(.home-page) {
   height: 44px;
   transform: translate(-50%, -50%);
 }
+
+/* Mobil taşma koruması
+   ------------------------------------------------------------------
+   Panelden girilen zengin içerik (makale, hizmet metni) genişliği sabit
+   resim veya tablo içerebiliyor. Grid/flex çocuklarının varsayılan
+   `min-width: auto` değeri yüzünden böyle bir öğe sayfanın tamamını
+   yatay olarak taşırıyor. Aşağıdaki kurallar medyayı kapsayıcıya
+   sığdırır, tabloyu kendi içinde kaydırılabilir yapar. */
+.prose img,
+.rich-content img,
+.prose video,
+.rich-content video {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose table,
+.rich-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.prose pre,
+.rich-content pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Uzun, boşluksuz metinlerin (URL, e-posta) taşmasını engelle */
+.prose,
+.rich-content {
+  overflow-wrap: break-word;
+}
