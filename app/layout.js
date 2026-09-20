@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast'
 import { Inter } from 'next/font/google'
 import dynamic from 'next/dynamic'
 import DeferredAnalytics from '@/components/DeferredAnalytics'
+import { resimYolu } from '@/lib/resim'
 
 // Kritik olmayan component'ler - lazy load
 const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ssr: false })
@@ -55,7 +56,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="tr" className={inter.variable}>
       <head>
-        <link rel="icon" href="/resimler/adana-evden-eve-nakliyat.png" />
+        {/* Sekme simgesini tarayıcı her şeyden uzun süre saklıyor; dosyanın
+            içeriği değiştiğinde adres de değişmezse eski logo aylarca
+            ekranda kalıyor. resimYolu sürüm damgasını ekliyor. */}
+        <link rel="icon" href={resimYolu('/resimler/adana-evden-eve-nakliyat.png')} />
         {/* Preconnect yalnızca ilk boyamayı gerçekten etkileyen kaynak için.
             Her preconnect bir TCP+TLS el sıkışması demek; analitik ve takip
             alan adları artık sayfa yüklendikten sonra çağrıldığı için

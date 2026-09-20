@@ -88,7 +88,8 @@ export default function AdminSSSPage() {
     newSorular[index + direction] = temp
 
     for (let i = 0; i < newSorular.length; i++) {
-      await supabase.from('sss').update({ sira: i }).eq('id', newSorular[i].id)
+      const { error } = await supabase.from('sss').update({ sira: i }).eq('id', newSorular[i].id)
+      if (error) { toast.error('Sıra değiştirilemedi: ' + error.message); break }
     }
     fetchSorular()
   }

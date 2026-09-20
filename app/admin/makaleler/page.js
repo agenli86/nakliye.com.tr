@@ -101,7 +101,8 @@ export default function AdminMakalelerPage() {
   }
 
   const toggleAktif = async (id, aktif) => {
-    await supabase.from('makaleler').update({ aktif: !aktif }).eq('id', id)
+    const { error } = await supabase.from('makaleler').update({ aktif: !aktif }).eq('id', id)
+    if (error) toast.error('Değiştirilemedi: ' + error.message)
     fetchMakaleler()
   }
 

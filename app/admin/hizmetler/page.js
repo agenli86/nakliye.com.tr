@@ -53,10 +53,12 @@ export default function AdminHizmetlerPage() {
     if (!formData.baslik || !formData.slug) { toast.error('Başlık ve slug zorunlu'); return }
     try {
       if (editMode === 'new') {
-        await supabase.from('hizmetler').insert([formData])
+        const { error } = await supabase.from('hizmetler').insert([formData])
+        if (error) throw error
         toast.success('Hizmet eklendi')
       } else {
-        await supabase.from('hizmetler').update(formData).eq('id', editMode)
+        const { error } = await supabase.from('hizmetler').update(formData).eq('id', editMode)
+        if (error) throw error
         toast.success('Hizmet güncellendi')
       }
       fetchHizmetler(); handleCancel()
@@ -65,7 +67,8 @@ export default function AdminHizmetlerPage() {
 
   const handleDelete = async (id) => {
     if (!confirm('Silmek istediğinize emin misiniz?')) return
-    await supabase.from('hizmetler').delete().eq('id', id)
+    const { error } = await supabase.from('hizmetler').delete().eq('id', id)
+    if (error) { toast.error('Silinemedi: ' + error.message); return }
     toast.success('Silindi'); fetchHizmetler()
   }
 
@@ -76,7 +79,8 @@ export default function AdminHizmetlerPage() {
     const [item] = newOrder.splice(idx, 1)
     newOrder.splice(idx + direction, 0, item)
     for (let i = 0; i < newOrder.length; i++) {
-      await supabase.from('hizmetler').update({ sira: i }).eq('id', newOrder[i].id)
+      const { error } = await supabase.from('hizmetler').update({ sira: i }).eq('id', newOrder[i].id)
+      if (error) { toast.error('Sıra değiştirilemedi: ' + error.message); break }
     }
     fetchHizmetler()
   }

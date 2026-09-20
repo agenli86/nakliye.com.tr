@@ -126,28 +126,35 @@ export default function AdminYapisalVeriPage() {
 
     setSaving(true)
     try {
+      const grup = 'yapisal_veri'
       const updates = [
-        { anahtar: 'json_ld_organization', deger: formData.organization },
-        { anahtar: 'json_ld_local_business', deger: formData.local_business },
-        { anahtar: 'json_ld_website', deger: formData.website },
-        { anahtar: 'json_ld_breadcrumb', deger: formData.breadcrumb ? 'true' : 'false' },
+        { anahtar: 'json_ld_organization', deger: formData.organization, grup },
+        { anahtar: 'json_ld_local_business', deger: formData.local_business, grup },
+        { anahtar: 'json_ld_website', deger: formData.website, grup },
+        { anahtar: 'json_ld_breadcrumb', deger: formData.breadcrumb ? 'true' : 'false', grup },
       ]
 
-      for (const update of updates) {
-        const { data: existing } = await supabase.from('ayarlar').select('id').eq('anahtar', update.anahtar).single()
-        
-        if (existing) {
-          await supabase.from('ayarlar').update({ deger: update.deger }).eq('anahtar', update.anahtar)
-        } else {
-          await supabase.from('ayarlar').insert([{ anahtar: update.anahtar, deger: update.deger, grup: 'yapisal_veri' }])
-        }
+      // Önce satırı arayıp sonra update/insert etmek yerine tek upsert
+      // atılıyor (anahtar sütunu UNIQUE). Eski hâlinde yazma sonucuna
+      // hiç bakılmadığı için, kayıt engellense bile ekranda
+      // "kaydedildi" yazıyordu.
+      const { data, error } = await supabase
+        .from('ayarlar')
+        .upsert(updates, { onConflict: 'anahtar' })
+        .select('anahtar')
+
+      if (error) throw error
+      if (!data || data.length === 0) {
+        toast.error('Kayıt yazılamadı. Oturumunuz düşmüş olabilir, çıkıp tekrar girin.')
+        return
       }
 
       toast.success('Yapısal veri ayarları kaydedildi')
     } catch (error) {
-      toast.error('Hata: ' + error.message)
+      toast.error('Kaydedilemedi: ' + (error?.message || 'bilinmeyen hata'))
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   const formatJSON = (field) => {

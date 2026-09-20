@@ -46,10 +46,12 @@ export default function AdminKutucuklarPage() {
     if (!formData.baslik) { toast.error('Başlık zorunlu'); return }
     try {
       if (editMode === 'new') {
-        await supabase.from('ozellik_kutucuklari').insert([formData])
+        const { error } = await supabase.from('ozellik_kutucuklari').insert([formData])
+        if (error) throw error
         toast.success('Kutucuk eklendi')
       } else {
-        await supabase.from('ozellik_kutucuklari').update(formData).eq('id', editMode)
+        const { error } = await supabase.from('ozellik_kutucuklari').update(formData).eq('id', editMode)
+        if (error) throw error
         toast.success('Kutucuk güncellendi')
       }
       fetchData(); handleCancel()
@@ -58,12 +60,14 @@ export default function AdminKutucuklarPage() {
 
   const handleDelete = async (id) => {
     if (!confirm('Silmek istediğinize emin misiniz?')) return
-    await supabase.from('ozellik_kutucuklari').delete().eq('id', id)
+    const { error } = await supabase.from('ozellik_kutucuklari').delete().eq('id', id)
+    if (error) { toast.error('Silinemedi: ' + error.message); return }
     toast.success('Silindi'); fetchData()
   }
 
   const toggleAktif = async (id, aktif) => {
-    await supabase.from('ozellik_kutucuklari').update({ aktif: !aktif }).eq('id', id)
+    const { error } = await supabase.from('ozellik_kutucuklari').update({ aktif: !aktif }).eq('id', id)
+    if (error) toast.error('Değiştirilemedi: ' + error.message)
     fetchData()
   }
 
@@ -74,7 +78,8 @@ export default function AdminKutucuklarPage() {
     const [item] = newOrder.splice(idx, 1)
     newOrder.splice(idx + direction, 0, item)
     for (let i = 0; i < newOrder.length; i++) {
-      await supabase.from('ozellik_kutucuklari').update({ sira: i }).eq('id', newOrder[i].id)
+      const { error } = await supabase.from('ozellik_kutucuklari').update({ sira: i }).eq('id', newOrder[i].id)
+      if (error) { toast.error('Sıra değiştirilemedi: ' + error.message); break }
     }
     fetchData()
   }

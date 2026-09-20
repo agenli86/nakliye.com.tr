@@ -8,6 +8,9 @@ import toast from 'react-hot-toast'
 
 export default function AdminAyarlarPage() {
   const [ayarlar, setAyarlar] = useState({})
+  // Kaydederken yalnızca gerçekten değişen satırları yazabilmek için
+  // sayfa açıldığındaki hâli ayrı tutuyoruz.
+  const [yuklenenAyarlar, setYuklenenAyarlar] = useState({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('genel')
@@ -24,10 +27,16 @@ export default function AdminAyarlarPage() {
   useEffect(() => { fetchAyarlar() }, [])
 
   const fetchAyarlar = async () => {
-    const { data } = await supabase.from('ayarlar').select('*')
+    const { data, error } = await supabase.from('ayarlar').select('*')
+    if (error) {
+      toast.error('Ayarlar okunamadı: ' + error.message)
+      setLoading(false)
+      return
+    }
     const obj = {}
     data?.forEach(a => { obj[a.anahtar] = a.deger })
     setAyarlar(obj)
+    setYuklenenAyarlar(obj)
     setLoading(false)
   }
 
@@ -35,17 +44,61 @@ export default function AdminAyarlarPage() {
     setAyarlar(prev => ({ ...prev, [key]: value }))
   }
 
+  // Burası eskiden her ayar için ayrı bir update atıyor, dönen sonuca
+  // hiç bakmıyordu. Supabase istemcisi hata durumunda exception atmaz,
+  // { error } döndürür; try/catch hiçbir zaman devreye girmediği için
+  // yazma engellense de ekranda "Ayarlar kaydedildi" yazıyordu. Üstelik
+  // update, satır yoksa sessizce sıfır satır günceller: panelde boş
+  // görünen bir alan doldurulup kaydedildiğinde hiçbir şey oluşmuyordu.
+  // Artık upsert kullanılıyor (anahtar sütunu UNIQUE), dönen hata
+  // gösteriliyor ve yalnızca değişen satırlar yazılıyor.
   const handleSave = async () => {
     setSaving(true)
     try {
-      for (const [key, value] of Object.entries(ayarlar)) {
-        await supabase.from('ayarlar').update({ deger: value }).eq('anahtar', key)
+      const degisenler = Object.entries(ayarlar)
+        .filter(([anahtar, deger]) => deger !== yuklenenAyarlar[anahtar])
+        .map(([anahtar, deger]) => ({ anahtar, deger }))
+
+      if (degisenler.length === 0) {
+        toast.success('Değişiklik yok, kaydedilecek bir şey bulunmadı.')
+        return
       }
-      toast.success('Ayarlar kaydedildi')
+
+      const { data, error } = await supabase
+        .from('ayarlar')
+        .upsert(degisenler, { onConflict: 'anahtar' })
+        .select('anahtar')
+
+      if (error) throw error
+
+      // Yazma izni olmadığında Supabase hata döndürmeyip boş sonuç
+      // dönebiliyor; bunu da başarı saymıyoruz.
+      if (!data || data.length === 0) {
+        toast.error('Kayıt yazılamadı. Oturumunuz düşmüş olabilir, çıkıp tekrar girin.')
+        return
+      }
+
+      setYuklenenAyarlar({ ...ayarlar })
+      toast.success(`${data.length} ayar kaydedildi`)
+      await onbellegiTazele()
     } catch (error) {
-      toast.error('Hata: ' + error.message)
+      toast.error('Kaydedilemedi: ' + (error?.message || 'bilinmeyen hata'))
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
+  }
+
+  // Sayfalar ISR ile önbellekleniyor; temizlemezsek kayıt başarılı olsa
+  // bile site saatlerce eski değeri göstermeye devam eder ve değişiklik
+  // olmamış gibi görünür.
+  const onbellegiTazele = async () => {
+    try {
+      const cevap = await fetch('/api/onbellek-temizle', { method: 'POST' })
+      if (!cevap.ok) throw new Error(String(cevap.status))
+      toast.success('Site güncellendi, sayfayı yenileyin.')
+    } catch {
+      toast('Kaydedildi. Sitede görünmesi için soldaki "Değişiklikleri Yayınla" düğmesine basın.')
+    }
   }
 
   const renderField = (key, label, type = 'text', placeholder = '') => {
