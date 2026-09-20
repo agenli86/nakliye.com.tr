@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaPhone, FaMapMarkerAlt, FaBars, FaTimes, FaChevronDown } from 'react-icons/fa'
+import { resimYolu } from '@/lib/resim'
 
 export default function Header({ ayarlar, menu }) {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -73,7 +74,7 @@ export default function Header({ ayarlar, menu }) {
                   aday üretiyor, 1.75 piksel yoğunluklu telefonlar da 640'ı
                   seçiyordu: 14 kB'lık dosya 154 piksellik bir alan için. */}
               <Image
-                src={logo}
+                src={resimYolu(logo)}
                 alt="Adana Nakliye"
                 width={220}
                 height={80}

@@ -5,13 +5,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaArrowRight } from 'react-icons/fa'
+import { resimYolu } from '@/lib/resim'
 
 export default function ServiceCard({ hizmet }) {
   return (
     <div className="card card-hover group">
       <div className="relative h-56 overflow-hidden">
         <Image
-          src={hizmet.resim || '/resimler/default-service.jpg'}
+          src={resimYolu(hizmet.resim || '/resimler/default-service.jpg')}
           alt={hizmet.baslik}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"

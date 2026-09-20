@@ -17,6 +17,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FaPhone, FaCheckCircle } from 'react-icons/fa'
 import dynamic from 'next/dynamic'
+import { resimYolu } from '@/lib/resim'
 
 // ✅ 1 saatte bir cache yenilenir — cold start olmaz
 export const revalidate = 3600
@@ -174,7 +175,7 @@ export default async function Home() {
               
               <div className="relative">
                 <Image 
-                  src={sliderAlti.resim || '/resimler/anasayfa-hakkimizda.webp'} 
+                  src={resimYolu(sliderAlti.resim || '/resimler/anasayfa-hakkimizda.webp')} 
                   alt="Adana Nakliye - Evden Eve Nakliyat" 
                   width={1000}
                   height={838}

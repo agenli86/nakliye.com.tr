@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { FaChevronRight, FaCalendar, FaUser, FaEye } from 'react-icons/fa'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { makaleRotaHedefi, rotaUrl } from '@/lib/rotalar'
+import { resimYolu } from '@/lib/resim'
 
 // Hizmet/makale sayfalarını build sırasında önceden üret; listede olmayan
 // yeni bir slug istendiğinde ilk istekte üretilip önbelleğe alınır.
@@ -107,7 +108,7 @@ export default async function MakaleDetayPage({ params }) {
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                {makale.resim && <img src={makale.resim} alt={makale.baslik} loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-lg mb-8" />}
+                {makale.resim && <img src={resimYolu(makale.resim)} alt={makale.baslik} loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-lg mb-8" />}
                 <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: makale.icerik }} />
               </div>
               <div className="space-y-6">
@@ -116,7 +117,7 @@ export default async function MakaleDetayPage({ params }) {
                   <ul className="space-y-3">
                     {sonMakaleler?.filter(m => m.slug !== slug).slice(0, 4).map(m => (
                       <li key={m.id} className="flex gap-3">
-                        {m.resim && <img src={m.resim} alt="" loading="lazy" decoding="async" className="w-16 h-16 object-cover rounded" />}
+                        {m.resim && <img src={resimYolu(m.resim)} alt="" loading="lazy" decoding="async" className="w-16 h-16 object-cover rounded" />}
                         <Link href={`/makale/${m.slug}`} className="text-sm hover:text-blue-600">{m.baslik}</Link>
                       </li>
                     ))}

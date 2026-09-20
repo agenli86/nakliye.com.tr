@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 import { POPULER_ROTALAR } from '@/lib/populer-rotalar'
+import { resimYolu } from '@/lib/resim'
 
 const SOSYAL_MEDYA = [
   { key: 'facebook', label: 'Facebook sayfamız', url: 'https://www.facebook.com/adanaevdenevetasima/', Icon: FaFacebook },
@@ -31,7 +32,7 @@ export default function Footer({ ayarlar, hizmetler }) {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div className="flex flex-col gap-6">
-            <Image src={footerLogo} alt="Adana Nakliye Logo" width={180} height={80} className="h-16 w-auto brightness-0 invert" />
+            <Image src={resimYolu(footerLogo)} alt="Adana Nakliye Logo" width={180} height={80} className="h-16 w-auto brightness-0 invert" />
             <p className="text-white text-base leading-relaxed">Adana evden eve taşımacılık hizmetlerinde profesyonel çözümler için yanınızdayız.</p>
             {/* Bağlantılar href="#" ile hiçbir yere gitmiyordu ve içlerinde
                 yalnızca ikon olduğu için ekran okuyucuya isimsiz görünüyordu.

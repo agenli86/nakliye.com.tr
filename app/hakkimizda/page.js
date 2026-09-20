@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import StickyButtons from '@/components/StickyButtons'
 import Link from 'next/link'
 import { FaChevronRight, FaCheckCircle } from 'react-icons/fa'
+import { resimYolu } from '@/lib/resim'
 
 export async function generateMetadata() {
   const supabase = await createClient()
@@ -82,7 +83,7 @@ export default async function HakkimizdaPage() {
                 </div>
               </div>
               <div>
-                <img src={sayfa?.resim || '/resimler/201-hakkimizda.webp'} alt="Hakkımızda" loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-2xl" />
+                <img src={resimYolu(sayfa?.resim || '/resimler/201-hakkimizda.webp')} alt="Hakkımızda" loading="lazy" decoding="async" className="w-full h-auto rounded-2xl shadow-2xl" />
               </div>
             </div>
           </div>

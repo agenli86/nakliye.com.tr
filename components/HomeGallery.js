@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { FaTimes, FaChevronLeft, FaChevronRight, FaSearchPlus } from 'react-icons/fa'
 import Image from 'next/image'
+import { resimYolu } from '@/lib/resim'
 
 export default function HomeGallery({ galeri }) {
   const [lightbox, setLightbox] = useState({ open: false, index: 0 })
@@ -36,7 +37,7 @@ export default function HomeGallery({ galeri }) {
                 onClick={() => openLightbox(index)}
               >
                 <Image
-                  src={item.resim}
+                  src={resimYolu(item.resim)}
                   alt={item.baslik || 'Adana Nakliye'}
                   fill
                   sizes="(max-width: 768px) 33vw, 250px"
@@ -68,7 +69,7 @@ export default function HomeGallery({ galeri }) {
             <FaChevronLeft size={20} />
           </button>
           <div className="max-w-4xl max-h-[80vh] px-12" onClick={(e) => e.stopPropagation()}>
-            <img src={items[lightbox.index].resim} alt={items[lightbox.index].baslik || 'Galeri'} className="max-w-full max-h-[80vh] object-contain rounded-lg" />
+            <img src={resimYolu(items[lightbox.index].resim)} alt={items[lightbox.index].baslik || 'Galeri'} className="max-w-full max-h-[80vh] object-contain rounded-lg" />
             <p className="text-white text-center mt-3">{lightbox.index + 1} / {items.length}</p>
           </div>
           <button onClick={(e) => { e.stopPropagation(); nextImage() }} className="absolute right-4 w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors">
