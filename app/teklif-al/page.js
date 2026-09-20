@@ -64,13 +64,13 @@ export default async function TeklifAlPage() {
             <div className="absolute bottom-10 right-10 w-60 h-60 bg-white rounded-full" />
           </div>
           <div className="container mx-auto px-4 relative z-10">
-            <nav className="flex items-center gap-2 text-white/80 text-sm mb-4">
+            <nav className="flex items-center gap-2 text-white text-sm mb-4">
               <Link href="/" className="hover:text-white">Anasayfa</Link>
               <FaChevronRight className="text-xs" />
               <span className="text-white">Teklif Al</span>
             </nav>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Ücretsiz Teklif Al</h1>
-            <p className="text-xl text-white/90 max-w-2xl">
+            <p className="text-xl text-white max-w-2xl">
               Taşınma planınızı bizimle paylaşın, size en uygun fiyatı sunalım.
             </p>
           </div>
@@ -95,7 +95,7 @@ export default async function TeklifAlPage() {
                 {/* Quick Contact */}
                 <div className="rounded-2xl p-6 text-white" style={{ backgroundColor: '#1e3a5f' }}>
                   <h3 className="text-xl font-bold mb-4">Hızlı İletişim</h3>
-                  <p className="text-white/80 mb-6">
+                  <p className="text-white mb-6">
                     Hemen aramak isterseniz bize ulaşabilirsiniz.
                   </p>
                   <a 

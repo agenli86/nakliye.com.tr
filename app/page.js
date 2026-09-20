@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-public'
+import { rotaOlmayanMakaleler } from '@/lib/rotalar'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import HeroSlider from '@/components/HeroSlider'
@@ -87,7 +88,9 @@ async function getData() {
     supabase.from('menu').select('*').eq('aktif', true).order('sira'),
     supabase.from('sliders').select('*').eq('aktif', true).order('sira'),
     supabase.from('hizmetler').select('*').eq('aktif', true).eq('anasayfada_goster', true).order('sira'),
-    supabase.from('makaleler').select('*').eq('aktif', true).order('created_at', { ascending: false }).limit(3),
+    // Rota yazıları bloga değil /rota sayfalarına ait olduğu için biraz
+    // fazla çekip filtreden sonra üçe indiriyoruz.
+    supabase.from('makaleler').select('*').eq('aktif', true).order('created_at', { ascending: false }).limit(12),
     supabase.from('fiyatlar').select('*').eq('aktif', true).order('sira'),
     supabase.from('anasayfa_bolumleri').select('*').eq('aktif', true).order('sira'),
     supabase.from('anasayfa_tablari').select('*').eq('aktif', true).order('sira'),
@@ -96,7 +99,7 @@ async function getData() {
     supabase.from('ozellik_kutucuklari').select('*').eq('aktif', true).order('sira').limit(3),
     supabase.from('chatbot_ayarlari').select('deger').eq('anahtar', 'aktif').maybeSingle(),
   ])
-  return { ayarlar, menu, sliders, hizmetler, makaleler, fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar, chatbotAktif: chatbotAktif?.deger === 'true' }
+  return { ayarlar, menu, sliders, hizmetler, makaleler: rotaOlmayanMakaleler(makaleler).slice(0, 3), fiyatlar, bolumler, tablar, duyurular, galeri, kutucuklar, chatbotAktif: chatbotAktif?.deger === 'true' }
 }
 
 export default async function Home() {

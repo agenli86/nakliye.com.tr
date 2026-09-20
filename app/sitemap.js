@@ -1,4 +1,6 @@
 import { createPublicClient } from '@/lib/supabase-public'
+import { ILLER } from '@/lib/iller'
+import { ROTALAR, ilHizmetUrl, rotaMakalesiMi } from '@/lib/rotalar'
 
 const SITE_URL = 'https://www.adananakliye.com.tr'
 
@@ -11,6 +13,8 @@ const STATIC_ROUTES = [
   { path: '/hizmetler', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/galeri', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
+  { path: '/rota', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/nakliye-hizmetleri', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/sss', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/iletisim', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/teklif-al', priority: 0.9, changeFrequency: 'monthly' },
@@ -36,13 +40,29 @@ export default async function sitemap() {
     priority: route.priority,
   }))
 
+  // Rota ve il hizmet sayfaları kod tarafındaki listeden geliyor; bunlar
+  // veritabanına bağlı olmadığı için sitemap her koşulda eksiksiz.
+  const rotaEntries = ROTALAR.map(rota => ({
+    url: `${SITE_URL}${rota.url}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: rota.tip === 'il' ? 0.8 : 0.7,
+  }))
+
+  const ilEntries = ILLER.map(il => ({
+    url: `${SITE_URL}${ilHizmetUrl(il.slug)}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.75,
+  }))
+
   let dynamicEntries = []
 
   try {
     const supabase = createPublicClient()
     const [{ data: hizmetler }, { data: makaleler }] = await Promise.all([
       supabase.from('hizmetler').select('slug, updated_at, created_at').eq('aktif', true),
-      supabase.from('makaleler').select('slug, updated_at, created_at').eq('aktif', true),
+      supabase.from('makaleler').select('slug, kategori, updated_at, created_at').eq('aktif', true),
     ])
 
     const toEntry = (prefix, priority, changeFrequency) => row => ({
@@ -54,11 +74,13 @@ export default async function sitemap() {
 
     dynamicEntries = [
       ...(hizmetler || []).filter(r => r.slug).map(toEntry('/hizmet', 0.8, 'monthly')),
-      ...(makaleler || []).filter(r => r.slug).map(toEntry('/makale', 0.7, 'monthly')),
+      // Rota içerikli eski yazılar /rota/... adresine 301 ile gidiyor,
+      // sitemap'e yönlendirilen URL konmaz.
+      ...(makaleler || []).filter(r => r.slug && !rotaMakalesiMi(r)).map(toEntry('/makale', 0.7, 'monthly')),
     ]
   } catch {
     // Veritabanına ulaşılamazsa en azından statik sayfalar yayınlansın.
   }
 
-  return [...staticEntries, ...dynamicEntries]
+  return [...staticEntries, ...rotaEntries, ...ilEntries, ...dynamicEntries]
 }
