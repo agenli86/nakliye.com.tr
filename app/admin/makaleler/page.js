@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import ImageUpload from '@/components/ImageUpload'
 import dynamic from 'next/dynamic'
-import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaEye, FaEyeSlash, FaFileImport } from 'react-icons/fa'
+import { HAZIR_BLOG_YAZILARI } from '@/lib/blog-yazilari'
 import toast from 'react-hot-toast'
 
 // RichTextEditor'ı client-side only yükle
@@ -18,6 +19,7 @@ export default function AdminMakalelerPage() {
     baslik: '', slug: '', ozet: '', icerik: '', resim: '', kategori: '', etiketler: '',
     meta_title: '', meta_description: '', meta_keywords: '', og_image: '', canonical_url: '', aktif: true
   })
+  const [iceAktariliyor, setIceAktariliyor] = useState(false)
   const supabase = createClient()
 
   useEffect(() => { fetchMakaleler() }, [])
@@ -26,6 +28,34 @@ export default function AdminMakalelerPage() {
     const { data } = await supabase.from('makaleler').select('*').order('created_at', { ascending: false })
     setMakaleler(data || [])
     setLoading(false)
+  }
+
+  // Hazır yazılar önce Supabase'in SQL editöründen ekleniyordu. Yeni tablo
+  // kurmadıkları için artık panelden de eklenebiliyorlar; site sahibinin
+  // Supabase hesabına erişimi olmasa da içerik girilebiliyor. Aynı slug
+  // zaten varsa o yazı atlanıyor, mevcut metin değiştirilmiyor.
+  const hazirYazilariIceAktar = async () => {
+    setIceAktariliyor(true)
+    try {
+      const mevcut = new Set(makaleler.map((m) => m.slug))
+      const eklenecek = HAZIR_BLOG_YAZILARI.filter((y) => !mevcut.has(y.slug))
+
+      if (eklenecek.length === 0) {
+        toast.success('Hazır yazıların hepsi zaten ekli.')
+        return
+      }
+
+      const { error } = await supabase.from('makaleler').insert(eklenecek)
+      if (error) throw error
+
+      const atlanan = HAZIR_BLOG_YAZILARI.length - eklenecek.length
+      toast.success(`${eklenecek.length} yazı eklendi${atlanan ? `, ${atlanan} tanesi zaten vardı` : ''}.`)
+      await fetchMakaleler()
+    } catch (hata) {
+      toast.error('Yazılar eklenemedi: ' + hata.message)
+    } finally {
+      setIceAktariliyor(false)
+    }
   }
 
   const generateSlug = (text) => text.toLowerCase().replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c').replace(/[^a-z0-9]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')
@@ -81,7 +111,17 @@ export default function AdminMakalelerPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Makaleler</h1>
-        <button onClick={handleNew} className="admin-btn-primary flex items-center gap-2"><FaPlus /> Yeni Makale</button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={hazirYazilariIceAktar}
+            disabled={iceAktariliyor}
+            title={`Taşınma rehberi niteliğinde ${HAZIR_BLOG_YAZILARI.length} hazır yazıyı ekler. Zaten ekli olanlar atlanır.`}
+            className="admin-btn-secondary flex items-center gap-2 disabled:opacity-50"
+          >
+            <FaFileImport /> {iceAktariliyor ? 'Ekleniyor...' : `Hazır Yazıları Ekle (${HAZIR_BLOG_YAZILARI.length})`}
+          </button>
+          <button onClick={handleNew} className="admin-btn-primary flex items-center gap-2"><FaPlus /> Yeni Makale</button>
+        </div>
       </div>
 
       {editMode && (
