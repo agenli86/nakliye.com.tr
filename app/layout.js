@@ -44,6 +44,19 @@ export const metadata = {
   twitter: { card: 'summary_large_image' },
   robots: { index: true, follow: true },
   alternates: { canonical: 'https://www.adananakliye.com.tr' },
+  // Search Console / Webmaster Tools doğrulaması.
+  //
+  // Doğrulamanın "HTML etiketi" yöntemi sayfanın kaynağında bir meta
+  // etiketi arar. Bu sitede Google Analytics etiketi tarayıcıda, hem de
+  // yalnızca gerçek ziyaretçi için yükleniyor (components/DeferredAnalytics.js),
+  // yani sayfanın HTML'inde hiç görünmüyor; bu yüzden "Google Analytics ile
+  // doğrula" seçeneği burada çalışmaz. Doğrulama kodu Vercel'de
+  // GOOGLE_SITE_VERIFICATION (ve istenirse YANDEX_VERIFICATION) ortam
+  // değişkenine yazılır, yeni dağıtımda etiket kaynağa eklenir.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    yandex: process.env.YANDEX_VERIFICATION || undefined,
+  },
 }
 
 export const viewport = {

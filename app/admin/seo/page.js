@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import ImageUpload from '@/components/ImageUpload'
-import { FaEdit, FaSave, FaTimes, FaSearch, FaGlobe } from 'react-icons/fa'
+import { FaEdit, FaSave, FaTimes, FaSearch, FaGlobe, FaBullhorn } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 
 export default function AdminSEOPage() {
@@ -11,6 +11,7 @@ export default function AdminSEOPage() {
   const [loading, setLoading] = useState(true)
   const [editMode, setEditMode] = useState(null)
   const [formData, setFormData] = useState({})
+  const [bildiriliyor, setBildiriliyor] = useState(false)
 
   const supabase = createClient()
 
@@ -65,6 +66,23 @@ export default function AdminSEOPage() {
     }
   }
 
+  // Arama motorlarına "sayfalar değişti" bildirimi (IndexNow).
+  // Google bu protokole katılmıyor, Google tarafı sitemap üzerinden
+  // ilerliyor; buradaki bildirim Bing, Yandex ve Naver'a gidiyor.
+  const handleIndexNow = async () => {
+    setBildiriliyor(true)
+    try {
+      const cevap = await fetch('/api/indexnow', { method: 'POST' })
+      const sonuc = await cevap.json()
+      if (!cevap.ok) throw new Error(sonuc.hata || sonuc.mesaj || 'Bildirim gönderilemedi')
+      toast.success(sonuc.mesaj)
+    } catch (error) {
+      toast.error('Hata: ' + error.message)
+    } finally {
+      setBildiriliyor(false)
+    }
+  }
+
   if (loading) {
     return <div className="flex justify-center py-12"><div className="spinner"></div></div>
   }
@@ -79,6 +97,30 @@ export default function AdminSEOPage() {
       <p className="text-gray-600 mb-6">
         Her sayfanın meta başlık, açıklama, og:image ve canonical URL ayarlarını buradan yönetebilirsiniz.
       </p>
+
+      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="flex items-center gap-2 font-semibold">
+              <FaBullhorn className="text-primary-500" />
+              Arama motorlarına haber ver
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Sitedeki bütün sayfaları Bing, Yandex ve Naver'a anında bildirir.
+              Google bu yöntemi kullanmıyor; Google için Search Console'daki
+              site haritası yeterli. İçerik değiştirdikten sonra bir kez basmak
+              yeterlidir, gün içinde tekrar tekrar basmaya gerek yok.
+            </p>
+          </div>
+          <button
+            onClick={handleIndexNow}
+            disabled={bildiriliyor}
+            className="admin-btn-primary whitespace-nowrap disabled:opacity-60"
+          >
+            {bildiriliyor ? 'Bildiriliyor...' : 'Şimdi bildir'}
+          </button>
+        </div>
+      </div>
 
       {/* Form Modal */}
       {editMode && (
