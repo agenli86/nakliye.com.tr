@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import dynamic from 'next/dynamic'
 import DeferredAnalytics from '@/components/DeferredAnalytics'
 import { resimYolu } from '@/lib/resim'
+import { SUPABASE_URL } from '@/lib/supabase-config'
 
 // Kritik olmayan component'ler - lazy load
 const VisitorTracker = dynamic(() => import('@/components/VisitorTracker'), { ssr: false })
@@ -65,7 +66,12 @@ export default function RootLayout({ children }) {
             alan adları artık sayfa yüklendikten sonra çağrıldığı için
             onlara daha ucuz olan dns-prefetch yetiyor. api.ipify.org ve
             nominatim tamamen kaldırıldı, artık hiç çağrılmıyorlar. */}
-        <link rel="preconnect" href="https://hvkwboukgzblmqvjcyjt.supabase.co" crossOrigin="anonymous" />
+        {/* Adres elle yazılmıyor: veritabanı projesi değiştiğinde buradaki
+            satır eskide kalıp hiç kullanılmayan bir alan adına bağlantı
+            açıyordu. Artık sitenin gerçekten konuştuğu adresten okunuyor. */}
+        {SUPABASE_URL && (
+          <link rel="preconnect" href={SUPABASE_URL} crossOrigin="anonymous" />
+        )}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <link rel="dns-prefetch" href="https://ipapi.co" />
