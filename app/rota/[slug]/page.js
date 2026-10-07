@@ -15,10 +15,10 @@ import IsOrtagiKutusu from '@/components/IsOrtagiKutusu'
 
 import { ROTALAR, rotaBul, ilgiliRotalar, ilHizmetUrl } from '@/lib/rotalar'
 import { rotaBirlestir } from '@/lib/rota-db'
-import { SITE_URL, ayarAl, siteVerisi } from '@/lib/site-verisi'
+import { ROTA_OG_GORSELI, SITE_URL, ayarAl, siteVerisi } from '@/lib/site-verisi'
 import { sehirlerarasiUrl } from '@/lib/sehirlerarasi-icerik'
 import { nakliyecilerUrl } from '@/lib/nakliyeciler-icerik'
-import { isOrtagiGetir } from '@/lib/is-ortaklari'
+import { isOrtagiGetir, panelIsOrtagi } from '@/lib/is-ortaklari'
 import {
   fiyatAyarlari,
   fiyatTablosu,
@@ -61,7 +61,9 @@ export async function generateMetadata({ params }) {
       description: aciklama,
       url,
       type: 'article',
-      images: kayit?.og_image ? [{ url: kayit.og_image }] : undefined,
+      /* Paylaşım görseli boş bırakılırsa sayfa hiç görselsiz paylaşılıyordu;
+         WhatsApp ve Facebook o zaman yalnızca başlığı gösteriyor. */
+      images: [{ url: kayit?.og_image || ROTA_OG_GORSELI }],
     },
     alternates: { canonical: kayit?.canonical_url || url },
   }
@@ -85,7 +87,10 @@ export default async function RotaSayfasi({ params }) {
   const makale = rotaMakalesi(rota)
   const sorular = rotaSSS(rota, fiyatlar)
   const komsular = ilgiliRotalar(rota, 10)
-  const isOrtagi = isOrtagiGetir(rota.rotaSlug)
+  /* İş ortağı kutusu önce panelden okunuyor; panelde kayıt yoksa koddaki
+     liste devreye giriyor. Böylece kutu paneli olmayan tek alan olmaktan
+     çıkıyor, koddaki kayıtlar da yerinde kalıyor. */
+  const isOrtagi = panelIsOrtagi(kayit) || isOrtagiGetir(rota.rotaSlug)
   const url = `${SITE_URL}/rota/${slug}`
 
   const ozetSatirlari = [

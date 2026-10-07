@@ -6,9 +6,11 @@ import { FaEdit, FaSave, FaTimes, FaEye, FaEyeSlash, FaExternalLinkAlt, FaUndo, 
 import toast from 'react-hot-toast'
 
 import { createClient } from '@/lib/supabase-browser'
+import { onbellegiTazele } from '@/lib/onbellek-tazele'
 import ImageUpload from '@/components/ImageUpload'
 import { ILLER } from '@/lib/iller'
 import { ROTALAR, rotaBul, ilHizmetUrl } from '@/lib/rotalar'
+import { isOrtagiGetir } from '@/lib/is-ortaklari'
 import {
   VARSAYILAN_BAZ_UCRET,
   VARSAYILAN_KM_UCRETI,
@@ -20,11 +22,17 @@ import {
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
+/* Canonical adresin panelde görünen hâli. lib/site-verisi.js sunucu
+   tarafındaki Supabase istemcisini de getirdiği için panel paketine
+   katılmasın diye adres burada ayrıca duruyor. */
+const SITE_ADRESI = 'https://www.adananakliye.com.tr'
+
 const BOS_FORM = {
   slug: '', tur: 'rota', hedef_slug: '', baslik: '', h1: '', ozet: '', icerik: '',
   makale_baslik: '', makale: '', resim: '', mesafe_km: '', sure_metni: '', ilceler: '',
   fiyat_notu: '', aktif: true, meta_title: '', meta_description: '', meta_keywords: '',
   og_image: '', canonical_url: '',
+  is_ortagi_ad: '', is_ortagi_sehir: '', is_ortagi_url: '', is_ortagi_aciklama: '',
 }
 
 /** Kod tarafındaki rota listesi panelin temel kaynağı; tabloda her sayfa
@@ -79,6 +87,20 @@ const otomatikMetinler = (satir) => {
     meta_title: meta.baslik,
     meta_description: meta.aciklama,
     meta_keywords: meta.anahtarKelimeler,
+    canonical_url: `${SITE_ADRESI}/rota/${rota.rotaSlug}`,
+    ...isOrtagiAlanlari(rota.rotaSlug),
+  }
+}
+
+/** Koddaki iş ortağı kaydının form alanlarına çevrilmiş hâli. */
+const isOrtagiAlanlari = (rotaSlug) => {
+  const ortak = isOrtagiGetir(rotaSlug)
+  if (!ortak) return {}
+  return {
+    is_ortagi_ad: ortak.ad,
+    is_ortagi_sehir: ortak.sehir || '',
+    is_ortagi_url: ortak.url,
+    is_ortagi_aciklama: ortak.aciklama || '',
   }
 }
 
@@ -190,7 +212,7 @@ export default function AdminRotalarPage() {
     setKaydediliyor(false)
 
     if (error) { toast.error('Kaydedilemedi: ' + error.message); return }
-    toast.success('Sayfa güncellendi')
+    await onbellegiTazele('Sayfa güncellendi, sitede yayında.')
     const yeni = data?.[0]
     if (yeni) {
       setKayitlar((onceki) => {
@@ -208,7 +230,7 @@ export default function AdminRotalarPage() {
     const { error } = await supabase.from('rota_sayfalari').delete().eq('tur', satir.tur).eq('slug', satir.slug)
     if (error) { toast.error('Silinemedi: ' + error.message); return }
     setKayitlar((onceki) => onceki.filter((k) => !(k.tur === satir.tur && k.slug === satir.slug)))
-    toast.success('Varsayılan içeriğe dönüldü')
+    await onbellegiTazele('Varsayılan içeriğe dönüldü, sitede yayında.')
   }
 
   const aktifDegistir = async (satir) => {
@@ -227,7 +249,7 @@ export default function AdminRotalarPage() {
       const disari = onceki.filter((k) => !(k.tur === satir.tur && k.slug === satir.slug))
       return yeni ? [...disari, yeni] : disari
     })
-    toast.success(yeniDurum ? 'Sayfa yayına alındı' : 'Sayfa yayından kaldırıldı')
+    await onbellegiTazele(yeniDurum ? 'Sayfa yayına alındı.' : 'Sayfa yayından kaldırıldı.')
   }
 
   const fiyatKaydet = async () => {
@@ -239,7 +261,7 @@ export default function AdminRotalarPage() {
     ]
     const { error } = await supabase.from('ayarlar').upsert(satirlar, { onConflict: 'anahtar' })
     if (error) { toast.error('Fiyat ayarları kaydedilemedi: ' + error.message); return }
-    toast.success('Fiyat ayarları kaydedildi')
+    await onbellegiTazele('Fiyat ayarları kaydedildi, sitede yayında.')
   }
 
   const ornekFiyat = useMemo(() => {
@@ -514,6 +536,30 @@ export default function AdminRotalarPage() {
                 <label className="admin-label" htmlFor="f-canonical">Canonical URL</label>
                 <input id="f-canonical" name="canonical_url" value={formData.canonical_url || ''} onChange={degistir} className="admin-input" />
               </div>
+            </div>
+
+            <hr className="my-6" />
+            <h3 className="mb-2 font-bold">İş Ortağı Kutusu</h3>
+            <p className="mb-4 text-sm text-gray-500">
+              Sayfanın altında çıkan çözüm ortağı kutusu. Ad ve adres birlikte doldurulduğunda görünür, ikisinden biri boşsa kutu çizilmez.
+            </p>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label className="admin-label" htmlFor="f-ortak-ad">Ortak Adı</label>
+                <input id="f-ortak-ad" name="is_ortagi_ad" value={formData.is_ortagi_ad || ''} onChange={degistir} className="admin-input" placeholder="Örn: Cansızoğlu Nakliyat" />
+              </div>
+              <div>
+                <label className="admin-label" htmlFor="f-ortak-sehir">Ortak Şehri</label>
+                <input id="f-ortak-sehir" name="is_ortagi_sehir" value={formData.is_ortagi_sehir || ''} onChange={degistir} className="admin-input" placeholder="Örn: Ankara" />
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="admin-label" htmlFor="f-ortak-url">Ortak Adresi</label>
+              <input id="f-ortak-url" name="is_ortagi_url" value={formData.is_ortagi_url || ''} onChange={degistir} className="admin-input" placeholder="https://..." />
+            </div>
+            <div className="mt-4">
+              <label className="admin-label" htmlFor="f-ortak-aciklama">Ortak Açıklaması</label>
+              <textarea id="f-ortak-aciklama" name="is_ortagi_aciklama" rows={3} value={formData.is_ortagi_aciklama || ''} onChange={degistir} className="admin-input resize-none" />
             </div>
 
             <div className="mt-8 flex justify-end gap-3">

@@ -23,10 +23,12 @@ export default function IsOrtagiKutusu({ ortak }) {
         className="mb-3 flex items-center gap-2 text-xl font-bold text-[#1e3a5f]"
       >
         <FaHandshake aria-hidden="true" className="text-[#0b5bd3]" />
-        {ortak.sehir} Çözüm Ortağımız
+        {`${ortak.sehir || ''} Çözüm Ortağımız`.trim()}
       </h2>
 
-      <p className="mb-4 leading-relaxed text-slate-700">{ortak.aciklama}</p>
+      {ortak.aciklama && (
+        <p className="mb-4 leading-relaxed text-slate-700">{ortak.aciklama}</p>
+      )}
 
       <a
         href={ortak.url}

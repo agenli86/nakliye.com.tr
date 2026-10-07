@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
+import { onbellegiTazele } from '@/lib/onbellek-tazele'
 import ImageUpload from '@/components/ImageUpload'
 import { FaSave, FaCog, FaPhone, FaGlobe, FaPalette, FaChartBar } from 'react-icons/fa'
 import toast from 'react-hot-toast'
@@ -85,19 +86,6 @@ export default function AdminAyarlarPage() {
       toast.error('Kaydedilemedi: ' + (error?.message || 'bilinmeyen hata'))
     } finally {
       setSaving(false)
-    }
-  }
-
-  // Sayfalar ISR ile önbellekleniyor; temizlemezsek kayıt başarılı olsa
-  // bile site saatlerce eski değeri göstermeye devam eder ve değişiklik
-  // olmamış gibi görünür.
-  const onbellegiTazele = async () => {
-    try {
-      const cevap = await fetch('/api/onbellek-temizle', { method: 'POST' })
-      if (!cevap.ok) throw new Error(String(cevap.status))
-      toast.success('Site güncellendi, sayfayı yenileyin.')
-    } catch {
-      toast('Kaydedildi. Sitede görünmesi için soldaki "Değişiklikleri Yayınla" düğmesine basın.')
     }
   }
 
