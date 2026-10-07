@@ -11,12 +11,14 @@ import StickyButtons from '@/components/StickyButtons'
 import RotaFiyatTablosu from '@/components/RotaFiyatTablosu'
 import RotaSSS from '@/components/RotaSSS'
 import IcLinkAgi from '@/components/IcLinkAgi'
+import IsOrtagiKutusu from '@/components/IsOrtagiKutusu'
 
 import { ROTALAR, rotaBul, ilgiliRotalar, ilHizmetUrl } from '@/lib/rotalar'
 import { rotaBirlestir } from '@/lib/rota-db'
 import { SITE_URL, ayarAl, siteVerisi } from '@/lib/site-verisi'
 import { sehirlerarasiUrl } from '@/lib/sehirlerarasi-icerik'
 import { nakliyecilerUrl } from '@/lib/nakliyeciler-icerik'
+import { isOrtagiGetir } from '@/lib/is-ortaklari'
 import {
   fiyatAyarlari,
   fiyatTablosu,
@@ -82,6 +84,7 @@ export default async function RotaSayfasi({ params }) {
   const makale = rotaMakalesi(rota)
   const sorular = rotaSSS(rota, fiyatlar)
   const komsular = ilgiliRotalar(rota, 10)
+  const isOrtagi = isOrtagiGetir(rota.rotaSlug)
   const url = `${SITE_URL}/rota/${slug}`
 
   const ozetSatirlari = [
@@ -307,6 +310,8 @@ export default async function RotaSayfasi({ params }) {
                     ))
                   )}
                 </article>
+
+                <IsOrtagiKutusu ortak={isOrtagi} />
 
                 <RotaSSS sorular={sorular} baslik={`Adana ${rota.ad} Nakliye Hakkında Sık Sorulan Sorular`} />
                 <IcLinkAgi gruplar={linkGruplari} baslik="Bu Sayfayla İlgili Diğer Sayfalar" />
