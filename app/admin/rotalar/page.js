@@ -8,8 +8,13 @@ import toast from 'react-hot-toast'
 import { createClient } from '@/lib/supabase-browser'
 import ImageUpload from '@/components/ImageUpload'
 import { ILLER } from '@/lib/iller'
-import { ROTALAR, ilHizmetUrl } from '@/lib/rotalar'
-import { VARSAYILAN_BAZ_UCRET, VARSAYILAN_KM_UCRETI } from '@/lib/rota-icerik'
+import { ROTALAR, rotaBul, ilHizmetUrl } from '@/lib/rotalar'
+import {
+  VARSAYILAN_BAZ_UCRET,
+  VARSAYILAN_KM_UCRETI,
+  rotaGirisMetni,
+  rotaMakalesi,
+} from '@/lib/rota-icerik'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
 
@@ -47,6 +52,26 @@ const IL_SATIRLARI = ILLER.map((il) => ({
   bolge: il.bolgeAdi,
   tip: 'il-hizmet',
 }))
+
+/** Kaydı olmayan bir sayfa düzenlenirken form boş açılıyordu; kullanıcı
+ *  sitede duran yazıyı panelde göremediği için metni sıfırdan yazmak
+ *  zorunda kalıyor, çoğu zaman da sayfanın boş olduğunu sanıyordu.
+ *  Form artık sitede o an yayında olan metinle doluyor: düzenlenip
+ *  kaydedilene kadar hiçbir şey değişmez, kaydedildiğinde kullanıcının
+ *  metni kodun ürettiğinin yerine geçer. */
+const otomatikMetinler = (satir) => {
+  if (satir.tur !== 'rota') return {}
+  const rota = rotaBul(satir.slug)
+  if (!rota) return {}
+
+  const makale = rotaMakalesi(rota)
+  return {
+    h1: rota.rotaAdi,
+    ozet: rotaGirisMetni(rota),
+    makale_baslik: makale.baslik,
+    makale: makale.paragraflar.map((p) => `<p>${p}</p>`).join(''),
+  }
+}
 
 export default function AdminRotalarPage() {
   const [sekme, setSekme] = useState('rota')
@@ -121,6 +146,7 @@ export default function AdminRotalarPage() {
     setEditSlug(`${satir.tur}:${satir.slug}`)
     setFormData({
       ...BOS_FORM,
+      ...(kayit ? {} : otomatikMetinler(satir)),
       ...(kayit || {}),
       slug: satir.slug,
       tur: satir.tur,
