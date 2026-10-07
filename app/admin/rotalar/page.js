@@ -12,8 +12,10 @@ import { ROTALAR, rotaBul, ilHizmetUrl } from '@/lib/rotalar'
 import {
   VARSAYILAN_BAZ_UCRET,
   VARSAYILAN_KM_UCRETI,
+  rotaBolumleriHtml,
   rotaGirisMetni,
   rotaMakalesi,
+  rotaMetaVarsayilan,
 } from '@/lib/rota-icerik'
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false })
@@ -65,11 +67,18 @@ const otomatikMetinler = (satir) => {
   if (!rota) return {}
 
   const makale = rotaMakalesi(rota)
+  const meta = rotaMetaVarsayilan(rota)
   return {
     h1: rota.rotaAdi,
+    baslik: rota.tersBaslik,
     ozet: rotaGirisMetni(rota),
+    sure_metni: rota.teslimGun,
+    icerik: rotaBolumleriHtml(rota),
     makale_baslik: makale.baslik,
     makale: makale.paragraflar.map((p) => `<p>${p}</p>`).join(''),
+    meta_title: meta.baslik,
+    meta_description: meta.aciklama,
+    meta_keywords: meta.anahtarKelimeler,
   }
 }
 
@@ -461,8 +470,8 @@ export default function AdminRotalarPage() {
             </div>
 
             <div className="mt-4">
-              <label className="admin-label">Ek İçerik (fiyat tablosundan sonra çıkar)</label>
-              <RichTextEditor value={formData.icerik || ''} onChange={(html) => setFormData({ ...formData, icerik: html })} placeholder="Bu rotaya özel ek bilgi..." />
+              <label className="admin-label">Sayfa Bölümleri (fiyat tablosunun üstünde çıkar)</label>
+              <RichTextEditor value={formData.icerik || ''} onChange={(html) => setFormData({ ...formData, icerik: html })} placeholder="Bu rotaya özel bölüm metni..." />
             </div>
 
             <div className="mt-4">
