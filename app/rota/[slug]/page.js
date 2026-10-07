@@ -25,6 +25,7 @@ import {
   rotaBolumleri,
   rotaGirisMetni,
   rotaMakalesi,
+  rotaMetaVarsayilan,
   rotaSSS,
 } from '@/lib/rota-icerik'
 
@@ -47,17 +48,14 @@ export async function generateMetadata({ params }) {
   if (!veri) return { title: 'Sayfa Bulunamadı' }
   const { rota, kayit } = veri
   const url = `${SITE_URL}/rota/${slug}`
-  const baslik = kayit?.meta_title || `${rota.tersBaslik} | ${rota.rotaAdi}`
-  const aciklama =
-    kayit?.meta_description ||
-    `${rota.tersBaslik} hizmeti: sigortalı evden eve nakliyat, küçük nakliye ve parça eşya taşıma. Adana ${rota.ad} arası yaklaşık ${rota.mesafe} km, teslim ${rota.teslimGun}. Ücretsiz ekspertiz ve yazılı fiyat.`
+  const varsayilan = rotaMetaVarsayilan(rota)
+  const baslik = kayit?.meta_title || varsayilan.baslik
+  const aciklama = kayit?.meta_description || varsayilan.aciklama
 
   return {
     title: baslik,
     description: aciklama,
-    keywords:
-      kayit?.meta_keywords ||
-      `${rota.rotaAdi.toLowerCase()}, ${rota.tersBaslik.toLowerCase()}, adana ${rota.ad.toLowerCase()} evden eve nakliyat, adana ${rota.ad.toLowerCase()} parça eşya taşıma, adana ${rota.ad.toLowerCase()} nakliye fiyatları`,
+    keywords: kayit?.meta_keywords || varsayilan.anahtarKelimeler,
     openGraph: {
       title: baslik,
       description: aciklama,
@@ -81,6 +79,9 @@ export default async function RotaSayfasi({ params }) {
   const fiyatSecenekleri = fiyatAyarlari(ayarlar)
   const fiyatlar = fiyatSecenekleri.goster ? fiyatTablosu(rota, ayarlar) : []
   const bolumler = rotaBolumleri(rota)
+  /* Panelde kaydedilen bölüm metni, kodun ürettiği bölümlerin yerine geçer.
+     İkisi birden çizilseydi aynı başlıklar sayfada iki kez görünürdü. */
+  const panelBolumleri = (kayit?.icerik || '').trim()
   const makale = rotaMakalesi(rota)
   const sorular = rotaSSS(rota, fiyatlar)
   const komsular = ilgiliRotalar(rota, 10)
@@ -234,14 +235,21 @@ export default async function RotaSayfasi({ params }) {
           <div className="container mx-auto px-4">
             <div className="grid gap-10 lg:grid-cols-3">
               <div className="min-w-0 lg:col-span-2">
-                {bolumler.map((bolum) => (
-                  <section key={bolum.id} id={bolum.id} className="mb-10 scroll-mt-28">
-                    <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-4">{bolum.baslik}</h2>
-                    {bolum.paragraflar.map((p, i) => (
-                      <p key={i} className="mb-4 leading-relaxed text-slate-700">{p}</p>
-                    ))}
-                  </section>
-                ))}
+                {panelBolumleri ? (
+                  <section
+                    className="prose prose-slate max-w-none mb-10 prose-headings:text-[#1e3a5f]"
+                    dangerouslySetInnerHTML={{ __html: panelBolumleri }}
+                  />
+                ) : (
+                  bolumler.map((bolum) => (
+                    <section key={bolum.id} id={bolum.id} className="mb-10 scroll-mt-28">
+                      <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-4">{bolum.baslik}</h2>
+                      {bolum.paragraflar.map((p, i) => (
+                        <p key={i} className="mb-4 leading-relaxed text-slate-700">{p}</p>
+                      ))}
+                    </section>
+                  ))
+                )}
 
                 {fiyatlar.length > 0 && (
                   <section id="fiyatlar" className="mb-10 scroll-mt-28">
@@ -286,13 +294,6 @@ export default async function RotaSayfasi({ params }) {
                       ))}
                     </ul>
                   </section>
-                )}
-
-                {kayit?.icerik && (
-                  <section
-                    className="prose prose-slate max-w-none mb-10 prose-headings:text-[#1e3a5f]"
-                    dangerouslySetInnerHTML={{ __html: kayit.icerik }}
-                  />
                 )}
 
                 <article id="makale" className="mb-4 scroll-mt-28">
@@ -349,7 +350,7 @@ export default async function RotaSayfasi({ params }) {
                   <div className="mt-8">
                     <h3 className="mb-3 border-b pb-2 font-bold text-[#1e3a5f]">Sayfa İçeriği</h3>
                     <ul className="space-y-2 text-sm">
-                      {[...bolumler.map((b) => ({ id: b.id, baslik: b.baslik })),
+                      {[...(panelBolumleri ? [] : bolumler.map((b) => ({ id: b.id, baslik: b.baslik }))),
                         ...(fiyatlar.length ? [{ id: 'fiyatlar', baslik: `Adana ${rota.ad} Nakliye Fiyatları` }] : []),
                         { id: 'ilceler', baslik: `${rota.il} İlçeleri` },
                         { id: 'makale', baslik: 'Taşınma Rehberi' },
