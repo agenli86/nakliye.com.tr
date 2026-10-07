@@ -172,13 +172,31 @@ export default function AdminRotalarPage() {
 
   const kayitAl = (satir) => kayitHaritasi.get(`${satir.tur}:${satir.slug}`) || null
 
+  /** Kayıttaki dolu alanlar olduğu gibi kalıyor, boş kalanlar sitede o an
+   *  görünen metinle dolduruluyor. Önceden kayıt varsa hiçbir alan
+   *  doldurulmuyordu; eski bir kayıt, sonradan eklenen alanları (iş ortağı,
+   *  meta, canonical) formda boş gösteriyordu. Boş bırakılan bir alanda
+   *  sayfa zaten kodun ürettiğini çiziyor, yani form da onu göstermeli. */
+  const formAlanlari = (satir, kayit) => {
+    const otomatik = otomatikMetinler(satir)
+    if (!kayit) return otomatik
+
+    const bos = (deger) =>
+      deger === null || deger === undefined || String(deger).trim() === ''
+
+    const birlesik = { ...kayit }
+    for (const [alan, deger] of Object.entries(otomatik)) {
+      if (bos(birlesik[alan])) birlesik[alan] = deger
+    }
+    return birlesik
+  }
+
   const duzenle = (satir) => {
     const kayit = kayitAl(satir)
     setEditSlug(`${satir.tur}:${satir.slug}`)
     setFormData({
       ...BOS_FORM,
-      ...(kayit ? {} : otomatikMetinler(satir)),
-      ...(kayit || {}),
+      ...formAlanlari(satir, kayit),
       slug: satir.slug,
       tur: satir.tur,
       hedef_slug: satir.hedef_slug,

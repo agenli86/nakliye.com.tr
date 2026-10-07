@@ -87,10 +87,11 @@ export default async function RotaSayfasi({ params }) {
   const makale = rotaMakalesi(rota)
   const sorular = rotaSSS(rota, fiyatlar)
   const komsular = ilgiliRotalar(rota, 10)
-  /* İş ortağı kutusu önce panelden okunuyor; panelde kayıt yoksa koddaki
-     liste devreye giriyor. Böylece kutu paneli olmayan tek alan olmaktan
-     çıkıyor, koddaki kayıtlar da yerinde kalıyor. */
-  const isOrtagi = panelIsOrtagi(kayit) || isOrtagiGetir(rota.rotaSlug)
+  /* İş ortağı kutusu önce panelden okunuyor; panelde bu alana hiç
+     dokunulmamışsa koddaki liste devreye giriyor. Böylece kutu paneli
+     olmayan tek alan olmaktan çıkıyor, koddaki kayıtlar da yerinde kalıyor. */
+  const panelOrtak = panelIsOrtagi(kayit)
+  const isOrtagi = panelOrtak === undefined ? isOrtagiGetir(rota.rotaSlug) : panelOrtak
   const url = `${SITE_URL}/rota/${slug}`
 
   const ozetSatirlari = [
