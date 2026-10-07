@@ -1,0 +1,1209 @@
+-- =====================================================================
+-- ADANA NAKLİYE - EKSİKSİZ KURULUM DOSYASI
+-- =====================================================================
+--
+-- Bu dosya sitenin veritabanını sıfırdan kurar. Yeni bir Supabase
+-- projesi açtıktan sonra SQL Editor'e yapıştırıp bir kez çalıştırmak
+-- yeterlidir; site bundan sonra çalışır durumda olur.
+--
+--   Supabase panelinde: SQL Editor > New query > yapıştır > Run
+--
+-- !! DİKKAT: Dosya en başta bütün tabloları siliyor. Dolu bir
+--    veritabanında çalıştırırsanız içindeki her şey gider. Yalnızca
+--    yeni, boş bir projede çalıştırın.
+--
+-- İçindekiler:
+--   1. Yardımcı fonksiyon (updated_at)
+--   2. Eski tabloları düşürme
+--   3. Site içeriği: ayarlar, anasayfa, hizmetler, makaleler, sayfalar,
+--      galeri, sss, fiyatlar, menü, seo, duyurular, kutucuklar
+--   4. Ziyaretçi takibi (ziyaretciler + visitors)
+--   5. Chatbot ve sahte tıklama tespiti
+--   6. Rota/il sayfaları
+--   7. Engelli IP listesi
+--   8. Resim yükleme alanı (storage)
+--
+-- Çalıştırdıktan sonra yapılacak iki şey:
+--   a) Authentication > Users > Add user ile kendinize bir panel
+--      kullanıcısı açın. Panele bu e-posta ve şifreyle gireceksiniz.
+--   b) Settings > API ekranındaki "Project URL" ve "anon public" anahtarını
+--      Vercel'de NEXT_PUBLIC_SUPABASE_URL ve NEXT_PUBLIC_SUPABASE_ANON_KEY
+--      satırlarına yazın, sonra yeniden dağıtın.
+-- =====================================================================
+
+
+-- =====================================================================
+-- 1. YARDIMCI FONKSİYON
+-- Her tabloda updated_at sütununu kayıt güncellendiğinde otomatik tazeler.
+-- Tetikleyicilerden önce tanımlanması gerekiyor.
+-- =====================================================================
+
+CREATE OR REPLACE FUNCTION update_updated_at_column() RETURNS TRIGGER AS $$
+BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
+$$ language 'plpgsql';
+
+
+-- =====================================================================
+-- 2. ESKİ TABLOLARI DÜŞÜR
+-- Dosyanın tekrar çalıştırılabilmesi için. Sıra önemli değil, CASCADE
+-- bağımlılıkları da temizliyor.
+-- =====================================================================
+
+DROP VIEW IF EXISTS visitor_stats_by_source CASCADE;
+DROP VIEW IF EXISTS visitor_stats_daily CASCADE;
+DROP VIEW IF EXISTS campaign_performance CASCADE;
+DROP VIEW IF EXISTS operator_stats CASCADE;
+DROP VIEW IF EXISTS device_browser_stats CASCADE;
+DROP TABLE IF EXISTS iletisim_mesajlari CASCADE;
+DROP TABLE IF EXISTS duyurular CASCADE;
+DROP TABLE IF EXISTS galeri CASCADE;
+DROP TABLE IF EXISTS sss CASCADE;
+DROP TABLE IF EXISTS fiyatlar CASCADE;
+DROP TABLE IF EXISTS makaleler CASCADE;
+DROP TABLE IF EXISTS hizmetler CASCADE;
+DROP TABLE IF EXISTS sliders CASCADE;
+DROP TABLE IF EXISTS sayfalar CASCADE;
+DROP TABLE IF EXISTS anasayfa_bolumleri CASCADE;
+DROP TABLE IF EXISTS anasayfa_tablari CASCADE;
+DROP TABLE IF EXISTS menu CASCADE;
+DROP TABLE IF EXISTS seo_ayarlari CASCADE;
+DROP TABLE IF EXISTS ozellik_kutucuklari CASCADE;
+DROP TABLE IF EXISTS ayarlar CASCADE;
+DROP TABLE IF EXISTS ziyaretciler CASCADE;
+DROP TABLE IF EXISTS visitors CASCADE;
+DROP TABLE IF EXISTS chatbot_sohbetler CASCADE;
+DROP TABLE IF EXISTS chatbot_limitler CASCADE;
+DROP TABLE IF EXISTS chatbot_ayarlari CASCADE;
+DROP TABLE IF EXISTS sahte_tiklamalar CASCADE;
+DROP TABLE IF EXISTS rota_sayfalari CASCADE;
+DROP TABLE IF EXISTS engelli_ipler CASCADE;
+
+
+
+-- =====================================================================
+-- 3. SİTE İÇERİĞİ
+-- =====================================================================
+
+-- =====================================================
+-- ADANA NAKLİYE - SUPABASE VERİTABANI ŞEMASI (V2)
+-- Tüm özellikler dahil
+-- =====================================================
+
+-- Önce mevcut tabloları temizle
+
+-- =====================================================
+-- 1. AYARLAR (Site Genel Ayarları)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS ayarlar (
+    id SERIAL PRIMARY KEY,
+    anahtar VARCHAR(100) UNIQUE NOT NULL,
+    deger TEXT,
+    tur VARCHAR(50) DEFAULT 'text',
+    grup VARCHAR(50) DEFAULT 'genel',
+    aciklama VARCHAR(255),
+    sira INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO ayarlar (anahtar, deger, tur, grup, aciklama, sira) VALUES
+('site_adi', 'Adana Nakliye', 'text', 'genel', 'Site başlığı', 1),
+('site_slogan', 'Güvenilir Evden Eve Nakliyat', 'text', 'genel', 'Site sloganı', 2),
+('logo', '/resimler/adananakliye.png', 'image', 'genel', 'Site logosu', 3),
+('favicon', '/resimler/adana-evden-eve-nakliyat.png', 'image', 'genel', 'Favicon', 4),
+('footer_logo', '/resimler/adananakliye.png', 'image', 'genel', 'Footer logosu', 5),
+('telefon', '05051774097', 'text', 'iletisim', 'Telefon', 1),
+('telefon2', '', 'text', 'iletisim', 'İkinci telefon', 2),
+('email', 'info@adananakliye.com.tr', 'text', 'iletisim', 'E-posta', 3),
+('adres', 'Belediye Evleri, 84244. Sk. No:9 Adana / Çukurova', 'textarea', 'iletisim', 'Adres', 4),
+('harita_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3186.0!2d35.3!3d37.0', 'textarea', 'iletisim', 'Google Maps', 5),
+('whatsapp', '905051774097', 'text', 'iletisim', 'WhatsApp', 6),
+('calisma_saatleri', 'Pazartesi - Pazar: 07:00 - 21:30', 'text', 'iletisim', 'Çalışma saatleri', 7),
+('facebook', 'https://www.facebook.com/adanaevdenevetasima/', 'text', 'sosyal', 'Facebook', 1),
+('instagram', 'https://www.instagram.com/adananabarajevdenevenakliyat/', 'text', 'sosyal', 'Instagram', 2),
+('youtube', 'https://www.youtube.com/channel/UC8ZcBL6T-OELy9B_ykx79zQ', 'text', 'sosyal', 'YouTube', 3),
+('twitter', '', 'text', 'sosyal', 'Twitter', 4),
+('meta_title', 'Adana Nakliye | Evden Eve Nakliyat | 05051774097', 'text', 'seo', 'Meta başlık', 1),
+('meta_description', 'Adana evden eve nakliyat fiyatlarında %25 indirim. Profesyonel Adana nakliye.', 'textarea', 'seo', 'Meta açıklama', 2),
+('meta_keywords', 'adana nakliye, adana evden eve nakliyat', 'textarea', 'seo', 'Anahtar kelimeler', 3),
+('og_image', '/resimler/adanaevdenevenakliyat.jpg', 'image', 'seo', 'OG Image', 4),
+('google_analytics', 'G-FQBQFLNBJ8', 'text', 'seo', 'Google Analytics', 5),
+('facebook_pixel', '779004901018883', 'text', 'seo', 'Facebook Pixel', 6),
+('site_url', 'https://adananakliye.com.tr', 'text', 'seo', 'Site URL', 7),
+('renk_primary', '#046ffb', 'color', 'tema', 'Ana renk (Mavi)', 1),
+('renk_secondary', '#f59e0b', 'color', 'tema', 'İkincil renk (Sarı)', 2),
+('arac_sayisi', '3', 'text', 'sayac', 'Araç sayısı', 1),
+('asansor_sayisi', '1', 'text', 'sayac', 'Asansör sayısı', 2),
+('tecrube_yili', '17', 'text', 'sayac', 'Tecrübe yılı', 3),
+('mutlu_musteri', '7800', 'text', 'sayac', 'Mutlu müşteri', 4),
+('copyright', 'Adana Nakliye © 2024 Tüm Hakları Saklıdır.', 'text', 'genel', 'Copyright', 20);
+
+-- =====================================================
+-- 2. ANASAYFA BÖLÜMLERİ
+-- =====================================================
+CREATE TABLE IF NOT EXISTS anasayfa_bolumleri (
+    id SERIAL PRIMARY KEY,
+    bolum_adi VARCHAR(100) UNIQUE NOT NULL,
+    baslik VARCHAR(255),
+    alt_baslik TEXT,
+    icerik TEXT,
+    resim VARCHAR(500),
+    buton_metin VARCHAR(100),
+    buton_link VARCHAR(255),
+    aktif BOOLEAN DEFAULT true,
+    sira INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO anasayfa_bolumleri (bolum_adi, baslik, alt_baslik, icerik, resim, buton_metin, buton_link, sira) VALUES
+('slider_alti', 'Adana Evden Eve Nakliyat', 'Sitemize Hoşgeldiniz', 
+'<p><strong>Adana Nakliye</strong>, müşteri memnuniyetini ön planda tutan evden eve nakliyat hizmetlerinde lider firmalardan biridir.</p><p>Profesyonel ekip ve modern ekipmanlarla eşyalarınız güvenle taşınır.</p>', 
+'/resimler/anasayfa-hakkimizda.webp', 'Hakkımızda', '/hakkimizda', 1),
+('hizmetler_baslik', 'Öne Çıkan Hizmetlerimiz', 'Profesyonel nakliyat hizmetlerimizle taşınma sürecinizi kolaylaştırıyoruz', NULL, NULL, 'Tüm Hizmetlerimiz', '/hizmetler', 2),
+('fiyatlar_baslik', 'Adana Evden Eve Nakliyat Fiyatları', '2025 Güncel Fiyat Listesi', '<p><strong>Not:</strong> Fiyatlar tahmini olup, kesin fiyat için ücretsiz keşif hizmetimizden yararlanabilirsiniz.</p>', '/resimler/adanaevdenevenakliyatfiyatlari.jpg', 'Ücretsiz Keşif İçin Arayın', 'tel:05051774097', 3),
+('sayac_baslik', 'Rakamlarla Biz', 'Yılların tecrübesi ve binlerce mutlu müşteri', NULL, NULL, NULL, NULL, 4),
+('cta', 'Yardıma mı İhtiyacınız Var?', 'Uzman ekibimiz taşınma sürecinizde size yardımcı olmak için hazır.', NULL, NULL, 'Hemen Arayın', 'tel:05051774097', 5),
+('blog_baslik', 'Son Makaleler', 'Nakliyat hakkında faydalı bilgiler ve ipuçları', NULL, NULL, 'Tüm Makaleler', '/blog', 6);
+
+-- =====================================================
+-- 3. ANASAYFA TABLARI (Tab içerikleri)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS anasayfa_tablari (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(255) NOT NULL,
+    icerik TEXT,
+    resim VARCHAR(500),
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO anasayfa_tablari (baslik, icerik, sira) VALUES
+('Adana Evden Eve Nakliyat', 
+'<p>Adana evden eve nakliyat hizmeti sunan firmamız, yılların deneyimi ve profesyonel ekibiyle sizlere güvenilir taşımacılık çözümleri sunmaktadır.</p><h3>Hizmet Kapsamımız</h3><ul><li>Ev eşyası taşıma</li><li>Ofis taşıma</li><li>Asansörlü nakliyat</li><li>Şehirler arası nakliyat</li></ul>', 1),
+('Adana Nakliyat Fiyatları', 
+'<p>Adana nakliyat fiyatları, taşınacak eşya miktarı, mesafe ve ek hizmetlere göre değişiklik göstermektedir.</p><h3>Fiyatı Etkileyen Faktörler</h3><ul><li>Eşya miktarı</li><li>Kat durumu</li><li>Mesafe</li><li>Paketleme</li></ul>', 2),
+('Neden Bizi Tercih Etmelisiniz?', 
+'<p>17 yılı aşkın tecrübemiz, profesyonel ekibimiz ve müşteri memnuniyeti odaklı çalışma anlayışımızla Adana''nın en güvenilir nakliyat firmalarından biriyiz.</p><h3>Avantajlarımız</h3><ul><li>Sigortalı Taşımacılık</li><li>Profesyonel Ekip</li><li>Modern Ekipman</li><li>7/24 Destek</li></ul>', 3);
+
+-- =====================================================
+-- 4. SLIDERS
+-- =====================================================
+CREATE TABLE IF NOT EXISTS sliders (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(255) NOT NULL,
+    alt_baslik TEXT,
+    resim VARCHAR(500) NOT NULL,
+    buton_metin VARCHAR(100),
+    buton_link VARCHAR(255),
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO sliders (baslik, alt_baslik, resim, buton_metin, buton_link, sira) VALUES
+('Adana Evden Eve Nakliyat', 'Adana evden eve nakliyat asansörlü taşımacılık hizmetleri', '/resimler/915-adana-evden-eve-nakliyat.webp', 'İNCELEYİN', '/hizmetler', 1);
+
+-- =====================================================
+-- 5. HİZMETLER
+-- =====================================================
+CREATE TABLE IF NOT EXISTS hizmetler (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    kisa_aciklama TEXT,
+    icerik TEXT,
+    resim VARCHAR(500),
+    icon VARCHAR(100),
+    sira INT DEFAULT 0,
+    anasayfada_goster BOOLEAN DEFAULT true,
+    aktif BOOLEAN DEFAULT true,
+    meta_title VARCHAR(255),
+    meta_description TEXT,
+    meta_keywords VARCHAR(500),
+    og_image VARCHAR(500),
+    canonical_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO hizmetler (baslik, slug, kisa_aciklama, icerik, resim, sira, meta_title, meta_description) VALUES
+('Adana Asansörlü Nakliyat', 'adana-asansorlu-nakliyat', 'Modern asansör sistemleriyle hızlı ve güvenilir taşımacılık.', '<h2>Adana Asansörlü Nakliyat</h2><p>Asansörlü nakliyat hizmetlerimizle eşyalarınızı güvenle taşıyoruz.</p><ul><li>Modern asansör sistemleri</li><li>Profesyonel ekip</li><li>Sigortalı taşımacılık</li></ul>', '/resimler/901-adana-asansorlu-nakliyat.webp', 1, 'Adana Asansörlü Nakliyat - 05051774097', 'Adana asansörlü nakliyat hizmeti.'),
+('Adana Şehir İçi Nakliye', 'adana-sehir-ici-nakliye', 'Şehir içi nakliyat hizmetleri.', '<h2>Şehir İçi Nakliye</h2><p>Adana şehir içi nakliyat hizmeti.</p>', '/resimler/207-adana-sehir-ici-nakliye.webp', 2, 'Adana Şehir İçi Nakliye - 05051774097', 'Adana şehir içi nakliye.'),
+('Adana Şehirler Arası Nakliyat', 'adana-sehirler-arasi-nakliyat', 'Sigortalı şehirler arası nakliyat.', '<h2>Şehirler Arası Nakliyat</h2><p>Türkiye geneli nakliyat.</p>', '/resimler/782-adana-sehirler-arasi-nakliyat.webp', 3, 'Adana Şehirler Arası Nakliyat - 05051774097', 'Şehirler arası nakliyat.'),
+('Adana Ofis Taşıma', 'adana-ofis-tasima', 'Profesyonel ofis taşıma.', '<h2>Ofis Taşıma</h2><p>Ofis taşıma hizmeti.</p>', '/resimler/338-adana-ofis-tasima.webp', 4, 'Adana Ofis Taşıma - 05051774097', 'Ofis taşıma hizmeti.'),
+('Adana Asansör Kiralama', 'adana-asansor-kiralama', 'Mobil asansör kiralama.', '<h2>Asansör Kiralama</h2><p>Mobil asansör kiralama.</p>', '/resimler/843-adana-asansor-kiralama.webp', 5, 'Adana Asansör Kiralama - 05051774097', 'Asansör kiralama.'),
+('Adana Kamyonet Nakliyat', 'adana-kamyonet-nakliyat', 'Ekonomik kamyonet nakliyat.', '<h2>Kamyonet Nakliyat</h2><p>Parça eşya taşıma.</p>', '/resimler/134-adana-kamyonet-nakliyat.webp', 6, 'Adana Kamyonet Nakliyat - 05051774097', 'Kamyonet nakliyat.');
+
+-- =====================================================
+-- 6. MAKALELER
+-- =====================================================
+CREATE TABLE IF NOT EXISTS makaleler (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    ozet TEXT,
+    icerik TEXT,
+    resim VARCHAR(500),
+    kategori VARCHAR(100),
+    etiketler TEXT,
+    yazar VARCHAR(100) DEFAULT 'Admin',
+    goruntulenme INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    meta_title VARCHAR(255),
+    meta_description TEXT,
+    meta_keywords VARCHAR(500),
+    og_image VARCHAR(500),
+    canonical_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO makaleler (baslik, slug, ozet, icerik, resim, meta_title, meta_description) VALUES
+('Sarıçam Nakliyeci', 'saricam-nakliyeci', 'Sarıçam nakliye hizmeti.', '<h2>Sarıçam Nakliyeci</h2><p>Sarıçam evden eve nakliyat.</p>', '/resimler/829-saricam-nakliyeci.webp', 'Sarıçam Nakliyeci - 05051774097', 'Sarıçam nakliyeci.'),
+('Çukurova Nakliyeci', 'cukurova-nakliyeci', 'Çukurova nakliye hizmeti.', '<h2>Çukurova Nakliyeci</h2><p>Çukurova evden eve nakliyat.</p>', '/resimler/950-cukurova-nakliyeci.webp', 'Çukurova Nakliyeci - 05051774097', 'Çukurova nakliyeci.');
+
+-- =====================================================
+-- 7. SAYFALAR
+-- =====================================================
+CREATE TABLE IF NOT EXISTS sayfalar (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    icerik TEXT,
+    resim VARCHAR(500),
+    aktif BOOLEAN DEFAULT true,
+    menude_goster BOOLEAN DEFAULT true,
+    meta_title VARCHAR(255),
+    meta_description TEXT,
+    meta_keywords VARCHAR(500),
+    og_image VARCHAR(500),
+    canonical_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO sayfalar (baslik, slug, icerik, resim, meta_title, meta_description) VALUES
+('Hakkımızda', 'hakkimizda', '<h2>Adana Nakliye</h2><p>17 yıllık tecrübe ile güvenilir hizmet.</p>', '/resimler/201-hakkimizda.webp', 'Hakkımızda - Adana Nakliye', 'Adana Nakliye hakkında.'),
+('İletişim', 'iletisim', '<h2>İletişim</h2><p>Bizimle iletişime geçin.</p>', NULL, 'İletişim - Adana Nakliye', 'Adana Nakliye iletişim.'),
+('Galeri', 'galeri', '<h2>Galeri</h2><p>Çalışmalarımızdan kareler.</p>', NULL, 'Galeri - Adana Nakliye', 'Adana Nakliye galeri.');
+
+-- =====================================================
+-- 8. DUYURULAR (Kayan Duyuru Bandı)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS duyurular (
+    id SERIAL PRIMARY KEY,
+    metin VARCHAR(500) NOT NULL,
+    link VARCHAR(255),
+    icon VARCHAR(10) DEFAULT '📢',
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO duyurular (metin, icon, sira) VALUES
+('📞 Ücretsiz keşif için hemen arayın!', '📞', 1),
+('🚚 Adana ve çevresine hızlı teslimat', '🚚', 2),
+('💰 Evden eve nakliyatta %25 indirim', '💰', 3),
+('⭐ 7800+ mutlu müşteri', '⭐', 4);
+
+-- =====================================================
+-- 9. ÖZELLİK KUTUCUKLARI (AdWords Uyumlu)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS ozellik_kutucuklari (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(255) NOT NULL,
+    aciklama TEXT,
+    icon VARCHAR(50) DEFAULT 'award',
+    link VARCHAR(255),
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO ozellik_kutucuklari (baslik, aciklama, icon, link, sira) VALUES
+('%100 Garanti Veriyoruz', 'Adana evden eve nakliyat olarak şehir içi ya da şehirler arası taşıdığımız her yük için %100 garanti veriyoruz.', 'award', '/hakkimizda', 1),
+('%100 Sigortalı Taşıyoruz', 'Eşyalarınızın boyutu ve değeri ne olursa olsun, teslim aldığımız andan itibaren nakliye sigortası ile özel olarak güvenceye alıyoruz.', 'shield', '/hizmetler', 2),
+('En Uygun Fiyat Bizde', 'Hem kaliteli hem de uygun fiyatlı taşımacılık hizmetini yalnızca Adana Nakliye ayrıcalığı ile yaşayabilirsiniz.', 'money', '/teklif-al', 3);
+
+-- =====================================================
+-- 10. GALERİ
+-- =====================================================
+CREATE TABLE IF NOT EXISTS galeri (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(255),
+    aciklama TEXT,
+    resim VARCHAR(500) NOT NULL,
+    kategori VARCHAR(100),
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO galeri (baslik, resim, kategori, sira) VALUES
+('Evden Eve Nakliyat', '/resimler/915-adana-evden-eve-nakliyat.webp', 'Nakliyat', 1),
+('Asansörlü Taşıma', '/resimler/901-adana-asansorlu-nakliyat.webp', 'Asansör', 2),
+('Şehir İçi Nakliye', '/resimler/207-adana-sehir-ici-nakliye.webp', 'Nakliyat', 3),
+('Ofis Taşıma', '/resimler/338-adana-ofis-tasima.webp', 'Ofis', 4);
+
+-- =====================================================
+-- 9. SSS
+-- =====================================================
+CREATE TABLE IF NOT EXISTS sss (
+    id SERIAL PRIMARY KEY,
+    soru TEXT NOT NULL,
+    cevap TEXT NOT NULL,
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO sss (soru, cevap, sira) VALUES
+('Nakliye fiyatları neye göre belirlenir?', 'Eşya miktarı, kat, mesafe ve ek hizmetlere göre belirlenir.', 1),
+('Eşyalarım sigortalı mı?', 'Evet, tüm taşımalar sigortalıdır.', 2),
+('Taşınma ne kadar sürer?', 'Ortalama 4-8 saat sürer.', 3),
+('Paketleme yapıyor musunuz?', 'Evet, profesyonel paketleme hizmeti sunuyoruz.', 4),
+('Hafta sonu çalışıyor musunuz?', 'Evet, 7/24 hizmet veriyoruz.', 5);
+
+-- =====================================================
+-- 10. FİYATLAR
+-- =====================================================
+CREATE TABLE IF NOT EXISTS fiyatlar (
+    id SERIAL PRIMARY KEY,
+    daire_tipi VARCHAR(100) NOT NULL,
+    min_fiyat DECIMAL(10,2) NOT NULL,
+    max_fiyat DECIMAL(10,2) NOT NULL,
+    aciklama TEXT,
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO fiyatlar (daire_tipi, min_fiyat, max_fiyat, sira) VALUES
+('1+1 Evden Eve Nakliyat', 8000, 10000, 1),
+('2+1 Evden Eve Nakliyat', 13000, 15000, 2),
+('3+1 Evden Eve Nakliyat', 14000, 17000, 3),
+('4+1 Evden Eve Nakliyat', 15000, 18000, 4),
+('5+1 Evden Eve Nakliyat', 17000, 20000, 5);
+
+-- =====================================================
+-- 11. İLETİŞİM MESAJLARI
+-- =====================================================
+CREATE TABLE IF NOT EXISTS iletisim_mesajlari (
+    id SERIAL PRIMARY KEY,
+    ad_soyad VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    telefon VARCHAR(50),
+    konu VARCHAR(255),
+    mesaj TEXT NOT NULL,
+    okundu BOOLEAN DEFAULT false,
+    ip_adresi VARCHAR(50),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- =====================================================
+-- 12. MENÜ
+-- =====================================================
+CREATE TABLE IF NOT EXISTS menu (
+    id SERIAL PRIMARY KEY,
+    baslik VARCHAR(100) NOT NULL,
+    link VARCHAR(255) NOT NULL,
+    parent_id INT REFERENCES menu(id) ON DELETE SET NULL,
+    sira INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT true,
+    yeni_sekmede_ac BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO menu (baslik, link, sira) VALUES
+('Anasayfa', '/', 1),
+('Hakkımızda', '/hakkimizda', 2),
+('Hizmetler', '/hizmetler', 3),
+('Galeri', '/galeri', 4),
+('Blog', '/blog', 5),
+('İletişim', '/iletisim', 6),
+('S.S.S', '/sss', 7);
+
+INSERT INTO menu (baslik, link, parent_id, sira) VALUES
+('Adana Asansörlü Nakliyat', '/hizmet/adana-asansorlu-nakliyat', 3, 1),
+('Adana Şehir İçi Nakliye', '/hizmet/adana-sehir-ici-nakliye', 3, 2),
+('Adana Şehirler Arası Nakliyat', '/hizmet/adana-sehirler-arasi-nakliyat', 3, 3),
+('Adana Ofis Taşıma', '/hizmet/adana-ofis-tasima', 3, 4),
+('Adana Asansör Kiralama', '/hizmet/adana-asansor-kiralama', 3, 5),
+('Adana Kamyonet Nakliyat', '/hizmet/adana-kamyonet-nakliyat', 3, 6);
+
+-- =====================================================
+-- 13. SEO AYARLARI
+-- =====================================================
+CREATE TABLE IF NOT EXISTS seo_ayarlari (
+    id SERIAL PRIMARY KEY,
+    sayfa_turu VARCHAR(50) NOT NULL,
+    sayfa_slug VARCHAR(255),
+    meta_title VARCHAR(255),
+    meta_description TEXT,
+    meta_keywords VARCHAR(500),
+    og_image VARCHAR(500),
+    canonical_url VARCHAR(500),
+    robots VARCHAR(100) DEFAULT 'index, follow',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(sayfa_turu, sayfa_slug)
+);
+
+INSERT INTO seo_ayarlari (sayfa_turu, sayfa_slug, meta_title, meta_description, canonical_url) VALUES
+('anasayfa', NULL, 'Adana Nakliye | Evden Eve Nakliyat | 05051774097', 'Adana evden eve nakliyat.', 'https://adananakliye.com.tr/'),
+('hizmetler', NULL, 'Hizmetlerimiz | Adana Nakliye', 'Nakliye hizmetlerimiz.', 'https://adananakliye.com.tr/hizmetler'),
+('blog', NULL, 'Blog | Adana Nakliye', 'Nakliyat blog.', 'https://adananakliye.com.tr/blog'),
+('iletisim', NULL, 'İletişim | Adana Nakliye', 'İletişim bilgileri.', 'https://adananakliye.com.tr/iletisim'),
+('sss', NULL, 'S.S.S | Adana Nakliye', 'Sıkça sorulan sorular.', 'https://adananakliye.com.tr/sss'),
+('galeri', NULL, 'Galeri | Adana Nakliye', 'Galeri.', 'https://adananakliye.com.tr/galeri'),
+('hakkimizda', NULL, 'Hakkımızda | Adana Nakliye', 'Hakkımızda.', 'https://adananakliye.com.tr/hakkimizda');
+
+-- =====================================================
+-- RLS POLİTİKALARI
+-- =====================================================
+ALTER TABLE ayarlar ENABLE ROW LEVEL SECURITY;
+ALTER TABLE anasayfa_bolumleri ENABLE ROW LEVEL SECURITY;
+ALTER TABLE anasayfa_tablari ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sliders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hizmetler ENABLE ROW LEVEL SECURITY;
+ALTER TABLE makaleler ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sayfalar ENABLE ROW LEVEL SECURITY;
+ALTER TABLE galeri ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sss ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fiyatlar ENABLE ROW LEVEL SECURITY;
+ALTER TABLE iletisim_mesajlari ENABLE ROW LEVEL SECURITY;
+ALTER TABLE menu ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seo_ayarlari ENABLE ROW LEVEL SECURITY;
+ALTER TABLE duyurular ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ozellik_kutucuklari ENABLE ROW LEVEL SECURITY;
+
+-- Public read
+DROP POLICY IF EXISTS "Public read ayarlar" ON ayarlar;
+CREATE POLICY "Public read ayarlar" ON ayarlar FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read anasayfa_bolumleri" ON anasayfa_bolumleri;
+CREATE POLICY "Public read anasayfa_bolumleri" ON anasayfa_bolumleri FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read anasayfa_tablari" ON anasayfa_tablari;
+CREATE POLICY "Public read anasayfa_tablari" ON anasayfa_tablari FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read sliders" ON sliders;
+CREATE POLICY "Public read sliders" ON sliders FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read hizmetler" ON hizmetler;
+CREATE POLICY "Public read hizmetler" ON hizmetler FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read makaleler" ON makaleler;
+CREATE POLICY "Public read makaleler" ON makaleler FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read sayfalar" ON sayfalar;
+CREATE POLICY "Public read sayfalar" ON sayfalar FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read galeri" ON galeri;
+CREATE POLICY "Public read galeri" ON galeri FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read sss" ON sss;
+CREATE POLICY "Public read sss" ON sss FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read fiyatlar" ON fiyatlar;
+CREATE POLICY "Public read fiyatlar" ON fiyatlar FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read menu" ON menu;
+CREATE POLICY "Public read menu" ON menu FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read seo_ayarlari" ON seo_ayarlari;
+CREATE POLICY "Public read seo_ayarlari" ON seo_ayarlari FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read duyurular" ON duyurular;
+CREATE POLICY "Public read duyurular" ON duyurular FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read ozellik_kutucuklari" ON ozellik_kutucuklari;
+CREATE POLICY "Public read ozellik_kutucuklari" ON ozellik_kutucuklari FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public insert iletisim" ON iletisim_mesajlari;
+CREATE POLICY "Public insert iletisim" ON iletisim_mesajlari FOR INSERT WITH CHECK (true);
+
+-- Auth full
+DROP POLICY IF EXISTS "Auth full ayarlar" ON ayarlar;
+CREATE POLICY "Auth full ayarlar" ON ayarlar FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full anasayfa_bolumleri" ON anasayfa_bolumleri;
+CREATE POLICY "Auth full anasayfa_bolumleri" ON anasayfa_bolumleri FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full anasayfa_tablari" ON anasayfa_tablari;
+CREATE POLICY "Auth full anasayfa_tablari" ON anasayfa_tablari FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full sliders" ON sliders;
+CREATE POLICY "Auth full sliders" ON sliders FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full hizmetler" ON hizmetler;
+CREATE POLICY "Auth full hizmetler" ON hizmetler FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full makaleler" ON makaleler;
+CREATE POLICY "Auth full makaleler" ON makaleler FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full sayfalar" ON sayfalar;
+CREATE POLICY "Auth full sayfalar" ON sayfalar FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full galeri" ON galeri;
+CREATE POLICY "Auth full galeri" ON galeri FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full sss" ON sss;
+CREATE POLICY "Auth full sss" ON sss FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full fiyatlar" ON fiyatlar;
+CREATE POLICY "Auth full fiyatlar" ON fiyatlar FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full iletisim" ON iletisim_mesajlari;
+CREATE POLICY "Auth full iletisim" ON iletisim_mesajlari FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full menu" ON menu;
+CREATE POLICY "Auth full menu" ON menu FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full seo_ayarlari" ON seo_ayarlari;
+CREATE POLICY "Auth full seo_ayarlari" ON seo_ayarlari FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full duyurular" ON duyurular;
+CREATE POLICY "Auth full duyurular" ON duyurular FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth full ozellik_kutucuklari" ON ozellik_kutucuklari;
+CREATE POLICY "Auth full ozellik_kutucuklari" ON ozellik_kutucuklari FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Updated at trigger
+
+
+DROP TRIGGER IF EXISTS update_ayarlar_updated_at ON ayarlar;
+CREATE TRIGGER update_ayarlar_updated_at BEFORE UPDATE ON ayarlar FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_anasayfa_bolumleri_updated_at ON anasayfa_bolumleri;
+CREATE TRIGGER update_anasayfa_bolumleri_updated_at BEFORE UPDATE ON anasayfa_bolumleri FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_anasayfa_tablari_updated_at ON anasayfa_tablari;
+CREATE TRIGGER update_anasayfa_tablari_updated_at BEFORE UPDATE ON anasayfa_tablari FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_sliders_updated_at ON sliders;
+CREATE TRIGGER update_sliders_updated_at BEFORE UPDATE ON sliders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_hizmetler_updated_at ON hizmetler;
+CREATE TRIGGER update_hizmetler_updated_at BEFORE UPDATE ON hizmetler FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_makaleler_updated_at ON makaleler;
+CREATE TRIGGER update_makaleler_updated_at BEFORE UPDATE ON makaleler FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_sayfalar_updated_at ON sayfalar;
+CREATE TRIGGER update_sayfalar_updated_at BEFORE UPDATE ON sayfalar FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_galeri_updated_at ON galeri;
+CREATE TRIGGER update_galeri_updated_at BEFORE UPDATE ON galeri FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_sss_updated_at ON sss;
+CREATE TRIGGER update_sss_updated_at BEFORE UPDATE ON sss FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_fiyatlar_updated_at ON fiyatlar;
+CREATE TRIGGER update_fiyatlar_updated_at BEFORE UPDATE ON fiyatlar FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_menu_updated_at ON menu;
+CREATE TRIGGER update_menu_updated_at BEFORE UPDATE ON menu FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_seo_ayarlari_updated_at ON seo_ayarlari;
+CREATE TRIGGER update_seo_ayarlari_updated_at BEFORE UPDATE ON seo_ayarlari FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_duyurular_updated_at ON duyurular;
+CREATE TRIGGER update_duyurular_updated_at BEFORE UPDATE ON duyurular FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_ozellik_kutucuklari_updated_at ON ozellik_kutucuklari;
+CREATE TRIGGER update_ozellik_kutucuklari_updated_at BEFORE UPDATE ON ozellik_kutucuklari FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- =====================================================
+-- ZİYARETÇİ ANALİZ TABLOSU
+-- =====================================================
+CREATE TABLE IF NOT EXISTS ziyaretciler (
+    id SERIAL PRIMARY KEY,
+    
+    -- Temel Bilgiler
+    fingerprint VARCHAR(100),
+    ip_adresi VARCHAR(50),
+    
+    -- Konum Bilgileri
+    ulke VARCHAR(100),
+    il VARCHAR(100),
+    ilce VARCHAR(100),
+    enlem DECIMAL(10, 8),
+    boylam DECIMAL(11, 8),
+    konum_izni BOOLEAN DEFAULT false,
+    
+    -- Cihaz Bilgileri
+    cihaz_turu VARCHAR(50), -- mobile, tablet, desktop
+    cihaz_markasi VARCHAR(100), -- Samsung, Apple, Xiaomi vs
+    cihaz_modeli VARCHAR(100),
+    isletim_sistemi VARCHAR(100),
+    isletim_versiyonu VARCHAR(50),
+    tarayici VARCHAR(100),
+    tarayici_versiyonu VARCHAR(50),
+    
+    -- Ekran Bilgileri
+    ekran_genislik INT,
+    ekran_yukseklik INT,
+    ekran_pixel_ratio DECIMAL(4,2),
+    
+    -- Donanım Bilgileri
+    cpu_core INT,
+    ram_gb INT,
+    gpu_vendor VARCHAR(100),
+    gpu_renderer VARCHAR(255),
+    
+    -- Kaynak Bilgileri
+    referrer TEXT,
+    giris_sayfasi TEXT,
+    utm_source VARCHAR(100),
+    utm_medium VARCHAR(100),
+    utm_campaign VARCHAR(100),
+    utm_term VARCHAR(100),
+    utm_content VARCHAR(100),
+    
+    -- Ek Bilgiler
+    dil VARCHAR(20),
+    timezone VARCHAR(100),
+    baglanti_turu VARCHAR(50), -- 4g, wifi, ethernet
+    pil_seviyesi INT,
+    sarjda_mi BOOLEAN,
+    
+    -- Oturum Bilgileri
+    sayfa_goruntulenme INT DEFAULT 1,
+    son_sayfa TEXT,
+    oturum_suresi INT DEFAULT 0,
+    
+    -- Zaman
+    ilk_giris TIMESTAMP DEFAULT NOW(),
+    son_giris TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Index'ler
+CREATE INDEX idx_ziyaretciler_fingerprint ON ziyaretciler(fingerprint);
+CREATE INDEX idx_ziyaretciler_ip ON ziyaretciler(ip_adresi);
+CREATE INDEX idx_ziyaretciler_tarih ON ziyaretciler(created_at);
+CREATE INDEX idx_ziyaretciler_il ON ziyaretciler(il);
+
+-- RLS
+ALTER TABLE ziyaretciler ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public insert ziyaretciler" ON ziyaretciler;
+CREATE POLICY "Public insert ziyaretciler" ON ziyaretciler FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Public update ziyaretciler" ON ziyaretciler;
+CREATE POLICY "Public update ziyaretciler" ON ziyaretciler FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "Auth read ziyaretciler" ON ziyaretciler;
+CREATE POLICY "Auth read ziyaretciler" ON ziyaretciler FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Auth full ziyaretciler" ON ziyaretciler;
+CREATE POLICY "Auth full ziyaretciler" ON ziyaretciler FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+
+
+-- =====================================================================
+-- 4. ZİYARETÇİ TAKİBİ (ikinci sistem: visitors)
+-- =====================================================================
+
+-- ============================================
+-- ADANA NAKLİYE - ZİYARETÇİ TAKİP SİSTEMİ
+-- ============================================
+-- Bu script Supabase SQL Editor'de çalıştırılmalıdır
+-- Dashboard > SQL Editor > New Query
+
+-- Mevcut tablo varsa sil (DİKKAT: Tüm veriler silinir!)
+
+-- Yeni visitors tablosu
+CREATE TABLE IF NOT EXISTS visitors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- Session tracking
+  session_id TEXT NOT NULL,
+  ip_address TEXT,
+
+  -- KAYNAK BİLGİLERİ - ÖNEMLİ!
+  -- 'ads' = Google Ads
+  -- 'face' = Facebook
+  -- 'direk' = Doğrudan giriş
+  -- 'instagram', 'twitter', 'google_organik', 'arama_motoru', 'referans'
+  source TEXT NOT NULL DEFAULT 'direk',
+  medium TEXT DEFAULT 'none',
+  campaign TEXT,
+
+  -- Tracking parametreleri
+  referrer TEXT,
+  gclid TEXT,  -- Google Ads Click ID
+  fbclid TEXT, -- Facebook Click ID
+
+  -- Sayfa bilgileri
+  page TEXT,
+  full_url TEXT,
+
+  -- Cihaz bilgileri
+  user_agent TEXT,
+  mobile_operator TEXT,  -- 'Türkcell', 'Vodafone', 'Turk Telekom', 'Mobil (Bilinmiyor)'
+  device_type TEXT,      -- 'mobile', 'tablet', 'desktop'
+  browser TEXT,          -- 'Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Diğer'
+  os TEXT,               -- 'Android', 'iOS', 'Windows', 'macOS', 'Linux', 'Diğer'
+
+  -- Tarih bilgileri
+  visited_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
+-- INDEX'LER - Sorgu performansı için
+-- ============================================
+
+-- Source bazlı sorgular için (En çok kullanılacak)
+CREATE INDEX idx_visitors_source ON visitors(source);
+
+-- Session tracking için
+CREATE INDEX idx_visitors_session ON visitors(session_id);
+
+-- Tarih bazlı sorgular için
+CREATE INDEX idx_visitors_date ON visitors(visited_at DESC);
+
+-- Campaign analizi için
+CREATE INDEX idx_visitors_campaign ON visitors(campaign) WHERE campaign IS NOT NULL;
+
+-- Google Ads tracking için
+CREATE INDEX idx_visitors_gclid ON visitors(gclid) WHERE gclid IS NOT NULL;
+
+-- Facebook tracking için
+CREATE INDEX idx_visitors_fbclid ON visitors(fbclid) WHERE fbclid IS NOT NULL;
+
+-- IP bazlı sorgular için
+CREATE INDEX idx_visitors_ip ON visitors(ip_address);
+
+-- Mobil operatör analizi için
+CREATE INDEX idx_visitors_operator ON visitors(mobile_operator) WHERE mobile_operator IS NOT NULL;
+
+-- Cihaz tipi analizi için
+CREATE INDEX idx_visitors_device ON visitors(device_type);
+
+-- Tarayıcı analizi için
+CREATE INDEX idx_visitors_browser ON visitors(browser);
+
+-- OS analizi için
+CREATE INDEX idx_visitors_os ON visitors(os);
+
+-- ============================================
+-- COMMENTS - Tablo dokümantasyonu
+-- ============================================
+
+COMMENT ON TABLE visitors IS 'Ziyaretçi takip sistemi - Reklamdan, sosyal medyadan ve direkt gelenleri takip eder';
+COMMENT ON COLUMN visitors.source IS 'Kaynak: ads (Google Ads), face (Facebook), direk, instagram, twitter, google_organik, arama_motoru, referans';
+COMMENT ON COLUMN visitors.gclid IS 'Google Ads Click ID - Google reklamlardan gelenleri takip eder';
+COMMENT ON COLUMN visitors.fbclid IS 'Facebook Click ID - Facebook reklamlardan gelenleri takip eder';
+
+-- ============================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- ============================================
+
+-- RLS'i aktif et
+ALTER TABLE visitors ENABLE ROW LEVEL SECURITY;
+
+-- Public INSERT policy - Herkes veri ekleyebilir (tracking için)
+DROP POLICY IF EXISTS "Enable insert for all users" ON visitors;
+CREATE POLICY "Enable insert for all users" ON visitors FOR INSERT WITH CHECK (true);
+
+-- Admin READ policy - Sadece authenticated kullanıcılar okuyabilir
+DROP POLICY IF EXISTS "Enable read for authenticated users" ON visitors;
+CREATE POLICY "Enable read for authenticated users" ON visitors FOR SELECT TO authenticated USING (true);
+
+-- ============================================
+-- YARDIMCI GÖRÜNÜMLER (VIEWS)
+-- ============================================
+
+-- Kaynak bazlı özet
+CREATE OR REPLACE VIEW visitor_stats_by_source AS
+SELECT
+  source,
+  COUNT(*) as total_visits,
+  COUNT(DISTINCT session_id) as unique_visitors,
+  COUNT(DISTINCT ip_address) as unique_ips,
+  COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') as last_24h,
+  COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days') as last_7d,
+  COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '30 days') as last_30d
+FROM visitors
+GROUP BY source
+ORDER BY total_visits DESC;
+
+-- Günlük istatistikler
+CREATE OR REPLACE VIEW visitor_stats_daily AS
+SELECT
+  DATE(created_at) as visit_date,
+  source,
+  COUNT(*) as visits,
+  COUNT(DISTINCT session_id) as unique_visitors
+FROM visitors
+WHERE created_at > NOW() - INTERVAL '30 days'
+GROUP BY DATE(created_at), source
+ORDER BY visit_date DESC, visits DESC;
+
+-- Campaign performansı
+CREATE OR REPLACE VIEW campaign_performance AS
+SELECT
+  source,
+  medium,
+  campaign,
+  COUNT(*) as total_visits,
+  COUNT(DISTINCT session_id) as unique_visitors,
+  MIN(created_at) as first_visit,
+  MAX(created_at) as last_visit
+FROM visitors
+WHERE campaign IS NOT NULL
+GROUP BY source, medium, campaign
+ORDER BY total_visits DESC;
+
+-- Mobil operatör istatistikleri
+CREATE OR REPLACE VIEW operator_stats AS
+SELECT
+  mobile_operator,
+  COUNT(*) as total_visits,
+  COUNT(DISTINCT session_id) as unique_visitors,
+  COUNT(*) FILTER (WHERE source = 'ads') as from_ads,
+  COUNT(*) FILTER (WHERE source = 'face') as from_facebook,
+  COUNT(*) FILTER (WHERE source = 'direk') as direct
+FROM visitors
+WHERE mobile_operator IS NOT NULL
+GROUP BY mobile_operator
+ORDER BY total_visits DESC;
+
+-- Cihaz ve tarayıcı istatistikleri
+CREATE OR REPLACE VIEW device_browser_stats AS
+SELECT
+  device_type,
+  browser,
+  os,
+  COUNT(*) as total_visits,
+  COUNT(DISTINCT session_id) as unique_visitors
+FROM visitors
+GROUP BY device_type, browser, os
+ORDER BY total_visits DESC;
+
+
+
+-- =====================================================================
+-- 5. CHATBOT VE SAHTE TIKLAMA TESPİTİ
+-- =====================================================================
+
+-- =====================================================
+-- CHATBOT TABLOLARI - Mevcut veritabanına EKLENİR
+-- Bu SQL'i Supabase SQL Editor'de çalıştırın
+-- =====================================================
+
+-- =====================================================
+-- 1. CHATBOT SOHBET GEÇMİŞİ
+-- Admin panelde görüntülenebilir
+-- =====================================================
+CREATE TABLE IF NOT EXISTS chatbot_sohbetler (
+    id SERIAL PRIMARY KEY,
+    
+    -- Kullanıcı Kimliği
+    fingerprint VARCHAR(100),
+    ip_adresi VARCHAR(50),
+    
+    -- Sohbet
+    kullanici_mesaji TEXT NOT NULL,
+    bot_cevabi TEXT,
+    
+    -- Durum
+    basarili BOOLEAN DEFAULT true,
+    hata_mesaji TEXT,
+    
+    -- İstatistik
+    cevap_suresi_ms INT, -- Milisaniye
+    token_kullanimi INT,
+    
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Index'ler
+CREATE INDEX IF NOT EXISTS idx_chatbot_fingerprint ON chatbot_sohbetler(fingerprint);
+CREATE INDEX IF NOT EXISTS idx_chatbot_tarih ON chatbot_sohbetler(created_at);
+CREATE INDEX IF NOT EXISTS idx_chatbot_ip ON chatbot_sohbetler(ip_adresi);
+
+-- =====================================================
+-- 2. CHATBOT GÜNLÜK LİMİTLER
+-- IP/Fingerprint başına günlük limit takibi
+-- =====================================================
+CREATE TABLE IF NOT EXISTS chatbot_limitler (
+    id SERIAL PRIMARY KEY,
+    
+    -- Kimlik (IP veya Fingerprint)
+    kimlik VARCHAR(100) UNIQUE NOT NULL,
+    kimlik_tipi VARCHAR(20) DEFAULT 'fingerprint', -- fingerprint veya ip
+    
+    -- Limit Bilgileri
+    soru_sayisi INT DEFAULT 0,
+    max_limit INT DEFAULT 5,
+    
+    -- Son Aktivite
+    son_soru_tarihi TIMESTAMP DEFAULT NOW(),
+    limit_reset_tarihi DATE DEFAULT CURRENT_DATE,
+    
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_chatbot_limitler_kimlik ON chatbot_limitler(kimlik);
+CREATE INDEX IF NOT EXISTS idx_chatbot_limitler_tarih ON chatbot_limitler(limit_reset_tarihi);
+
+-- =====================================================
+-- 3. CHATBOT AYARLARI
+-- Admin panelden yönetilebilir
+-- =====================================================
+CREATE TABLE IF NOT EXISTS chatbot_ayarlari (
+    id SERIAL PRIMARY KEY,
+    anahtar VARCHAR(100) UNIQUE NOT NULL,
+    deger TEXT,
+    aciklama VARCHAR(255),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO chatbot_ayarlari (anahtar, deger, aciklama) VALUES
+('aktif', 'true', 'Chatbot açık/kapalı'),
+('gunluk_limit', '5', 'IP başına günlük soru limiti'),
+('hosgeldin_mesaji', 'Merhaba! 👋 Ben Adana Nakliye yapay zeka asistanıyım. Size nakliyat, taşımacılık ve fiyatlar hakkında yardımcı olabilirim.', 'Karşılama mesajı'),
+('limit_doldu_mesaji', 'Günlük soru limitiniz doldu. Daha fazla bilgi için bizi arayın: 0505 177 40 97', 'Limit dolduğunda gösterilecek mesaj'),
+('hata_mesaji', 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin veya bizi arayın.', 'Hata durumunda gösterilecek mesaj'),
+('firma_telefon', '05051774097', 'Firmaya yönlendirme telefonu')
+ON CONFLICT (anahtar) DO NOTHING;
+
+-- =====================================================
+-- 4. SAHTE TIKLAMA TESPİT TABLOSU
+-- Şüpheli aktiviteleri kayıt altına alır
+-- =====================================================
+CREATE TABLE IF NOT EXISTS sahte_tiklamalar (
+    id SERIAL PRIMARY KEY,
+    
+    -- Cihaz Kimliği
+    fingerprint VARCHAR(100) NOT NULL,
+    
+    -- IP Geçmişi
+    ip_listesi TEXT[], -- Farklı IP'lerin listesi
+    
+    -- İstatistikler
+    toplam_giris INT DEFAULT 0,
+    farkli_ip_sayisi INT DEFAULT 0,
+    ortalama_sure_sn INT DEFAULT 0, -- Ortalama sayfa süresi (saniye)
+    
+    -- Durum
+    engellendi BOOLEAN DEFAULT false,
+    engel_tarihi TIMESTAMP,
+    engel_bitis TIMESTAMP, -- 24 saat sonra
+    
+    -- Konum (son bilinen)
+    il VARCHAR(100),
+    ilce VARCHAR(100),
+    
+    -- Cihaz Bilgileri
+    cihaz_turu VARCHAR(50),
+    cihaz_markasi VARCHAR(100),
+    cihaz_modeli VARCHAR(100),
+    tarayici VARCHAR(100),
+    
+    -- Notlar
+    notlar TEXT,
+    
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sahte_fingerprint ON sahte_tiklamalar(fingerprint);
+CREATE INDEX IF NOT EXISTS idx_sahte_engel ON sahte_tiklamalar(engellendi);
+CREATE INDEX IF NOT EXISTS idx_sahte_tarih ON sahte_tiklamalar(created_at);
+
+-- =====================================================
+-- 5. RLS POLİTİKALARI
+-- =====================================================
+
+-- Sohbetler - Public insert, Admin read
+ALTER TABLE chatbot_sohbetler ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public insert chatbot" ON chatbot_sohbetler;
+CREATE POLICY "Public insert chatbot" ON chatbot_sohbetler FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth read chatbot" ON chatbot_sohbetler;
+CREATE POLICY "Auth read chatbot" ON chatbot_sohbetler FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Auth full chatbot" ON chatbot_sohbetler;
+CREATE POLICY "Auth full chatbot" ON chatbot_sohbetler FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Limitler - Public full (kendi limitini görebilir/güncelleyebilir)
+ALTER TABLE chatbot_limitler ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public insert limitler" ON chatbot_limitler;
+CREATE POLICY "Public insert limitler" ON chatbot_limitler FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Public update limitler" ON chatbot_limitler;
+CREATE POLICY "Public update limitler" ON chatbot_limitler FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "Public select limitler" ON chatbot_limitler;
+CREATE POLICY "Public select limitler" ON chatbot_limitler FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Auth full limitler" ON chatbot_limitler;
+CREATE POLICY "Auth full limitler" ON chatbot_limitler FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Ayarlar - Public read, Auth full
+ALTER TABLE chatbot_ayarlari ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public read chatbot_ayarlari" ON chatbot_ayarlari;
+CREATE POLICY "Public read chatbot_ayarlari" ON chatbot_ayarlari FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Auth full chatbot_ayarlari" ON chatbot_ayarlari;
+CREATE POLICY "Auth full chatbot_ayarlari" ON chatbot_ayarlari FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Sahte Tıklamalar - Public insert, Admin full
+ALTER TABLE sahte_tiklamalar ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public insert sahte" ON sahte_tiklamalar;
+CREATE POLICY "Public insert sahte" ON sahte_tiklamalar FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Auth read sahte" ON sahte_tiklamalar;
+CREATE POLICY "Auth read sahte" ON sahte_tiklamalar FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Auth full sahte" ON sahte_tiklamalar;
+CREATE POLICY "Auth full sahte" ON sahte_tiklamalar FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- =====================================================
+-- 6. TRIGGER - Updated At
+-- =====================================================
+DROP TRIGGER IF EXISTS update_chatbot_limitler_updated_at ON chatbot_limitler;
+CREATE TRIGGER update_chatbot_limitler_updated_at 
+    BEFORE UPDATE ON chatbot_limitler 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_chatbot_ayarlari_updated_at ON chatbot_ayarlari;
+CREATE TRIGGER update_chatbot_ayarlari_updated_at 
+    BEFORE UPDATE ON chatbot_ayarlari 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_sahte_tiklamalar_updated_at ON sahte_tiklamalar;
+CREATE TRIGGER update_sahte_tiklamalar_updated_at 
+    BEFORE UPDATE ON sahte_tiklamalar 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- =====================================================
+-- KURULUM TAMAMLANDI!
+-- Şimdi .env.local dosyasına ANTHROPIC_API_KEY ekleyin
+-- =====================================================
+
+
+
+-- =====================================================================
+-- 6. ROTA VE İL HİZMET SAYFALARI
+-- =====================================================================
+
+-- =====================================================
+-- ROTA VE İL HİZMET SAYFALARI
+-- Supabase > SQL Editor > New query içine yapıştırıp çalıştırın.
+-- Tekrar çalıştırmak güvenlidir (IF NOT EXISTS / ON CONFLICT).
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS rota_sayfalari (
+    id SERIAL PRIMARY KEY,
+    -- tur: 'rota'  -> /rota/adana-adiyaman-nakliye  (slug = adana-adiyaman-nakliye)
+    -- tur: 'il-hizmet' -> /nakliye-hizmetleri/ankara (slug = ankara)
+    tur VARCHAR(20) NOT NULL DEFAULT 'rota',
+    slug VARCHAR(255) NOT NULL,
+    hedef_slug VARCHAR(255),
+    baslik VARCHAR(255),
+    h1 VARCHAR(255),
+    ozet TEXT,
+    icerik TEXT,
+    makale_baslik VARCHAR(255),
+    makale TEXT,
+    resim VARCHAR(500),
+    mesafe_km INT,
+    sure_metni VARCHAR(100),
+    ilceler TEXT,
+    fiyat_notu TEXT,
+    aktif BOOLEAN DEFAULT true,
+    meta_title VARCHAR(255),
+    meta_description TEXT,
+    meta_keywords VARCHAR(500),
+    og_image VARCHAR(500),
+    canonical_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT rota_sayfalari_tur_slug_key UNIQUE (tur, slug)
+);
+
+CREATE INDEX IF NOT EXISTS rota_sayfalari_tur_idx ON rota_sayfalari (tur);
+CREATE INDEX IF NOT EXISTS rota_sayfalari_aktif_idx ON rota_sayfalari (aktif);
+
+ALTER TABLE rota_sayfalari ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public read rota_sayfalari" ON rota_sayfalari;
+DROP POLICY IF EXISTS "Public read rota_sayfalari" ON rota_sayfalari;
+CREATE POLICY "Public read rota_sayfalari" ON rota_sayfalari FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Auth full rota_sayfalari" ON rota_sayfalari;
+DROP POLICY IF EXISTS "Auth full rota_sayfalari" ON rota_sayfalari;
+CREATE POLICY "Auth full rota_sayfalari" ON rota_sayfalari FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- updated_at tetikleyicisi (fonksiyon ana şemada tanımlı)
+DROP TRIGGER IF EXISTS update_rota_sayfalari_updated_at ON rota_sayfalari;
+CREATE TRIGGER update_rota_sayfalari_updated_at
+    BEFORE UPDATE ON rota_sayfalari
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- =====================================================
+-- FİYAT AYARLARI
+-- Rota sayfalarındaki tahmini fiyat = baz ücret + (mesafe x km ücreti).
+-- Değerleri Admin > Rota Sayfaları ekranından da değiştirebilirsiniz.
+-- =====================================================
+
+INSERT INTO ayarlar (anahtar, deger, tur, grup, aciklama) VALUES
+  ('rota_baz_ucret',        '6500',  'text',   'rota', 'Rota sayfalarındaki tahmini fiyatın sabit bileşeni (TL)'),
+  ('rota_km_ucreti',        '22',    'text',   'rota', 'Rota sayfalarında kilometre başına eklenen tutar (TL)'),
+  ('rota_fiyat_goster',     'true',  'text',   'rota', 'Rota sayfalarında fiyat tablosu gösterilsin mi (true/false)'),
+  ('rota_fiyat_guncelleme', '',      'text',   'rota', 'Fiyat tablosunun son güncelleme tarihi (serbest metin)')
+ON CONFLICT (anahtar) DO NOTHING;
+
+-- =====================================================
+-- MENÜ BAĞLANTILARI
+-- Üst menüye "Rotalar" ve "İller" ekler. Zaten varsa tekrar eklemez.
+-- =====================================================
+
+INSERT INTO menu (baslik, link, sira, aktif)
+SELECT 'Rotalar', '/rota', 55, true
+WHERE NOT EXISTS (SELECT 1 FROM menu WHERE link = '/rota');
+
+INSERT INTO menu (baslik, link, sira, aktif)
+SELECT 'İller', '/nakliye-hizmetleri', 56, true
+WHERE NOT EXISTS (SELECT 1 FROM menu WHERE link = '/nakliye-hizmetleri');
+
+
+
+-- =====================================================================
+-- 7. ENGELLİ IP LİSTESİ
+-- =====================================================================
+
+-- Engelli IP'ler tablosu
+CREATE TABLE IF NOT EXISTS engelli_ipler (
+  id SERIAL PRIMARY KEY,
+  ip_adresi VARCHAR(45) NOT NULL UNIQUE,
+  sebep TEXT,
+  engelleme_tarihi TIMESTAMP DEFAULT NOW(),
+  engelleyen VARCHAR(100) DEFAULT 'admin'
+);
+
+-- Row Level Security
+ALTER TABLE engelli_ipler ENABLE ROW LEVEL SECURITY;
+
+-- Politikalar
+DROP POLICY IF EXISTS "Public read engelli_ipler" ON engelli_ipler;
+CREATE POLICY "Public read engelli_ipler" ON engelli_ipler FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public insert engelli_ipler" ON engelli_ipler;
+CREATE POLICY "Public insert engelli_ipler" ON engelli_ipler FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Public delete engelli_ipler" ON engelli_ipler;
+CREATE POLICY "Public delete engelli_ipler" ON engelli_ipler FOR DELETE USING (true);
+
+
+-- =====================================================================
+-- 8. RESİM YÜKLEME ALANI (STORAGE)
+-- Panelden "Resim Seç" ile yüklenen dosyalar buraya gidiyor
+-- (components/ImageUpload.js, bucket adı: images). Bu bölüm olmadan
+-- panelden resim yüklenemez, "Yükleme hatası" alınır.
+-- =====================================================================
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('images', 'images', true, 5242880)
+ON CONFLICT (id) DO UPDATE
+    SET public = true, file_size_limit = 5242880;
+
+-- Herkes okuyabilsin: yüklenen resimler sitede gösteriliyor.
+DROP POLICY IF EXISTS "Resimleri herkes gorebilir" ON storage.objects;
+CREATE POLICY "Resimleri herkes gorebilir" ON storage.objects
+    FOR SELECT USING (bucket_id = 'images');
+
+-- Yükleme, değiştirme ve silme yalnızca panele giriş yapmış kullanıcıya.
+DROP POLICY IF EXISTS "Resim yukleme panele ait" ON storage.objects;
+CREATE POLICY "Resim yukleme panele ait" ON storage.objects
+    FOR INSERT TO authenticated WITH CHECK (bucket_id = 'images');
+
+DROP POLICY IF EXISTS "Resim guncelleme panele ait" ON storage.objects;
+CREATE POLICY "Resim guncelleme panele ait" ON storage.objects
+    FOR UPDATE TO authenticated USING (bucket_id = 'images') WITH CHECK (bucket_id = 'images');
+
+DROP POLICY IF EXISTS "Resim silme panele ait" ON storage.objects;
+CREATE POLICY "Resim silme panele ait" ON storage.objects
+    FOR DELETE TO authenticated USING (bucket_id = 'images');
+
+
+-- =====================================================================
+-- KURULUM TAMAMLANDI
+-- =====================================================================
+-- Sırada iki şey var:
+--
+--   1) Authentication > Users > Add user ile kendinize bir kullanıcı
+--      açın. Panele (/admin) bu e-posta ve şifreyle gireceksiniz.
+--
+--   2) Settings > API ekranından iki değeri alıp Vercel'e yazın:
+--        Project URL      -> NEXT_PUBLIC_SUPABASE_URL
+--        anon public key  -> NEXT_PUBLIC_SUPABASE_ANON_KEY
+--      Bu depodan üç ayrı Vercel projesi derleniyor; üçünde de aynı
+--      değerleri güncelleyip yeniden dağıtın.
+--
+-- Blog yazıları için SQL'e gerek yok: panelde Makaleler ekranındaki
+-- "Hazır Yazıları Ekle" düğmesi 12 yazıyı tek tıkla ekliyor.
+-- =====================================================================
