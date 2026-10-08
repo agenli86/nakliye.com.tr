@@ -40,6 +40,9 @@ const HIZMET_LINKLERI = [
   { slug: 'adana-mini-nakliyat', metin: 'Adana Mini Nakliyat' },
   { slug: 'adana-mobilya-montaj', metin: 'Adana Mobilya Montaj' },
   { slug: 'adana-buzdolabi-nakliyesi', metin: 'Adana Buzdolabı Nakliyesi' },
+  { slug: 'adana-parca-esya-tasima', metin: 'Adana Parça Eşya Taşıma' },
+  { slug: 'adana-ambalajlama-hizmeti', metin: 'Adana Ambalajlama Hizmeti' },
+  { slug: 'adana-esya-depolama', metin: 'Adana Eşya Depolama' },
   { slug: 'adana-2-1-ev-tasima-ucretleri', metin: '2+1 Ev Taşıma Ücretleri' },
 ]
 
@@ -66,10 +69,12 @@ export async function generateMetadata({ params }) {
     const { ilce } = kayit
     const kucuk = ilce.ad.toLocaleLowerCase('tr-TR')
     return {
-      title: `${ilce.ad} Nakliyeci - ${ilce.ad} Nakliyat ve Evden Eve Nakliye`,
-      description: `${ilce.ad} nakliyeci: evden eve nakliyat, hamal, pikap taşıma ve mobilya montajı. ${ilce.ad} semtlerine aynı gün ekip.`,
-      keywords: `${kucuk} nakliyeci, ${kucuk} nakliyat, ${kucuk} evden eve nakliye, ${kucuk} hamal, ${kucuk} ev taşıma, adana ${kucuk} nakliyat`,
-      openGraph: { title: `${ilce.ad} Nakliyeci`, description: `${ilce.ad} nakliyat, hamal ve pikap taşıma.`, url },
+      title: `${ilce.ad} Evden Eve Nakliyat - ${ilce.ad} Nakliyeci ve Taşımacı`,
+      description: ilce.doku === 'tasra'
+        ? `${ilce.ad} evden eve nakliyat: nakliyeci ve taşımacı olarak ${ilce.ad} içi ve Adana merkeze ev taşıma, hamal, pikap taşıma ve mobilya montajı. Yazılı fiyat.`
+        : `${ilce.ad} evden eve nakliyat: nakliyeci ve taşımacı olarak ev taşıma, hamal, pikap taşıma ve mobilya montajı. ${ilce.ad} semtlerine aynı gün ekip.`,
+      keywords: `${kucuk} evden eve nakliyat, ${kucuk} nakliyeci, ${kucuk} taşımacı, ${kucuk} nakliyat, ${kucuk} evden eve nakliye, ${kucuk} hamal, ${kucuk} ev taşıma, adana ${kucuk} nakliyat`,
+      openGraph: { title: `${ilce.ad} Evden Eve Nakliyat`, description: `${ilce.ad} nakliyeci, taşımacı ve hamal.`, url },
       alternates: { canonical: url },
     }
   }
@@ -77,10 +82,10 @@ export async function generateMetadata({ params }) {
   const { semt } = kayit
   const kucuk = semt.ad.toLocaleLowerCase('tr-TR')
   return {
-    title: `${semt.ad} Nakliyeci - ${semt.ad} Nakliyat, Hamal ve Ev Taşıma`,
-    description: `${semt.ad} nakliyeci: ${semt.ilce} ${bulunma(semt.ad)} evden eve nakliye, hamal, pikap taşıma, kamyonetçi ve mobilya montajı. Aynı gün ekip, yazılı fiyat.`,
-    keywords: `${kucuk} nakliyeci, ${kucuk} nakliyat, ${kucuk} hamal, ${kucuk} evden eve nakliye, ${kucuk} ev taşıma, ${kucuk} pikap taşıma, ${kucuk} kamyonetçi, en yakın ${kucuk} hamal`,
-    openGraph: { title: `${semt.ad} Nakliyeci`, description: `${semt.ad} nakliyat, hamal ve pikap taşıma.`, url },
+    title: `${semt.ad} Evden Eve Nakliyat - ${semt.ad} Nakliyeci ve Taşımacı`,
+    description: `${semt.ad} evden eve nakliyat: ${semt.ilce} ${bulunma(semt.ad)} nakliyeci ve taşımacı olarak ev taşıma, hamal, pikap taşıma ve mobilya montajı. Aynı gün ekip, yazılı fiyat.`,
+    keywords: `${kucuk} evden eve nakliyat, ${kucuk} nakliyeci, ${kucuk} taşımacı, ${kucuk} nakliyat, ${kucuk} hamal, ${kucuk} evden eve nakliye, ${kucuk} ev taşıma, ${kucuk} pikap taşıma, ${kucuk} kamyonetçi`,
+    openGraph: { title: `${semt.ad} Evden Eve Nakliyat`, description: `${semt.ad} nakliyeci, taşımacı ve hamal.`, url },
     alternates: { canonical: url },
   }
 }
@@ -134,7 +139,7 @@ export default async function SemtSayfasi({ params }) {
 
   const ilceSayfasi = kayit.tip === 'ilce'
   const ad = ilceSayfasi ? kayit.ilce.ad : kayit.semt.ad
-  const baslik = `${ad} Nakliyeci`
+  const baslik = `${ad} Evden Eve Nakliyat`
   const ozet = ilceSayfasi
     ? ilceOzet(kayit.ilce, kayit.semtler.length)
     : semtOzet(kayit.semt)
@@ -209,8 +214,8 @@ export default async function SemtSayfasi({ params }) {
             <h1 className="text-3xl font-bold tracking-tight text-white md:text-5xl">{baslik}</h1>
             <p className="mt-3 text-lg font-medium text-white md:text-xl">
               {ilceSayfasi
-                ? `${ad} Nakliyat, Hamal ve Evden Eve Nakliye`
-                : `${kayit.semt.ilce} ${ad} - Nakliyat, Hamal ve Ev Taşıma`}
+                ? `${ad} Nakliyeci, Taşımacı ve Hamal`
+                : `${kayit.semt.ilce} ${ad} - Nakliyeci, Taşımacı ve Hamal`}
             </p>
             <p className="mt-4 max-w-3xl leading-relaxed text-white">{ozet}</p>
 
@@ -253,7 +258,7 @@ export default async function SemtSayfasi({ params }) {
                             href={semtUrl(s.slug)}
                             className="block rounded-xl border border-slate-200 bg-white px-4 py-3 font-medium text-[#0b5bd3] shadow-sm hover:border-[#0561e0] hover:shadow"
                           >
-                            {s.ad} Nakliyeci
+                            {s.ad} Evden Eve Nakliyat
                           </Link>
                         </li>
                       ))}
