@@ -10,15 +10,15 @@ import IcLinkAgi from '@/components/IcLinkAgi'
 
 import { SITE_URL, ayarAl, siteVerisi } from '@/lib/site-verisi'
 import { HIZMET_SAYFALARI, hizmetSayfaUrl } from '@/lib/hizmet-sayfalari'
-import { ILCELER, SEMTLER, ilceSemtleri, semtUrl } from '@/lib/semtler'
+import { ILCELER, MERKEZ_ILCELER, SEMTLER, TASRA_ILCELER, ilceSemtleri, semtUrl } from '@/lib/semtler'
 
 export async function generateMetadata() {
   const url = `${SITE_URL}/nakliyat`
   return {
-    title: 'Adana Semtlerinde Nakliyat - Semt Semt Nakliyeci ve Hamal',
-    description: `Adana'nın ${SEMTLER.length} merkezi semtinde nakliyat, hamal, pikap taşıma ve evden eve nakliye. Semtinizin sayfasından fiyat ve hizmet bilgisi.`,
+    title: 'Adana Semtlerinde Nakliyat - Semt Semt Nakliyeci ve Taşımacı',
+    description: `Adana'nın ${ILCELER.length} ilçesi ve ${SEMTLER.length} semtinde evden eve nakliyat, nakliyeci, taşımacı, hamal ve pikap taşıma. Semtinizin sayfasından fiyat ve hizmet bilgisi.`,
     keywords:
-      'adana semt nakliyeci, adana mahalle nakliyat, adana hamal, adana evden eve nakliye, seyhan nakliyeci, çukurova nakliyeci, yüreğir nakliyeci, sarıçam nakliyeci',
+      'adana semt nakliyeci, adana mahalle nakliyat, adana hamal, adana evden eve nakliye, adana taşımacı, seyhan nakliyeci, çukurova nakliyeci, yüreğir nakliyeci, sarıçam nakliyeci, ceyhan nakliyeci, kozan nakliyeci',
     openGraph: { title: 'Adana Semtlerinde Nakliyat', description: 'Semt semt nakliyeci, hamal ve ev taşıma.', url },
     alternates: { canonical: url },
   }
@@ -55,8 +55,8 @@ export default async function SemtlerSayfasi() {
               Adana Semtlerinde Nakliyat
             </h1>
             <p className="mt-4 max-w-3xl leading-relaxed text-white">
-              Seyhan, Çukurova, Yüreğir ve Sarıçam&apos;a bağlı {SEMTLER.length} merkezi semtte evden eve nakliyat,
-              hamal, pikap taşıma ve mobilya montajı yapıyoruz. Semtinizin sayfasında o semte özel bilgiler,
+              Seyhan, Çukurova, Yüreğir ve Sarıçam&apos;a bağlı {SEMTLER.length} semtte ve Adana&apos;nın diğer
+              {' '}{TASRA_ILCELER.length} ilçesinde evden eve nakliyat, hamal, pikap taşıma ve mobilya montajı yapıyoruz. Semtinizin sayfasında o semte özel bilgiler,
               fiyat aralığı ve sık sorulan sorular var.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -72,14 +72,14 @@ export default async function SemtlerSayfasi() {
 
         <section className="py-12 md:py-16">
           <div className="container mx-auto px-4">
-            {ILCELER.map((ilce) => {
+            {MERKEZ_ILCELER.map((ilce) => {
               const semtler = ilceSemtleri(ilce.slug)
               return (
                 <section key={ilce.slug} className="mb-12">
                   <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-2xl font-bold text-[#1e3a5f] md:text-3xl">
                       <Link href={semtUrl(ilce.slug)} className="hover:underline">
-                        {ilce.ad} Nakliyeci
+                        {ilce.ad} Evden Eve Nakliyat
                       </Link>
                     </h2>
                     <span className="text-sm text-slate-500">{semtler.length} semt</span>
@@ -91,7 +91,7 @@ export default async function SemtlerSayfasi() {
                           href={semtUrl(s.slug)}
                           className="block rounded-xl border border-slate-200 bg-white px-4 py-3 font-medium text-[#0b5bd3] shadow-sm hover:border-[#0561e0] hover:shadow"
                         >
-                          {s.ad} Nakliyeci
+                          {s.ad} Evden Eve Nakliyat
                         </Link>
                       </li>
                     ))}
@@ -99,6 +99,22 @@ export default async function SemtlerSayfasi() {
                 </section>
               )
             })}
+
+            <section className="mb-12">
+              <h2 className="mb-5 text-2xl font-bold text-[#1e3a5f] md:text-3xl">Adana&apos;nın Diğer İlçeleri</h2>
+              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {TASRA_ILCELER.map((ilce) => (
+                  <li key={ilce.slug}>
+                    <Link
+                      href={semtUrl(ilce.slug)}
+                      className="block rounded-xl border border-slate-200 bg-white px-4 py-3 font-medium text-[#0b5bd3] shadow-sm hover:border-[#0561e0] hover:shadow"
+                    >
+                      {ilce.ad} Evden Eve Nakliyat
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
 
             <IcLinkAgi
               baslik="Hizmet Sayfaları"

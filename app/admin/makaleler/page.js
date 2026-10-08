@@ -6,6 +6,7 @@ import ImageUpload from '@/components/ImageUpload'
 import dynamic from 'next/dynamic'
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaEye, FaEyeSlash, FaFileImport } from 'react-icons/fa'
 import { HAZIR_BLOG_YAZILARI } from '@/lib/blog-yazilari'
+import { onbellegiTazele } from '@/lib/onbellek-tazele'
 import toast from 'react-hot-toast'
 
 // RichTextEditor'ı client-side only yükle
@@ -49,7 +50,7 @@ export default function AdminMakalelerPage() {
       if (error) throw error
 
       const atlanan = HAZIR_BLOG_YAZILARI.length - eklenecek.length
-      toast.success(`${eklenecek.length} yazı eklendi${atlanan ? `, ${atlanan} tanesi zaten vardı` : ''}.`)
+      await onbellegiTazele(`${eklenecek.length} yazı eklendi${atlanan ? `, ${atlanan} tanesi zaten vardı` : ''} ve sitede yayında.`)
       await fetchMakaleler()
     } catch (hata) {
       toast.error('Yazılar eklenemedi: ' + hata.message)
@@ -84,11 +85,11 @@ export default function AdminMakalelerPage() {
       if (editMode === 'new') {
         const { error } = await supabase.from('makaleler').insert([formData])
         if (error) throw error
-        toast.success('Makale eklendi')
+        await onbellegiTazele('Makale eklendi ve sitede yayında.')
       } else {
         const { error } = await supabase.from('makaleler').update(formData).eq('id', editMode)
         if (error) throw error
-        toast.success('Makale güncellendi')
+        await onbellegiTazele('Makale güncellendi ve sitede yayında.')
       }
       fetchMakaleler(); handleCancel()
     } catch (error) { toast.error('Hata: ' + error.message) }
@@ -97,12 +98,15 @@ export default function AdminMakalelerPage() {
   const handleDelete = async (id) => {
     if (!confirm('Silmek istediğinize emin misiniz?')) return
     const { error } = await supabase.from('makaleler').delete().eq('id', id)
-    if (error) toast.error('Hata'); else { toast.success('Silindi'); fetchMakaleler() }
+    if (error) { toast.error('Silinemedi: ' + error.message); return }
+    await onbellegiTazele('Silindi, siteden kaldırıldı.')
+    fetchMakaleler()
   }
 
   const toggleAktif = async (id, aktif) => {
     const { error } = await supabase.from('makaleler').update({ aktif: !aktif }).eq('id', id)
     if (error) toast.error('Değiştirilemedi: ' + error.message)
+    else await onbellegiTazele()
     fetchMakaleler()
   }
 
